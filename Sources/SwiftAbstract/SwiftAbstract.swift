@@ -421,12 +421,115 @@ extension TwoBinaryOperations where Self: LatticeLike {
   typealias MeetBinaryOperation = FirstBinaryOperation
   typealias JoinBinaryOperation = SecondBinaryOperation
 
-  var meet: (A, A) -> A { firstApply }
-  var join: (A, A) -> A { secondApply }
+  var meet: (A, A) -> A { firstApply } /// AND
+  var join: (A, A) -> A { secondApply } /// OR
 
   init(forMeet: FirstBinaryOperation, forJoin: SecondBinaryOperation) {
     self.init(forFirst: forMeet, forSecond: forJoin)
   }
 }
 
+protocol DistributiveFirstOverSecond: TwoBinaryOperations {}
 
+typealias Distributive = DistributiveFirstOverSecond & DistributiveSecondOverFirst
+
+struct Lattice<A>: LatticeLike {
+  typealias FirstBinaryOperation = Semilattice<A>
+  typealias SecondBinaryOperation = Semilattice<A>
+
+  let firstApply: (A, A) -> A
+  let secondApply: (A, A) -> A
+
+  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
+    self.firstApply = forFirst.apply
+    self.secondApply = forSecond.apply
+  }
+}
+
+struct DistributiveLattice<A>: LatticeLike, Distributive {
+  typealias FirstBinaryOperation = Semilattice<A>
+  typealias SecondBinaryOperation = Semilattice<A>
+
+  let firstApply: (A, A) -> A
+  let secondApply: (A, A) -> A
+
+  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
+    self.firstApply = forFirst.apply
+    self.secondApply = forSecond.apply
+  }
+}
+
+struct BoundedLattice<A>: LatticeLike, WithZero, WithOne {
+  typealias FirstBinaryOperation = BoundedSemilattice<A>
+  typealias SecondBinaryOperation = BoundedSemilattice<A>
+
+  let firstApply: (A, A) -> A
+  let secondApply: (A, A) -> A
+  let zero: A
+  let one: A
+
+  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
+    self.firstApply = forFirst.apply
+    self.secondApply = forSecond.apply
+    self.zero = forFirst.empty
+    self.one = forSecond.empty
+  }
+}
+
+struct BoundedDistributiveLattice<A>: LatticeLike, Distributive, WithZero, WithOne {
+  typealias FirstBinaryOperation = BoundedSemilattice<A>
+  typealias SecondBinaryOperation = BoundedSemilattice<A>
+
+  let firstApply: (A, A) -> A
+  let secondApply: (A, A) -> A
+  let zero: A
+  let one: A
+
+  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
+    self.firstApply = forFirst.apply
+    self.secondApply = forSecond.apply
+    self.zero = forFirst.empty
+    self.one = forSecond.empty
+  }
+}
+
+//protocol ThreeBinaryOperations {
+//  associatedtype A
+//  associatedtype FirstSecondBinaryOperation: TwoBinaryOperations where FirstSecondBinaryOperation.A == A
+//  associatedtype ThirdBinaryOperation: BinaryOperation where ThirdBinaryOperation.A == A
+//
+//  var firstApply: (A, A) -> A { get }
+//  var secondApply: (A, A) -> A { get }
+//  var thirdApply: (A, A) -> A { get }
+//  init(forFirstSecond: FirstSecondBinaryOperation, forThird: ThirdBinaryOperation)
+//}
+//
+//extension ThreeBinaryOperations where FirstSecondBinaryOperation: WithZero {
+//    
+//}
+//
+//protocol HasImplication: ThreeBinaryOperations where
+//  FirstSecondBinaryOperation: LatticeLike & Distributive & WithZero & WithOne {}
+//
+//extension HasImplication {
+//  var implies: (A, A) -> A { thirdApply }
+//}
+//
+// protocol ExcludedMiddle: HasImplication {}
+
+// struct Heyting<A>: HasImplication {
+//  typealias Root: BoundedDistributiveLattice
+//
+//  let firstApply: (A, A) -> A
+//  let secondApply: (A, A) -> A
+//  let zero: A
+//  let one: A
+//  let implies: (A, A) -> A
+//
+//  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
+//    self.firstApply = forFirst.apply
+//    self.secondApply = forSecond.apply
+//    self.zero = forFirst.empty
+//    self.one = forSecond.empty
+//  }
+// }
