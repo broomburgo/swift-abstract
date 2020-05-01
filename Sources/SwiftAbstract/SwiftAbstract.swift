@@ -1,5 +1,5 @@
 struct SwiftAbstract {
-    var text = "Hello, World!"
+  var text = "Hello, World!"
 }
 
 protocol BinaryOperation {
@@ -153,19 +153,26 @@ protocol TwoBinaryOperations {
   init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation)
 }
 
-protocol AssociativeFirstSecond: TwoBinaryOperations where FirstBinaryOperation: Associative, SecondBinaryOperation: Associative {}
+protocol AssociativeFirst: TwoBinaryOperations where FirstBinaryOperation: Associative {}
+
+protocol AssociativeSecond: TwoBinaryOperations where SecondBinaryOperation: Associative {}
 
 protocol DistributiveSecondOverFirst: TwoBinaryOperations {}
 
 protocol CommutativeFirst: TwoBinaryOperations where FirstBinaryOperation: Commutative {}
 
-protocol WithZero: TwoBinaryOperations where FirstBinaryOperation: WithIdentity  {
+protocol WithZero: TwoBinaryOperations where FirstBinaryOperation: WithIdentity {
   var zero: A { get }
 }
 
 protocol WithAnnihilation: WithZero {}
 
-typealias RingLike = AssociativeFirstSecond & DistributiveSecondOverFirst & CommutativeFirst & WithAnnihilation
+typealias RingLike = TwoBinaryOperations
+  & AssociativeFirst
+  & CommutativeFirst
+  & WithAnnihilation
+  & AssociativeSecond
+  & DistributiveSecondOverFirst
 
 extension TwoBinaryOperations where Self: RingLike {
   typealias PlusBinaryOperation = FirstBinaryOperation
@@ -173,7 +180,7 @@ extension TwoBinaryOperations where Self: RingLike {
 
   var plus: (A, A) -> A { firstApply }
   var times: (A, A) -> A { secondApply }
-  
+
   init(forPlus: FirstBinaryOperation, forTimes: SecondBinaryOperation) {
     self.init(forFirst: forPlus, forSecond: forTimes)
   }
@@ -392,6 +399,33 @@ struct Field<A>: RingLike, WithOne, WithNegate, CommutativeSecond, WithReciproca
       negate: forFirst.inverse,
       reciprocal: forSecond.inverse
     )
+  }
+}
+
+protocol IdempotentFirst: TwoBinaryOperations where FirstBinaryOperation: Idempotent {}
+
+protocol IdempotentSecond: TwoBinaryOperations where SecondBinaryOperation: Idempotent {}
+
+protocol Absorption: TwoBinaryOperations {}
+
+typealias LatticeLike = TwoBinaryOperations
+  & AssociativeFirst
+  & CommutativeFirst
+  & IdempotentFirst
+  & AssociativeSecond
+  & CommutativeSecond
+  & IdempotentSecond
+  & Absorption
+
+extension TwoBinaryOperations where Self: LatticeLike {
+  typealias MeetBinaryOperation = FirstBinaryOperation
+  typealias JoinBinaryOperation = SecondBinaryOperation
+
+  var meet: (A, A) -> A { firstApply }
+  var join: (A, A) -> A { secondApply }
+
+  init(forMeet: FirstBinaryOperation, forJoin: SecondBinaryOperation) {
+    self.init(forFirst: forMeet, forSecond: forJoin)
   }
 }
 
