@@ -303,6 +303,25 @@ extension VerifyTwo where TBO: Absorption {
   }
 }
 
+// MARK: Implication
+
+protocol WithImplies: LatticeLike, WithOne {
+  var implies: (A, A) -> A { get }
+}
+
+/*:
+ */
+
+extension VerifyTwo where TBO: WithImplies {
+  func implication(_ a: TBO.A, _ b: TBO.A, _ c: TBO.A) -> Bool {
+    
+  }
+}
+
+// MARK: Excluded middle
+
+protocol ExcludedMiddle: WithImplies, WithZero {}
+
 // MARK: - Magma-like
 
 //
@@ -548,4 +567,20 @@ struct BoundedLattice<A>: LatticeLike, WithZero, WithOne {
 struct BoundedDistributiveLattice<A>: LatticeLike, Distributive, WithZero, WithOne {
   let first: BoundedSemilattice<A>
   let second: BoundedSemilattice<A>
+}
+
+// MARK: Heyting
+
+struct Heyting<A>: LatticeLike, Distributive, WithZero, WithOne, WithImplies {
+  let first: BoundedSemilattice<A>
+  let second: BoundedSemilattice<A>
+  let implies: (A, A) -> A
+}
+
+// MARK: Boolean
+
+struct Boolean<A>: LatticeLike, Distributive, WithZero, WithOne, WithImplies, ExcludedMiddle {
+  let first: BoundedSemilattice<A>
+  let second: BoundedSemilattice<A>
+  let implies: (A, A) -> A
 }
