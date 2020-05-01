@@ -1,15 +1,17 @@
-struct SwiftAbstract {
-  var text = "Hello, World!"
-}
+// MARK: - BinaryOperation
 
 protocol BinaryOperation {
   associatedtype A
   var apply: (A, A) -> A { get }
 }
 
+// MARK: Properties
+
 protocol Associative: BinaryOperation {}
 
 protocol Commutative: BinaryOperation {}
+
+protocol Idempotent: BinaryOperation {}
 
 protocol WithIdentity: BinaryOperation {
   var empty: A { get }
@@ -19,7 +21,61 @@ protocol WithInverse: WithIdentity {
   var inverse: (A) -> A { get }
 }
 
-protocol Idempotent: BinaryOperation {}
+// MARK: - TwoBinaryOperations
+
+protocol TwoBinaryOperations {
+  associatedtype A
+  associatedtype FirstBinaryOperation: BinaryOperation where FirstBinaryOperation.A == A
+  associatedtype SecondBinaryOperation: BinaryOperation where SecondBinaryOperation.A == A
+
+  var firstApply: (A, A) -> A { get }
+  var secondApply: (A, A) -> A { get }
+  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation)
+}
+
+// MARK: Properties
+
+protocol AssociativeFirst: TwoBinaryOperations where FirstBinaryOperation: Associative {}
+protocol AssociativeSecond: TwoBinaryOperations where SecondBinaryOperation: Associative {}
+typealias AssociativeBoth = AssociativeFirst & AssociativeSecond
+
+protocol CommutativeFirst: TwoBinaryOperations where FirstBinaryOperation: Commutative {}
+protocol CommutativeSecond: TwoBinaryOperations where SecondBinaryOperation: Commutative {}
+typealias CommutativeBoth = CommutativeFirst & CommutativeSecond
+
+protocol IdempotentFirst: TwoBinaryOperations where FirstBinaryOperation: Idempotent {}
+protocol IdempotentSecond: TwoBinaryOperations where SecondBinaryOperation: Idempotent {}
+typealias IdempotentBoth = IdempotentFirst & IdempotentSecond
+
+protocol DistributiveFirstOverSecond: TwoBinaryOperations {}
+protocol DistributiveSecondOverFirst: TwoBinaryOperations {}
+typealias Distributive = DistributiveFirstOverSecond & DistributiveSecondOverFirst
+
+protocol WithZero: TwoBinaryOperations where FirstBinaryOperation: WithIdentity {
+  var zero: A { get }
+}
+
+protocol WithAnnihilation: WithZero {}
+
+protocol WithOne: TwoBinaryOperations where SecondBinaryOperation: WithIdentity {
+  var one: A { get }
+}
+
+protocol WithNegate: TwoBinaryOperations where FirstBinaryOperation: WithInverse {
+  var negate: (A) -> A { get }
+}
+
+protocol WithReciprocal: TwoBinaryOperations where SecondBinaryOperation: WithInverse {
+  var reciprocal: (A) -> A { get }
+}
+
+protocol Absorption: TwoBinaryOperations {}
+
+// MARK: - Magma-like
+
+//
+
+// MARK: Semigroup
 
 struct Semigroup<A>: Associative {
   let apply: (A, A) -> A
@@ -33,6 +89,8 @@ struct Semigroup<A>: Associative {
   }
 }
 
+// MARK: Commutative Semigroup
+
 struct CommutativeSemigroup<A>: Associative, Commutative {
   let apply: (A, A) -> A
 
@@ -44,6 +102,8 @@ struct CommutativeSemigroup<A>: Associative, Commutative {
     self.init(apply: s.apply)
   }
 }
+
+// MARK: Monoid
 
 struct Monoid<A>: Associative, WithIdentity {
   let apply: (A, A) -> A
@@ -58,6 +118,8 @@ struct Monoid<A>: Associative, WithIdentity {
     self.init(apply: s.apply, empty: s.empty)
   }
 }
+
+// MARK: Group
 
 struct Group<A>: Associative, WithIdentity, WithInverse {
   let apply: (A, A) -> A
@@ -75,6 +137,8 @@ struct Group<A>: Associative, WithIdentity, WithInverse {
   }
 }
 
+// MARK: Commutative Monoid
+
 struct CommutativeMonoid<A>: Associative, Commutative, WithIdentity {
   let apply: (A, A) -> A
   let empty: A
@@ -88,6 +152,8 @@ struct CommutativeMonoid<A>: Associative, Commutative, WithIdentity {
     self.init(apply: s.apply, empty: s.empty)
   }
 }
+
+// MARK: Abelian Group
 
 struct AbelianGroup<A>: Associative, Commutative, WithIdentity, WithInverse {
   let apply: (A, A) -> A
@@ -105,6 +171,8 @@ struct AbelianGroup<A>: Associative, Commutative, WithIdentity, WithInverse {
   }
 }
 
+// MARK: Band
+
 struct Band<A>: Associative, Idempotent {
   let apply: (A, A) -> A
 
@@ -117,6 +185,8 @@ struct Band<A>: Associative, Idempotent {
   }
 }
 
+// MARK: Semilattice
+
 struct Semilattice<A>: Associative, Commutative, Idempotent {
   let apply: (A, A) -> A
 
@@ -128,6 +198,8 @@ struct Semilattice<A>: Associative, Commutative, Idempotent {
     self.init(apply: s.apply)
   }
 }
+
+// MARK: Bounded Semilattice
 
 struct BoundedSemilattice<A>: Associative, Commutative, Idempotent, WithIdentity {
   let apply: (A, A) -> A
@@ -143,36 +215,14 @@ struct BoundedSemilattice<A>: Associative, Commutative, Idempotent, WithIdentity
   }
 }
 
-protocol TwoBinaryOperations {
-  associatedtype A
-  associatedtype FirstBinaryOperation: BinaryOperation where FirstBinaryOperation.A == A
-  associatedtype SecondBinaryOperation: BinaryOperation where SecondBinaryOperation.A == A
-
-  var firstApply: (A, A) -> A { get }
-  var secondApply: (A, A) -> A { get }
-  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation)
-}
-
-protocol AssociativeFirst: TwoBinaryOperations where FirstBinaryOperation: Associative {}
-
-protocol AssociativeSecond: TwoBinaryOperations where SecondBinaryOperation: Associative {}
-
-protocol DistributiveSecondOverFirst: TwoBinaryOperations {}
-
-protocol CommutativeFirst: TwoBinaryOperations where FirstBinaryOperation: Commutative {}
-
-protocol WithZero: TwoBinaryOperations where FirstBinaryOperation: WithIdentity {
-  var zero: A { get }
-}
-
-protocol WithAnnihilation: WithZero {}
+// MARK: - Ring-like
 
 typealias RingLike = TwoBinaryOperations
-  & AssociativeFirst
+  & AssociativeBoth
   & CommutativeFirst
-  & WithAnnihilation
-  & AssociativeSecond
   & DistributiveSecondOverFirst
+  & WithZero
+  & WithAnnihilation
 
 extension TwoBinaryOperations where Self: RingLike {
   typealias PlusBinaryOperation = FirstBinaryOperation
@@ -186,19 +236,7 @@ extension TwoBinaryOperations where Self: RingLike {
   }
 }
 
-protocol WithOne: TwoBinaryOperations where SecondBinaryOperation: WithIdentity {
-  var one: A { get }
-}
-
-protocol WithNegate: TwoBinaryOperations where FirstBinaryOperation: WithInverse {
-  var negate: (A) -> A { get }
-}
-
-protocol WithReciprocal: TwoBinaryOperations where SecondBinaryOperation: WithInverse {
-  var reciprocal: (A) -> A { get }
-}
-
-protocol CommutativeSecond: TwoBinaryOperations where SecondBinaryOperation: Commutative {}
+// MARK: Semiring
 
 struct Semiring<A>: RingLike, WithOne {
   typealias FirstBinaryOperation = CommutativeMonoid<A>
@@ -231,6 +269,8 @@ struct Semiring<A>: RingLike, WithOne {
   }
 }
 
+// MARK: Rng
+
 struct Rng<A>: RingLike, WithNegate {
   typealias FirstBinaryOperation = AbelianGroup<A>
   typealias SecondBinaryOperation = Semigroup<A>
@@ -262,6 +302,8 @@ struct Rng<A>: RingLike, WithNegate {
   }
 }
 
+// MARK: Commutative Semiring
+
 struct CommutativeSemiring<A>: RingLike, WithOne, CommutativeSecond {
   typealias FirstBinaryOperation = CommutativeMonoid<A>
   typealias SecondBinaryOperation = CommutativeMonoid<A>
@@ -292,6 +334,8 @@ struct CommutativeSemiring<A>: RingLike, WithOne, CommutativeSecond {
     )
   }
 }
+
+// MARK: Ring
 
 struct Ring<A>: RingLike, WithOne, WithNegate {
   typealias FirstBinaryOperation = AbelianGroup<A>
@@ -328,6 +372,8 @@ struct Ring<A>: RingLike, WithOne, WithNegate {
   }
 }
 
+// MARK: Commutative Ring
+
 struct CommutativeRing<A>: RingLike, WithOne, WithNegate, CommutativeSecond {
   typealias FirstBinaryOperation = AbelianGroup<A>
   typealias SecondBinaryOperation = CommutativeMonoid<A>
@@ -362,6 +408,8 @@ struct CommutativeRing<A>: RingLike, WithOne, WithNegate, CommutativeSecond {
     )
   }
 }
+
+// MARK: Field
 
 struct Field<A>: RingLike, WithOne, WithNegate, CommutativeSecond, WithReciprocal {
   typealias FirstBinaryOperation = AbelianGroup<A>
@@ -402,19 +450,12 @@ struct Field<A>: RingLike, WithOne, WithNegate, CommutativeSecond, WithReciproca
   }
 }
 
-protocol IdempotentFirst: TwoBinaryOperations where FirstBinaryOperation: Idempotent {}
-
-protocol IdempotentSecond: TwoBinaryOperations where SecondBinaryOperation: Idempotent {}
-
-protocol Absorption: TwoBinaryOperations {}
+// MARK: - Lattice-like
 
 typealias LatticeLike = TwoBinaryOperations
-  & AssociativeFirst
-  & CommutativeFirst
-  & IdempotentFirst
-  & AssociativeSecond
-  & CommutativeSecond
-  & IdempotentSecond
+  & AssociativeBoth
+  & CommutativeBoth
+  & IdempotentBoth
   & Absorption
 
 extension TwoBinaryOperations where Self: LatticeLike {
@@ -429,9 +470,7 @@ extension TwoBinaryOperations where Self: LatticeLike {
   }
 }
 
-protocol DistributiveFirstOverSecond: TwoBinaryOperations {}
-
-typealias Distributive = DistributiveFirstOverSecond & DistributiveSecondOverFirst
+// MARK: Lattice
 
 struct Lattice<A>: LatticeLike {
   typealias FirstBinaryOperation = Semilattice<A>
@@ -446,6 +485,8 @@ struct Lattice<A>: LatticeLike {
   }
 }
 
+// MARK: Distributive Lattice
+
 struct DistributiveLattice<A>: LatticeLike, Distributive {
   typealias FirstBinaryOperation = Semilattice<A>
   typealias SecondBinaryOperation = Semilattice<A>
@@ -458,6 +499,8 @@ struct DistributiveLattice<A>: LatticeLike, Distributive {
     self.secondApply = forSecond.apply
   }
 }
+
+// MARK: Bounded Lattice
 
 struct BoundedLattice<A>: LatticeLike, WithZero, WithOne {
   typealias FirstBinaryOperation = BoundedSemilattice<A>
@@ -475,6 +518,8 @@ struct BoundedLattice<A>: LatticeLike, WithZero, WithOne {
     self.one = forSecond.empty
   }
 }
+
+// MARK: Bounded Distributive Lattice
 
 struct BoundedDistributiveLattice<A>: LatticeLike, Distributive, WithZero, WithOne {
   typealias FirstBinaryOperation = BoundedSemilattice<A>
