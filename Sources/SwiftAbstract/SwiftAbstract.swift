@@ -308,3 +308,79 @@ struct Ring<A>: RingLike, WithOne, WithNegate {
     )
   }
 }
+
+struct CommutativeRing<A>: RingLike, WithOne, WithNegate, CommutativeTimes {
+  typealias PlusBinaryOperation = AbelianGroup<A>
+  typealias TimesBinaryOperation = CommutativeMonoid<A>
+
+  let plus: (A, A) -> A
+  let times: (A, A) -> A
+  let zero: A
+  let one: A
+  let negate: (A) -> A
+
+  init(
+    plus: @escaping (A, A) -> A,
+    times: @escaping (A, A) -> A,
+    zero: A,
+    one: A,
+    negate: @escaping (A) -> A
+  ) {
+    self.plus = plus
+    self.times = times
+    self.zero = zero
+    self.one = one
+    self.negate = negate
+  }
+
+  init(forPlus: PlusBinaryOperation, forTimes: TimesBinaryOperation) {
+    self.init(
+      plus: forPlus.apply,
+      times: forTimes.apply,
+      zero: forPlus.empty,
+      one: forTimes.empty,
+      negate: forPlus.inverse
+    )
+  }
+}
+
+struct Field<A>: RingLike, WithOne, WithNegate, CommutativeTimes, WithReciprocal {
+  typealias PlusBinaryOperation = AbelianGroup<A>
+  typealias TimesBinaryOperation = AbelianGroup<A>
+
+  let plus: (A, A) -> A
+  let times: (A, A) -> A
+  let zero: A
+  let one: A
+  let negate: (A) -> A
+  let reciprocal: (A) -> A
+
+  init(
+    plus: @escaping (A, A) -> A,
+    times: @escaping (A, A) -> A,
+    zero: A,
+    one: A,
+    negate: @escaping (A) -> A,
+    reciprocal: @escaping (A) -> A
+  ) {
+    self.plus = plus
+    self.times = times
+    self.zero = zero
+    self.one = one
+    self.negate = negate
+    self.reciprocal = reciprocal
+  }
+
+  init(forPlus: PlusBinaryOperation, forTimes: TimesBinaryOperation) {
+    self.init(
+      plus: forPlus.apply,
+      times: forTimes.apply,
+      zero: forPlus.empty,
+      one: forTimes.empty,
+      negate: forPlus.inverse,
+      reciprocal: forTimes.inverse
+    )
+  }
+}
+
+
