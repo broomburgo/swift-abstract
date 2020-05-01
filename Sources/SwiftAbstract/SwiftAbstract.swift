@@ -86,9 +86,8 @@ protocol TwoBinaryOperations {
   associatedtype FirstBinaryOperation: BinaryOperation where FirstBinaryOperation.A == A
   associatedtype SecondBinaryOperation: BinaryOperation where SecondBinaryOperation.A == A
 
-  var firstApply: (A, A) -> A { get }
-  var secondApply: (A, A) -> A { get }
-  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation)
+  var first: FirstBinaryOperation { get }
+  var second: SecondBinaryOperation { get }
 }
 
 struct VerifyTwo<TBO: TwoBinaryOperations> where TBO.A: Equatable {
@@ -99,11 +98,11 @@ struct VerifyTwo<TBO: TwoBinaryOperations> where TBO.A: Equatable {
   }
 
   var runFst: (TBO.A, TBO.A) -> TBO.A {
-    operations.firstApply
+    operations.first.apply
   }
 
   var runSnd: (TBO.A, TBO.A) -> TBO.A {
-    operations.secondApply
+    operations.second.apply
   }
 }
 
@@ -205,8 +204,12 @@ extension VerifyTwo where TBO: Distributive {
 
 // MARK: Zero identity
 
-protocol WithZero: TwoBinaryOperations where FirstBinaryOperation: WithIdentity {
-  var zero: A { get }
+protocol WithZero: TwoBinaryOperations where FirstBinaryOperation: WithIdentity {}
+
+extension WithZero {
+  var zero: A {
+    first.empty
+  }
 }
 
 extension VerifyTwo where TBO: WithZero {
@@ -221,8 +224,12 @@ extension VerifyTwo where TBO: WithZero {
 
 // MARK: Negation
 
-protocol WithNegate: WithZero where FirstBinaryOperation: WithInverse {
-  var negate: (A) -> A { get }
+protocol WithNegate: WithZero where FirstBinaryOperation: WithInverse {}
+
+extension WithNegate {
+  var negate: (A) -> A {
+    first.inverse
+  }
 }
 
 extension VerifyTwo where TBO: WithNegate {
@@ -237,8 +244,12 @@ extension VerifyTwo where TBO: WithNegate {
 
 // MARK: One identity
 
-protocol WithOne: TwoBinaryOperations where SecondBinaryOperation: WithIdentity {
-  var one: A { get }
+protocol WithOne: TwoBinaryOperations where SecondBinaryOperation: WithIdentity {}
+
+extension WithOne {
+  var one: A {
+    second.empty
+  }
 }
 
 extension VerifyTwo where TBO: WithOne {
@@ -253,8 +264,12 @@ extension VerifyTwo where TBO: WithOne {
 
 // MARK: Reciprocity
 
-protocol WithReciprocal: WithOne where SecondBinaryOperation: WithInverse {
-  var reciprocal: (A) -> A { get }
+protocol WithReciprocal: WithOne where SecondBinaryOperation: WithInverse {}
+
+extension WithReciprocal {
+  var reciprocal: (A) -> A {
+    second.inverse
+  }
 }
 
 extension VerifyTwo where TBO: WithReciprocal {
@@ -445,226 +460,50 @@ extension TwoBinaryOperations where Self: RingLike {
   typealias PlusBinaryOperation = FirstBinaryOperation
   typealias TimesBinaryOperation = SecondBinaryOperation
 
-  var plus: (A, A) -> A { firstApply }
-  var times: (A, A) -> A { secondApply }
-
-  init(forPlus: FirstBinaryOperation, forTimes: SecondBinaryOperation) {
-    self.init(forFirst: forPlus, forSecond: forTimes)
-  }
+  var plus: (A, A) -> A { first.apply }
+  var times: (A, A) -> A { second.apply }
 }
 
 // MARK: Semiring
 
 struct Semiring<A>: RingLike, WithOne {
-  typealias FirstBinaryOperation = CommutativeMonoid<A>
-  typealias SecondBinaryOperation = Monoid<A>
-
-  let firstApply: (A, A) -> A
-  let secondApply: (A, A) -> A
-  let zero: A
-  let one: A
-
-  init(
-    firstApply: @escaping (A, A) -> A,
-    secondApply: @escaping (A, A) -> A,
-    zero: A,
-    one: A
-  ) {
-    self.firstApply = firstApply
-    self.secondApply = secondApply
-    self.zero = zero
-    self.one = one
-  }
-
-  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
-    self.init(
-      firstApply: forFirst.apply,
-      secondApply: forSecond.apply,
-      zero: forFirst.empty,
-      one: forSecond.empty
-    )
-  }
+  let first: CommutativeMonoid<A>
+  let second: Monoid<A>
 }
 
 // MARK: Rng
 
 struct Rng<A>: RingLike, WithNegate {
-  typealias FirstBinaryOperation = AbelianGroup<A>
-  typealias SecondBinaryOperation = Semigroup<A>
-
-  let firstApply: (A, A) -> A
-  let secondApply: (A, A) -> A
-  let zero: A
-  let negate: (A) -> A
-
-  init(
-    firstApply: @escaping (A, A) -> A,
-    secondApply: @escaping (A, A) -> A,
-    zero: A,
-    negate: @escaping (A) -> A
-  ) {
-    self.firstApply = firstApply
-    self.secondApply = secondApply
-    self.zero = zero
-    self.negate = negate
-  }
-
-  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
-    self.init(
-      firstApply: forFirst.apply,
-      secondApply: forSecond.apply,
-      zero: forFirst.empty,
-      negate: forFirst.inverse
-    )
-  }
+  let first: AbelianGroup<A>
+  let second: Semigroup<A>
 }
 
 // MARK: Commutative Semiring
 
 struct CommutativeSemiring<A>: RingLike, WithOne, CommutativeSecond {
-  typealias FirstBinaryOperation = CommutativeMonoid<A>
-  typealias SecondBinaryOperation = CommutativeMonoid<A>
-
-  let firstApply: (A, A) -> A
-  let secondApply: (A, A) -> A
-  let zero: A
-  let one: A
-
-  init(
-    firstApply: @escaping (A, A) -> A,
-    secondApply: @escaping (A, A) -> A,
-    zero: A,
-    one: A
-  ) {
-    self.firstApply = firstApply
-    self.secondApply = secondApply
-    self.zero = zero
-    self.one = one
-  }
-
-  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
-    self.init(
-      firstApply: forFirst.apply,
-      secondApply: forSecond.apply,
-      zero: forFirst.empty,
-      one: forSecond.empty
-    )
-  }
+  let first: CommutativeMonoid<A>
+  let second: CommutativeMonoid<A>
 }
 
 // MARK: Ring
 
 struct Ring<A>: RingLike, WithOne, WithNegate {
-  typealias FirstBinaryOperation = AbelianGroup<A>
-  typealias SecondBinaryOperation = Monoid<A>
-
-  let firstApply: (A, A) -> A
-  let secondApply: (A, A) -> A
-  let zero: A
-  let one: A
-  let negate: (A) -> A
-
-  init(
-    firstApply: @escaping (A, A) -> A,
-    secondApply: @escaping (A, A) -> A,
-    zero: A,
-    one: A,
-    negate: @escaping (A) -> A
-  ) {
-    self.firstApply = firstApply
-    self.secondApply = secondApply
-    self.zero = zero
-    self.one = one
-    self.negate = negate
-  }
-
-  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
-    self.init(
-      firstApply: forFirst.apply,
-      secondApply: forSecond.apply,
-      zero: forFirst.empty,
-      one: forSecond.empty,
-      negate: forFirst.inverse
-    )
-  }
+  let first: AbelianGroup<A>
+  let second: Monoid<A>
 }
 
 // MARK: Commutative Ring
 
 struct CommutativeRing<A>: RingLike, WithOne, WithNegate, CommutativeSecond {
-  typealias FirstBinaryOperation = AbelianGroup<A>
-  typealias SecondBinaryOperation = CommutativeMonoid<A>
-
-  let firstApply: (A, A) -> A
-  let secondApply: (A, A) -> A
-  let zero: A
-  let one: A
-  let negate: (A) -> A
-
-  init(
-    firstApply: @escaping (A, A) -> A,
-    secondApply: @escaping (A, A) -> A,
-    zero: A,
-    one: A,
-    negate: @escaping (A) -> A
-  ) {
-    self.firstApply = firstApply
-    self.secondApply = secondApply
-    self.zero = zero
-    self.one = one
-    self.negate = negate
-  }
-
-  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
-    self.init(
-      firstApply: forFirst.apply,
-      secondApply: forSecond.apply,
-      zero: forFirst.empty,
-      one: forSecond.empty,
-      negate: forFirst.inverse
-    )
-  }
+  let first: AbelianGroup<A>
+  let second: CommutativeMonoid<A>
 }
 
 // MARK: Field
 
 struct Field<A>: RingLike, WithOne, WithNegate, CommutativeSecond, WithReciprocal {
-  typealias FirstBinaryOperation = AbelianGroup<A>
-  typealias SecondBinaryOperation = AbelianGroup<A>
-
-  let firstApply: (A, A) -> A
-  let secondApply: (A, A) -> A
-  let zero: A
-  let one: A
-  let negate: (A) -> A
-  let reciprocal: (A) -> A
-
-  init(
-    firstApply: @escaping (A, A) -> A,
-    secondApply: @escaping (A, A) -> A,
-    zero: A,
-    one: A,
-    negate: @escaping (A) -> A,
-    reciprocal: @escaping (A) -> A
-  ) {
-    self.firstApply = firstApply
-    self.secondApply = secondApply
-    self.zero = zero
-    self.one = one
-    self.negate = negate
-    self.reciprocal = reciprocal
-  }
-
-  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
-    self.init(
-      firstApply: forFirst.apply,
-      secondApply: forSecond.apply,
-      zero: forFirst.empty,
-      one: forSecond.empty,
-      negate: forFirst.inverse,
-      reciprocal: forSecond.inverse
-    )
-  }
+  let first: AbelianGroup<A>
+  let second: AbelianGroup<A>
 }
 
 // MARK: - Lattice-like
@@ -679,78 +518,34 @@ extension TwoBinaryOperations where Self: LatticeLike {
   typealias MeetBinaryOperation = FirstBinaryOperation
   typealias JoinBinaryOperation = SecondBinaryOperation
 
-  var meet: (A, A) -> A { firstApply } /// AND
-  var join: (A, A) -> A { secondApply } /// OR
-
-  init(forMeet: FirstBinaryOperation, forJoin: SecondBinaryOperation) {
-    self.init(forFirst: forMeet, forSecond: forJoin)
-  }
+  var meet: (A, A) -> A { first.apply } /// AND
+  var join: (A, A) -> A { second.apply } /// OR
 }
 
 // MARK: Lattice
 
 struct Lattice<A>: LatticeLike {
-  typealias FirstBinaryOperation = Semilattice<A>
-  typealias SecondBinaryOperation = Semilattice<A>
-
-  let firstApply: (A, A) -> A
-  let secondApply: (A, A) -> A
-
-  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
-    self.firstApply = forFirst.apply
-    self.secondApply = forSecond.apply
-  }
+  let first: Semilattice<A>
+  let second: Semilattice<A>
 }
 
 // MARK: Distributive Lattice
 
 struct DistributiveLattice<A>: LatticeLike, Distributive {
-  typealias FirstBinaryOperation = Semilattice<A>
-  typealias SecondBinaryOperation = Semilattice<A>
-
-  let firstApply: (A, A) -> A
-  let secondApply: (A, A) -> A
-
-  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
-    self.firstApply = forFirst.apply
-    self.secondApply = forSecond.apply
-  }
+  let first: Semilattice<A>
+  let second: Semilattice<A>
 }
 
 // MARK: Bounded Lattice
 
 struct BoundedLattice<A>: LatticeLike, WithZero, WithOne {
-  typealias FirstBinaryOperation = BoundedSemilattice<A>
-  typealias SecondBinaryOperation = BoundedSemilattice<A>
-
-  let firstApply: (A, A) -> A
-  let secondApply: (A, A) -> A
-  let zero: A
-  let one: A
-
-  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
-    self.firstApply = forFirst.apply
-    self.secondApply = forSecond.apply
-    self.zero = forFirst.empty
-    self.one = forSecond.empty
-  }
+  let first: BoundedSemilattice<A>
+  let second: BoundedSemilattice<A>
 }
 
 // MARK: Bounded Distributive Lattice
 
 struct BoundedDistributiveLattice<A>: LatticeLike, Distributive, WithZero, WithOne {
-  typealias FirstBinaryOperation = BoundedSemilattice<A>
-  typealias SecondBinaryOperation = BoundedSemilattice<A>
-
-  let firstApply: (A, A) -> A
-  let secondApply: (A, A) -> A
-  let zero: A
-  let one: A
-
-  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
-    self.firstApply = forFirst.apply
-    self.secondApply = forSecond.apply
-    self.zero = forFirst.empty
-    self.one = forSecond.empty
-  }
+  let first: BoundedSemilattice<A>
+  let second: BoundedSemilattice<A>
 }
