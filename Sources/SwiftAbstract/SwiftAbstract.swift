@@ -57,7 +57,7 @@ extension Verify where BO: WithIdentity {
   var id: BO.A {
     operation.empty
   }
-  
+
   func identity(_ a: BO.A) -> Bool {
     run(a, id) == a && run(id, a) == a
   }
@@ -73,7 +73,7 @@ extension Verify where BO: WithInverse {
   var inv: (BO.A) -> BO.A {
     operation.inverse
   }
-  
+
   func inverse(_ a: BO.A) -> Bool {
     run(a, inv(a)) == id
   }
@@ -216,7 +216,7 @@ extension VerifyTwo where TBO: WithZero {
   var zero: TBO.A {
     operations.zero
   }
-  
+
   func zeroIdentity(_ a: TBO.A) -> Bool {
     runFst(a, zero) == a && runFst(zero, a) == a
   }
@@ -236,7 +236,7 @@ extension VerifyTwo where TBO: WithNegate {
   var neg: (TBO.A) -> TBO.A {
     operations.negate
   }
-  
+
   func negation(_ a: TBO.A) -> Bool {
     runFst(a, neg(a)) == zero && runFst(neg(a), a) == zero
   }
@@ -256,7 +256,7 @@ extension VerifyTwo where TBO: WithOne {
   var one: TBO.A {
     operations.one
   }
-  
+
   func oneIdentity(_ a: TBO.A) -> Bool {
     runSnd(a, one) == a && runSnd(one, a) == a
   }
@@ -276,7 +276,7 @@ extension VerifyTwo where TBO: WithReciprocal {
   var rec: (TBO.A) -> TBO.A {
     operations.reciprocal
   }
-  
+
   func reciprocity(_ a: TBO.A) -> Bool {
     runSnd(a, rec(a)) == one && runSnd(rec(a), a) == one
   }
@@ -309,18 +309,28 @@ protocol WithImplies: LatticeLike, WithOne {
   var implies: (A, A) -> A { get }
 }
 
-/*:
- */
-
 extension VerifyTwo where TBO: WithImplies {
+  var imp: (TBO.A, TBO.A) -> TBO.A {
+    operations.implies
+  }
+
   func implication(_ a: TBO.A, _ b: TBO.A, _ c: TBO.A) -> Bool {
-    
+    imp(a, a) == one
+      && runFst(a, imp(a, b)) == runFst(a, b)
+      && runFst(b, imp(a, b)) == b
+      && imp(a, runFst(b, c)) == runFst(imp(a, b), imp(a, c))
   }
 }
 
 // MARK: Excluded middle
 
 protocol ExcludedMiddle: WithImplies, WithZero {}
+
+extension VerifyTwo where TBO: ExcludedMiddle {
+  func excludedMiddle(_ a: TBO.A) -> Bool {
+    runSnd(a, imp(a, zero)) == one
+  }
+}
 
 // MARK: - Magma-like
 
