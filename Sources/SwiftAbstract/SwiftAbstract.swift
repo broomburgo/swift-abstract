@@ -145,240 +145,252 @@ struct BoundedSemilattice<A>: Associative, Commutative, Idempotent, WithIdentity
 
 protocol TwoBinaryOperations {
   associatedtype A
-  associatedtype PlusBinaryOperation: BinaryOperation where PlusBinaryOperation.A == A
-  associatedtype TimesBinaryOperation: BinaryOperation where TimesBinaryOperation.A == A
+  associatedtype FirstBinaryOperation: BinaryOperation where FirstBinaryOperation.A == A
+  associatedtype SecondBinaryOperation: BinaryOperation where SecondBinaryOperation.A == A
 
-  var plus: (A, A) -> A { get }
-  var times: (A, A) -> A { get }
-  init(forPlus: PlusBinaryOperation, forTimes: TimesBinaryOperation)
+  var firstApply: (A, A) -> A { get }
+  var secondApply: (A, A) -> A { get }
+  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation)
 }
 
-protocol Distributive: TwoBinaryOperations {}
+protocol AssociativeFirstSecond: TwoBinaryOperations where FirstBinaryOperation: Associative, SecondBinaryOperation: Associative {}
 
-protocol AssociativePlusTimes: TwoBinaryOperations where PlusBinaryOperation: Associative {}
+protocol DistributiveSecondOverFirst: TwoBinaryOperations {}
 
-protocol CommutativePlus: TwoBinaryOperations where PlusBinaryOperation: Commutative {}
+protocol CommutativeFirst: TwoBinaryOperations where FirstBinaryOperation: Commutative {}
 
-protocol WithZero: TwoBinaryOperations where PlusBinaryOperation: WithIdentity  {
+protocol WithZero: TwoBinaryOperations where FirstBinaryOperation: WithIdentity  {
   var zero: A { get }
 }
 
 protocol WithAnnihilation: WithZero {}
 
-typealias RingLike = Distributive & AssociativePlusTimes & CommutativePlus & WithAnnihilation
+typealias RingLike = AssociativeFirstSecond & DistributiveSecondOverFirst & CommutativeFirst & WithAnnihilation
 
-protocol WithOne: TwoBinaryOperations where TimesBinaryOperation: WithIdentity {
+extension TwoBinaryOperations where Self: RingLike {
+  typealias PlusBinaryOperation = FirstBinaryOperation
+  typealias TimesBinaryOperation = SecondBinaryOperation
+
+  var plus: (A, A) -> A { firstApply }
+  var times: (A, A) -> A { secondApply }
+  
+  init(forPlus: FirstBinaryOperation, forTimes: SecondBinaryOperation) {
+    self.init(forFirst: forPlus, forSecond: forTimes)
+  }
+}
+
+protocol WithOne: TwoBinaryOperations where SecondBinaryOperation: WithIdentity {
   var one: A { get }
 }
 
-protocol WithNegate: TwoBinaryOperations where PlusBinaryOperation: WithInverse {
+protocol WithNegate: TwoBinaryOperations where FirstBinaryOperation: WithInverse {
   var negate: (A) -> A { get }
 }
 
-protocol WithReciprocal: TwoBinaryOperations where TimesBinaryOperation: WithInverse {
+protocol WithReciprocal: TwoBinaryOperations where SecondBinaryOperation: WithInverse {
   var reciprocal: (A) -> A { get }
 }
 
-protocol CommutativeTimes: TwoBinaryOperations where TimesBinaryOperation: Commutative {}
+protocol CommutativeSecond: TwoBinaryOperations where SecondBinaryOperation: Commutative {}
 
 struct Semiring<A>: RingLike, WithOne {
-  typealias PlusBinaryOperation = CommutativeMonoid<A>
-  typealias TimesBinaryOperation = Monoid<A>
+  typealias FirstBinaryOperation = CommutativeMonoid<A>
+  typealias SecondBinaryOperation = Monoid<A>
 
-  let plus: (A, A) -> A
-  let times: (A, A) -> A
+  let firstApply: (A, A) -> A
+  let secondApply: (A, A) -> A
   let zero: A
   let one: A
 
   init(
-    plus: @escaping (A, A) -> A,
-    times: @escaping (A, A) -> A,
+    firstApply: @escaping (A, A) -> A,
+    secondApply: @escaping (A, A) -> A,
     zero: A,
     one: A
   ) {
-    self.plus = plus
-    self.times = times
+    self.firstApply = firstApply
+    self.secondApply = secondApply
     self.zero = zero
     self.one = one
   }
 
-  init(forPlus: PlusBinaryOperation, forTimes: TimesBinaryOperation) {
+  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
     self.init(
-      plus: forPlus.apply,
-      times: forTimes.apply,
-      zero: forPlus.empty,
-      one: forTimes.empty
+      firstApply: forFirst.apply,
+      secondApply: forSecond.apply,
+      zero: forFirst.empty,
+      one: forSecond.empty
     )
   }
 }
 
 struct Rng<A>: RingLike, WithNegate {
-  typealias PlusBinaryOperation = AbelianGroup<A>
-  typealias TimesBinaryOperation = Semigroup<A>
+  typealias FirstBinaryOperation = AbelianGroup<A>
+  typealias SecondBinaryOperation = Semigroup<A>
 
-  let plus: (A, A) -> A
-  let times: (A, A) -> A
+  let firstApply: (A, A) -> A
+  let secondApply: (A, A) -> A
   let zero: A
   let negate: (A) -> A
 
   init(
-    plus: @escaping (A, A) -> A,
-    times: @escaping (A, A) -> A,
+    firstApply: @escaping (A, A) -> A,
+    secondApply: @escaping (A, A) -> A,
     zero: A,
     negate: @escaping (A) -> A
   ) {
-    self.plus = plus
-    self.times = times
+    self.firstApply = firstApply
+    self.secondApply = secondApply
     self.zero = zero
     self.negate = negate
   }
 
-  init(forPlus: PlusBinaryOperation, forTimes: TimesBinaryOperation) {
+  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
     self.init(
-      plus: forPlus.apply,
-      times: forTimes.apply,
-      zero: forPlus.empty,
-      negate: forPlus.inverse
+      firstApply: forFirst.apply,
+      secondApply: forSecond.apply,
+      zero: forFirst.empty,
+      negate: forFirst.inverse
     )
   }
 }
 
-struct CommutativeSemiring<A>: RingLike, WithOne, CommutativeTimes {
-  typealias PlusBinaryOperation = CommutativeMonoid<A>
-  typealias TimesBinaryOperation = CommutativeMonoid<A>
+struct CommutativeSemiring<A>: RingLike, WithOne, CommutativeSecond {
+  typealias FirstBinaryOperation = CommutativeMonoid<A>
+  typealias SecondBinaryOperation = CommutativeMonoid<A>
 
-  let plus: (A, A) -> A
-  let times: (A, A) -> A
+  let firstApply: (A, A) -> A
+  let secondApply: (A, A) -> A
   let zero: A
   let one: A
 
   init(
-    plus: @escaping (A, A) -> A,
-    times: @escaping (A, A) -> A,
+    firstApply: @escaping (A, A) -> A,
+    secondApply: @escaping (A, A) -> A,
     zero: A,
     one: A
   ) {
-    self.plus = plus
-    self.times = times
+    self.firstApply = firstApply
+    self.secondApply = secondApply
     self.zero = zero
     self.one = one
   }
 
-  init(forPlus: PlusBinaryOperation, forTimes: TimesBinaryOperation) {
+  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
     self.init(
-      plus: forPlus.apply,
-      times: forTimes.apply,
-      zero: forPlus.empty,
-      one: forTimes.empty
+      firstApply: forFirst.apply,
+      secondApply: forSecond.apply,
+      zero: forFirst.empty,
+      one: forSecond.empty
     )
   }
 }
 
 struct Ring<A>: RingLike, WithOne, WithNegate {
-  typealias PlusBinaryOperation = AbelianGroup<A>
-  typealias TimesBinaryOperation = Monoid<A>
+  typealias FirstBinaryOperation = AbelianGroup<A>
+  typealias SecondBinaryOperation = Monoid<A>
 
-  let plus: (A, A) -> A
-  let times: (A, A) -> A
+  let firstApply: (A, A) -> A
+  let secondApply: (A, A) -> A
   let zero: A
   let one: A
   let negate: (A) -> A
 
   init(
-    plus: @escaping (A, A) -> A,
-    times: @escaping (A, A) -> A,
+    firstApply: @escaping (A, A) -> A,
+    secondApply: @escaping (A, A) -> A,
     zero: A,
     one: A,
     negate: @escaping (A) -> A
   ) {
-    self.plus = plus
-    self.times = times
+    self.firstApply = firstApply
+    self.secondApply = secondApply
     self.zero = zero
     self.one = one
     self.negate = negate
   }
 
-  init(forPlus: PlusBinaryOperation, forTimes: TimesBinaryOperation) {
+  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
     self.init(
-      plus: forPlus.apply,
-      times: forTimes.apply,
-      zero: forPlus.empty,
-      one: forTimes.empty,
-      negate: forPlus.inverse
+      firstApply: forFirst.apply,
+      secondApply: forSecond.apply,
+      zero: forFirst.empty,
+      one: forSecond.empty,
+      negate: forFirst.inverse
     )
   }
 }
 
-struct CommutativeRing<A>: RingLike, WithOne, WithNegate, CommutativeTimes {
-  typealias PlusBinaryOperation = AbelianGroup<A>
-  typealias TimesBinaryOperation = CommutativeMonoid<A>
+struct CommutativeRing<A>: RingLike, WithOne, WithNegate, CommutativeSecond {
+  typealias FirstBinaryOperation = AbelianGroup<A>
+  typealias SecondBinaryOperation = CommutativeMonoid<A>
 
-  let plus: (A, A) -> A
-  let times: (A, A) -> A
+  let firstApply: (A, A) -> A
+  let secondApply: (A, A) -> A
   let zero: A
   let one: A
   let negate: (A) -> A
 
   init(
-    plus: @escaping (A, A) -> A,
-    times: @escaping (A, A) -> A,
+    firstApply: @escaping (A, A) -> A,
+    secondApply: @escaping (A, A) -> A,
     zero: A,
     one: A,
     negate: @escaping (A) -> A
   ) {
-    self.plus = plus
-    self.times = times
+    self.firstApply = firstApply
+    self.secondApply = secondApply
     self.zero = zero
     self.one = one
     self.negate = negate
   }
 
-  init(forPlus: PlusBinaryOperation, forTimes: TimesBinaryOperation) {
+  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
     self.init(
-      plus: forPlus.apply,
-      times: forTimes.apply,
-      zero: forPlus.empty,
-      one: forTimes.empty,
-      negate: forPlus.inverse
+      firstApply: forFirst.apply,
+      secondApply: forSecond.apply,
+      zero: forFirst.empty,
+      one: forSecond.empty,
+      negate: forFirst.inverse
     )
   }
 }
 
-struct Field<A>: RingLike, WithOne, WithNegate, CommutativeTimes, WithReciprocal {
-  typealias PlusBinaryOperation = AbelianGroup<A>
-  typealias TimesBinaryOperation = AbelianGroup<A>
+struct Field<A>: RingLike, WithOne, WithNegate, CommutativeSecond, WithReciprocal {
+  typealias FirstBinaryOperation = AbelianGroup<A>
+  typealias SecondBinaryOperation = AbelianGroup<A>
 
-  let plus: (A, A) -> A
-  let times: (A, A) -> A
+  let firstApply: (A, A) -> A
+  let secondApply: (A, A) -> A
   let zero: A
   let one: A
   let negate: (A) -> A
   let reciprocal: (A) -> A
 
   init(
-    plus: @escaping (A, A) -> A,
-    times: @escaping (A, A) -> A,
+    firstApply: @escaping (A, A) -> A,
+    secondApply: @escaping (A, A) -> A,
     zero: A,
     one: A,
     negate: @escaping (A) -> A,
     reciprocal: @escaping (A) -> A
   ) {
-    self.plus = plus
-    self.times = times
+    self.firstApply = firstApply
+    self.secondApply = secondApply
     self.zero = zero
     self.one = one
     self.negate = negate
     self.reciprocal = reciprocal
   }
 
-  init(forPlus: PlusBinaryOperation, forTimes: TimesBinaryOperation) {
+  init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation) {
     self.init(
-      plus: forPlus.apply,
-      times: forTimes.apply,
-      zero: forPlus.empty,
-      one: forTimes.empty,
-      negate: forPlus.inverse,
-      reciprocal: forTimes.inverse
+      firstApply: forFirst.apply,
+      secondApply: forSecond.apply,
+      zero: forFirst.empty,
+      one: forSecond.empty,
+      negate: forFirst.inverse,
+      reciprocal: forSecond.inverse
     )
   }
 }
