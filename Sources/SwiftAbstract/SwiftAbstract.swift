@@ -5,20 +5,78 @@ protocol BinaryOperation {
   var apply: (A, A) -> A { get }
 }
 
-// MARK: Properties
+struct Verify<BO: BinaryOperation> where BO.A: Equatable {
+  let operation: BO
+
+  init(operation: BO) {
+    self.operation = operation
+  }
+
+  var run: (BO.A, BO.A) -> BO.A {
+    operation.apply
+  }
+}
+
+// MARK: Associativity
 
 protocol Associative: BinaryOperation {}
 
+extension Verify where BO: Associative {
+  func associativity(_ a: BO.A, _ b: BO.A, _ c: BO.A) -> Bool {
+    run(run(a, b), c) == run(a, run(b, c))
+  }
+}
+
+// MARK: Commutativity
+
 protocol Commutative: BinaryOperation {}
 
+extension Verify where BO: Commutative {
+  func commutativity(_ a: BO.A, _ b: BO.A) -> Bool {
+    run(a, b) == run(b, a)
+  }
+}
+
+// MARK: Idempotency
+
 protocol Idempotent: BinaryOperation {}
+
+extension Verify where BO: Idempotent {
+  func idempotency(_ a: BO.A, _ b: BO.A) -> Bool {
+    run(run(a, b), b) == run(a, b)
+  }
+}
+
+// MARK: Identity
 
 protocol WithIdentity: BinaryOperation {
   var empty: A { get }
 }
 
+extension Verify where BO: WithIdentity {
+  var id: BO.A {
+    operation.empty
+  }
+  
+  func identity(_ a: BO.A) -> Bool {
+    run(a, id) == a && run(id, a) == a
+  }
+}
+
+// MARK: Invertibility
+
 protocol WithInverse: WithIdentity {
   var inverse: (A) -> A { get }
+}
+
+extension Verify where BO: WithInverse {
+  var inv: (BO.A) -> BO.A {
+    operation.inverse
+  }
+  
+  func inverse(_ a: BO.A) -> Bool {
+    run(a, inv(a)) == id
+  }
 }
 
 // MARK: - TwoBinaryOperations
@@ -33,43 +91,202 @@ protocol TwoBinaryOperations {
   init(forFirst: FirstBinaryOperation, forSecond: SecondBinaryOperation)
 }
 
-// MARK: Properties
+struct VerifyTwo<TBO: TwoBinaryOperations> where TBO.A: Equatable {
+  let operations: TBO
+
+  init(operations: TBO) {
+    self.operations = operations
+  }
+
+  var runFst: (TBO.A, TBO.A) -> TBO.A {
+    operations.firstApply
+  }
+
+  var runSnd: (TBO.A, TBO.A) -> TBO.A {
+    operations.secondApply
+  }
+}
+
+// MARK: Associativity
 
 protocol AssociativeFirst: TwoBinaryOperations where FirstBinaryOperation: Associative {}
 protocol AssociativeSecond: TwoBinaryOperations where SecondBinaryOperation: Associative {}
 typealias AssociativeBoth = AssociativeFirst & AssociativeSecond
 
+extension VerifyTwo where TBO: AssociativeFirst {
+  func associativityOfFirst(_ a: TBO.A, _ b: TBO.A, _ c: TBO.A) -> Bool {
+    runFst(runFst(a, b), c) == runFst(a, runFst(b, c))
+  }
+}
+
+extension VerifyTwo where TBO: AssociativeSecond {
+  func associativityOfSecond(_ a: TBO.A, _ b: TBO.A, _ c: TBO.A) -> Bool {
+    runSnd(runSnd(a, b), c) == runSnd(a, runSnd(b, c))
+  }
+}
+
+extension VerifyTwo where TBO: AssociativeBoth {
+  func associativity(_ a: TBO.A, _ b: TBO.A, _ c: TBO.A) -> Bool {
+    associativityOfFirst(a, b, c) && associativityOfSecond(a, b, c)
+  }
+}
+
+// MARK: Commutativity
+
 protocol CommutativeFirst: TwoBinaryOperations where FirstBinaryOperation: Commutative {}
 protocol CommutativeSecond: TwoBinaryOperations where SecondBinaryOperation: Commutative {}
 typealias CommutativeBoth = CommutativeFirst & CommutativeSecond
+
+extension VerifyTwo where TBO: CommutativeFirst {
+  func commutativityOfFirst(_ a: TBO.A, _ b: TBO.A) -> Bool {
+    runFst(a, b) == runFst(b, a)
+  }
+}
+
+extension VerifyTwo where TBO: CommutativeSecond {
+  func commutativityOfSecond(_ a: TBO.A, _ b: TBO.A) -> Bool {
+    runSnd(a, b) == runSnd(b, a)
+  }
+}
+
+extension VerifyTwo where TBO: CommutativeBoth {
+  func commutativity(_ a: TBO.A, _ b: TBO.A) -> Bool {
+    commutativityOfFirst(a, b) && commutativityOfSecond(a, b)
+  }
+}
+
+// MARK: Idempotency
 
 protocol IdempotentFirst: TwoBinaryOperations where FirstBinaryOperation: Idempotent {}
 protocol IdempotentSecond: TwoBinaryOperations where SecondBinaryOperation: Idempotent {}
 typealias IdempotentBoth = IdempotentFirst & IdempotentSecond
 
+extension VerifyTwo where TBO: IdempotentFirst {
+  func idempotencyOfFirst(_ a: TBO.A, _ b: TBO.A) -> Bool {
+    runFst(runFst(a, b), b) == runFst(a, b)
+  }
+}
+
+extension VerifyTwo where TBO: IdempotentSecond {
+  func idempotencyOfSecond(_ a: TBO.A, _ b: TBO.A) -> Bool {
+    runSnd(runSnd(a, b), b) == runSnd(a, b)
+  }
+}
+
+extension VerifyTwo where TBO: IdempotentBoth {
+  func idempotency(_ a: TBO.A, _ b: TBO.A) -> Bool {
+    idempotencyOfFirst(a, b) && idempotencyOfSecond(a, b)
+  }
+}
+
+// MARK: Distributivity
+
 protocol DistributiveFirstOverSecond: TwoBinaryOperations {}
 protocol DistributiveSecondOverFirst: TwoBinaryOperations {}
 typealias Distributive = DistributiveFirstOverSecond & DistributiveSecondOverFirst
+
+extension VerifyTwo where TBO: DistributiveFirstOverSecond {
+  func distributivityOfFirstOverSecond(_ a: TBO.A, _ b: TBO.A, _ c: TBO.A) -> Bool {
+    runFst(a, runSnd(b, c)) == runSnd(runFst(a, b), runFst(a, c))
+  }
+}
+
+extension VerifyTwo where TBO: DistributiveSecondOverFirst {
+  func distributivityOfSecondOverFirst(_ a: TBO.A, _ b: TBO.A, _ c: TBO.A) -> Bool {
+    runSnd(a, runFst(b, c)) == runFst(runSnd(a, b), runSnd(a, c))
+  }
+}
+
+extension VerifyTwo where TBO: Distributive {
+  func distributivity(_ a: TBO.A, _ b: TBO.A, _ c: TBO.A) -> Bool {
+    distributivityOfFirstOverSecond(a, b, c) && distributivityOfSecondOverFirst(a, b, c)
+  }
+}
+
+// MARK: Zero identity
 
 protocol WithZero: TwoBinaryOperations where FirstBinaryOperation: WithIdentity {
   var zero: A { get }
 }
 
-protocol WithAnnihilation: WithZero {}
+extension VerifyTwo where TBO: WithZero {
+  var zero: TBO.A {
+    operations.zero
+  }
+  
+  func zeroIdentity(_ a: TBO.A) -> Bool {
+    runFst(a, zero) == a && runFst(zero, a) == a
+  }
+}
+
+// MARK: Negation
+
+protocol WithNegate: WithZero where FirstBinaryOperation: WithInverse {
+  var negate: (A) -> A { get }
+}
+
+extension VerifyTwo where TBO: WithNegate {
+  var neg: (TBO.A) -> TBO.A {
+    operations.negate
+  }
+  
+  func negation(_ a: TBO.A) -> Bool {
+    runFst(a, neg(a)) == zero && runFst(neg(a), a) == zero
+  }
+}
+
+// MARK: One identity
 
 protocol WithOne: TwoBinaryOperations where SecondBinaryOperation: WithIdentity {
   var one: A { get }
 }
 
-protocol WithNegate: TwoBinaryOperations where FirstBinaryOperation: WithInverse {
-  var negate: (A) -> A { get }
+extension VerifyTwo where TBO: WithOne {
+  var one: TBO.A {
+    operations.one
+  }
+  
+  func oneIdentity(_ a: TBO.A) -> Bool {
+    runSnd(a, one) == a && runSnd(one, a) == a
+  }
 }
 
-protocol WithReciprocal: TwoBinaryOperations where SecondBinaryOperation: WithInverse {
+// MARK: Reciprocity
+
+protocol WithReciprocal: WithOne where SecondBinaryOperation: WithInverse {
   var reciprocal: (A) -> A { get }
 }
 
+extension VerifyTwo where TBO: WithReciprocal {
+  var rec: (TBO.A) -> TBO.A {
+    operations.reciprocal
+  }
+  
+  func reciprocity(_ a: TBO.A) -> Bool {
+    runSnd(a, rec(a)) == one && runSnd(rec(a), a) == one
+  }
+}
+
+// MARK: Annihilability
+
+protocol WithAnnihilation: WithZero {}
+
+extension VerifyTwo where TBO: WithAnnihilation {
+  func annihilability(_ a: TBO.A) -> Bool {
+    runSnd(a, zero) == zero && runSnd(zero, a) == zero
+  }
+}
+
+// MARK: Absorbability
+
 protocol Absorption: TwoBinaryOperations {}
+
+extension VerifyTwo where TBO: Absorption {
+  func absorbability(_ a: TBO.A, _ b: TBO.A) -> Bool {
+    runSnd(a, runFst(a, b)) == a
+      && runFst(a, runSnd(a, b)) == a
+  }
+}
 
 // MARK: - Magma-like
 
