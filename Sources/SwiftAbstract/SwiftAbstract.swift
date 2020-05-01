@@ -91,17 +91,17 @@ protocol TwoBinaryOperations {
 }
 
 struct VerifyTwo<TBO: TwoBinaryOperations> where TBO.A: Equatable {
-  let operations: TBO
+  private let operations: TBO
 
   init(operations: TBO) {
     self.operations = operations
   }
 
-  var runFst: (TBO.A, TBO.A) -> TBO.A {
+  private var runFst: (TBO.A, TBO.A) -> TBO.A {
     operations.first.apply
   }
 
-  var runSnd: (TBO.A, TBO.A) -> TBO.A {
+  private var runSnd: (TBO.A, TBO.A) -> TBO.A {
     operations.second.apply
   }
 }
@@ -213,7 +213,7 @@ extension WithZero {
 }
 
 extension VerifyTwo where TBO: WithZero {
-  var zero: TBO.A {
+  private var zero: TBO.A {
     operations.zero
   }
 
@@ -233,7 +233,7 @@ extension WithNegate {
 }
 
 extension VerifyTwo where TBO: WithNegate {
-  var neg: (TBO.A) -> TBO.A {
+  private var neg: (TBO.A) -> TBO.A {
     operations.negate
   }
 
@@ -253,7 +253,7 @@ extension WithOne {
 }
 
 extension VerifyTwo where TBO: WithOne {
-  var one: TBO.A {
+  private var one: TBO.A {
     operations.one
   }
 
@@ -273,7 +273,7 @@ extension WithReciprocal {
 }
 
 extension VerifyTwo where TBO: WithReciprocal {
-  var rec: (TBO.A) -> TBO.A {
+  private var rec: (TBO.A) -> TBO.A {
     operations.reciprocal
   }
 
@@ -310,15 +310,15 @@ protocol WithImplies: LatticeLike, WithOne {
 }
 
 extension VerifyTwo where TBO: WithImplies {
-  var imp: (TBO.A, TBO.A) -> TBO.A {
+  private var imp: (TBO.A, TBO.A) -> TBO.A {
     operations.implies
   }
 
   func implication(_ a: TBO.A, _ b: TBO.A, _ c: TBO.A) -> Bool {
     imp(a, a) == one
-      && runFst(a, imp(a, b)) == runFst(a, b)
-      && runFst(b, imp(a, b)) == b
-      && imp(a, runFst(b, c)) == runFst(imp(a, b), imp(a, c))
+      && runSnd(a, imp(a, b)) == runSnd(a, b)
+      && runSnd(b, imp(a, b)) == b
+      && imp(a, runSnd(b, c)) == runSnd(imp(a, b), imp(a, c))
   }
 }
 
@@ -328,7 +328,7 @@ protocol ExcludedMiddle: WithImplies, WithZero {}
 
 extension VerifyTwo where TBO: ExcludedMiddle {
   func excludedMiddle(_ a: TBO.A) -> Bool {
-    runSnd(a, imp(a, zero)) == one
+    runFst(a, imp(a, zero)) == one
   }
 }
 
@@ -547,8 +547,8 @@ extension TwoBinaryOperations where Self: LatticeLike {
   typealias MeetBinaryOperation = FirstBinaryOperation
   typealias JoinBinaryOperation = SecondBinaryOperation
 
-  var meet: (A, A) -> A { first.apply } /// AND
   var join: (A, A) -> A { second.apply } /// OR
+  var meet: (A, A) -> A { first.apply } /// AND
 }
 
 // MARK: Lattice
