@@ -181,7 +181,7 @@ protocol WithReciprocal: TwoBinaryOperations where TimesBinaryOperation: WithInv
 
 protocol CommutativeTimes: TwoBinaryOperations where TimesBinaryOperation: Commutative {}
 
-struct Rig<A>: RingLike, WithOne {
+struct Semiring<A>: RingLike, WithOne {
   typealias PlusBinaryOperation = CommutativeMonoid<A>
   typealias TimesBinaryOperation = Monoid<A>
 
@@ -243,7 +243,7 @@ struct Rng<A>: RingLike, WithNegate {
   }
 }
 
-struct CommutativeRig<A>: RingLike, WithOne, CommutativeTimes {
+struct CommutativeSemiring<A>: RingLike, WithOne, CommutativeTimes {
   typealias PlusBinaryOperation = CommutativeMonoid<A>
   typealias TimesBinaryOperation = CommutativeMonoid<A>
 
