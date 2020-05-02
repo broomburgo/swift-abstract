@@ -556,6 +556,14 @@ extension BoundedSemilattice where A == Bool {
   }
 }
 
+extension BoundedSemilattice /* where A == Set */ {
+  
+  /// While this can be useful as the free bounded semilattice, to truly express the algebraic properties of sets, and define a boolean algebra based on them, we actually need `PredicateSet`.
+  static func setUnion<Element>() -> Self where A == Set<Element> {
+    BoundedSemilattice(apply: { $0.union($1) }, empty: [])
+  }
+}
+
 // MARK: - Ring-like
 
 typealias RingLike = TwoBinaryOperations
