@@ -644,9 +644,16 @@ struct Semiring<A>: RingLike, WithOne {
 }
 
 extension Semiring where A: AdditiveArithmetic & Comparable & WithMinimumMaximum {
-  static var tropical: Self {
+  static var minTropical: Self {
     Semiring(
       first: .init(from: BoundedSemilattice.min),
+      second: .init(from: CommutativeMonoid.sum)
+    )
+  }
+  
+  static var maxTropical: Self {
+    Semiring(
+      first: .init(from: BoundedSemilattice.max),
       second: .init(from: CommutativeMonoid.sum)
     )
   }
