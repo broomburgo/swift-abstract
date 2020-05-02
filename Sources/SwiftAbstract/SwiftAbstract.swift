@@ -413,12 +413,6 @@ extension Monoid /* where A == Array */ {
   }
 }
 
-extension Monoid /* where A == Optional */ {
-  static func optional<Wrapped>() -> Self where A == Optional<Wrapped> {
-    Monoid(apply: { $0 ?? $1 }, empty: nil)
-  }
-}
-
 extension Monoid /* where A == (T) -> T */ {
   static func endo<T>() -> Self where A == (T) -> T {
     Monoid(apply: { f1, f2 in { f2(f1($0)) } }, empty: { $0 })
@@ -531,6 +525,18 @@ struct IdempotentMonoid<A>: Associative, Idempotent, WithIdentity {
   }
 }
 
+extension IdempotentMonoid /* where A == Optional */ {
+  static func firstIfPossible<Wrapped>() -> Self where A == Optional<Wrapped> {
+    IdempotentMonoid(apply: { $0 ?? $1 }, empty: nil)
+  }
+}
+
+extension IdempotentMonoid /* where A == Optional */ {
+  static func lastIfPossible<Wrapped>() -> Self where A == Optional<Wrapped> {
+    IdempotentMonoid(apply: { $1 ?? $0 }, empty: nil)
+  }
+}
+
 extension IdempotentMonoid where A == Ordering {
   static var ordering: Self {
     IdempotentMonoid(apply: { A.merge($0, $1) }, empty: A.neutral)
@@ -595,23 +601,13 @@ extension BoundedSemilattice where A == Bool {
   }
 }
 
-extension BoundedSemilattice where A: FixedWidthInteger {
-  static var maxFixedWidthInteger: Self {
-    BoundedSemilattice(apply: { Swift.max($0, $1) }, empty: A.min)
+extension BoundedSemilattice where A: Comparable & WithMinimumMaximum {
+  static var max: Self {
+    BoundedSemilattice(apply: { Swift.max($0, $1) }, empty: A.minimum)
   }
   
-  static var minFixedWidthInteger: Self {
-    BoundedSemilattice(apply: { Swift.min($0, $1) }, empty: A.max)
-  }
-}
-
-extension BoundedSemilattice where A: FloatingPoint {
-  static var maxFloatingPoint: Self {
-    BoundedSemilattice(apply: { Swift.max($0, $1) }, empty: -A.infinity)
-  }
-  
-  static var minFloatingPoint: Self {
-    BoundedSemilattice(apply: { Swift.min($0, $1) }, empty: A.infinity)
+  static var min: Self {
+    BoundedSemilattice(apply: { Swift.min($0, $1) }, empty: A.minimum)
   }
 }
 
@@ -645,6 +641,15 @@ extension TwoBinaryOperations where Self: RingLike {
 struct Semiring<A>: RingLike, WithOne {
   let first: CommutativeMonoid<A>
   let second: Monoid<A>
+}
+
+extension Semiring where A: AdditiveArithmetic & Comparable & WithMinimumMaximum {
+  static var tropical: Self {
+    Semiring(
+      first: .init(from: BoundedSemilattice.min),
+      second: .init(from: CommutativeMonoid.sum)
+    )
+  }
 }
 
 // MARK: Rng
@@ -772,3 +777,28 @@ enum Ordering {
     .equalTo
   }
 }
+
+// MARK: - Utility protocols
+
+protocol WithMinimumMaximum {
+  static var minimum: Self { get }
+  static var maximum: Self { get }
+}
+
+extension FixedWidthInteger {
+  static var minimum: Self { min }
+  static var maximum: Self { max }
+}
+
+extension FloatingPoint {
+  static var minimum: Self { infinity }
+  static var maximum: Self { -infinity }
+}
+
+extension Int8: WithMinimumMaximum {}
+extension Int16: WithMinimumMaximum {}
+extension Int32: WithMinimumMaximum {}
+extension Int64: WithMinimumMaximum {}
+extension UInt: WithMinimumMaximum {}
+extension Float: WithMinimumMaximum {}
+extension Double: WithMinimumMaximum {}
