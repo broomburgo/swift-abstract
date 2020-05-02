@@ -345,8 +345,18 @@ struct Semigroup<A>: Associative {
     self.apply = apply
   }
 
-  init<MoreSpecific: Associative>(_ s: MoreSpecific) where MoreSpecific.A == A {
+  init<MoreSpecific: Associative>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply)
+  }
+}
+
+extension Semigroup {
+  static var first: Self {
+    Semigroup(apply: { a, _ in a })
+  }
+
+  static var last: Self {
+    Semigroup(apply: { _, b in b })
   }
 }
 
@@ -359,7 +369,7 @@ struct CommutativeSemigroup<A>: Associative, Commutative {
     self.apply = apply
   }
 
-  init<MoreSpecific: Associative & Commutative>(_ s: MoreSpecific) where MoreSpecific.A == A {
+  init<MoreSpecific: Associative & Commutative>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply)
   }
 }
@@ -375,8 +385,26 @@ struct Monoid<A>: Associative, WithIdentity {
     self.empty = empty
   }
 
-  init<MoreSpecific: Associative & WithIdentity>(_ s: MoreSpecific) where MoreSpecific.A == A {
+  init<MoreSpecific: Associative & WithIdentity>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply, empty: s.empty)
+  }
+}
+
+extension Monoid /* where A == Array */ {
+  static func array<Element>() -> Self where A == Array<Element> {
+    Monoid(apply: { $0 + $1 }, empty: [])
+  }
+}
+
+extension Monoid /* where A == Optional */ {
+  static func optional<Wrapped>() -> Self where A == Optional<Wrapped> {
+    Monoid(apply: { $0 ?? $1 }, empty: nil)
+  }
+}
+
+extension Monoid /* where A == (T) -> T */ {
+  static func endo<T>() -> Self where A == (T) -> T {
+    Monoid(apply: { f1, f2 in { f2(f1($0)) } }, empty: { $0 })
   }
 }
 
@@ -393,7 +421,7 @@ struct Group<A>: Associative, WithIdentity, WithInverse {
     self.inverse = inverse
   }
 
-  init<MoreSpecific: Associative & WithIdentity & WithInverse>(_ s: MoreSpecific) where MoreSpecific.A == A {
+  init<MoreSpecific: Associative & WithIdentity & WithInverse>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply, empty: s.empty, inverse: s.inverse)
   }
 }
@@ -409,8 +437,20 @@ struct CommutativeMonoid<A>: Associative, Commutative, WithIdentity {
     self.empty = empty
   }
 
-  init<MoreSpecific: Associative & Commutative & WithIdentity>(_ s: MoreSpecific) where MoreSpecific.A == A {
+  init<MoreSpecific: Associative & Commutative & WithIdentity>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply, empty: s.empty)
+  }
+}
+
+extension CommutativeMonoid where A: AdditiveArithmetic {
+  static var sum: Self {
+    CommutativeMonoid(apply: { $0 + $1 }, empty: A.zero)
+  }
+}
+
+extension CommutativeMonoid where A: Numeric & ExpressibleByIntegerLiteral {
+  static var product: Self {
+    CommutativeMonoid(apply: { $0 * $1 }, empty: 1)
   }
 }
 
@@ -427,8 +467,20 @@ struct AbelianGroup<A>: Associative, Commutative, WithIdentity, WithInverse {
     self.inverse = inverse
   }
 
-  init<MoreSpecific: Associative & Commutative & WithIdentity & WithInverse>(_ s: MoreSpecific) where MoreSpecific.A == A {
+  init<MoreSpecific: Associative & Commutative & WithIdentity & WithInverse>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply, empty: s.empty, inverse: s.inverse)
+  }
+}
+
+extension AbelianGroup where A: SignedNumeric {
+  static var sum: Self {
+    AbelianGroup(apply: { $0 + $1 }, empty: A.zero, inverse: { -$0 })
+  }
+}
+
+extension AbelianGroup where A: FloatingPoint & ExpressibleByIntegerLiteral {
+  static var product: Self {
+    AbelianGroup(apply: { $0 * $1 }, empty: 1, inverse: { 1 / $0 })
   }
 }
 
@@ -441,7 +493,7 @@ struct Band<A>: Associative, Idempotent {
     self.apply = apply
   }
 
-  init<MoreSpecific: Associative & Idempotent>(_ s: MoreSpecific) where MoreSpecific.A == A {
+  init<MoreSpecific: Associative & Idempotent>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply)
   }
 }
@@ -455,8 +507,26 @@ struct Semilattice<A>: Associative, Commutative, Idempotent {
     self.apply = apply
   }
 
-  init<MoreSpecific: Associative & Commutative & Idempotent>(_ s: MoreSpecific) where MoreSpecific.A == A {
+  init<MoreSpecific: Associative & Commutative & Idempotent>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply)
+  }
+}
+
+extension Semilattice where A: Comparable {
+  static var lessThan: Self {
+    Semilattice(apply: { $0 < $1 ? $0 : $1 })
+  }
+  
+  static var lessThanOrEqual: Self {
+    Semilattice(apply: { $0 <= $1 ? $0 : $1 })
+  }
+  
+  static var greaterThan: Self {
+    Semilattice(apply: { $0 > $1 ? $0 : $1 })
+  }
+  
+  static var greaterThanOrEqual: Self {
+    Semilattice(apply: { $0 >= $1 ? $0 : $1 })
   }
 }
 
@@ -471,8 +541,18 @@ struct BoundedSemilattice<A>: Associative, Commutative, Idempotent, WithIdentity
     self.empty = empty
   }
 
-  init<MoreSpecific: Associative & Commutative & Idempotent & WithIdentity>(_ s: MoreSpecific) where MoreSpecific.A == A {
+  init<MoreSpecific: Associative & Commutative & Idempotent & WithIdentity>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply, empty: s.empty)
+  }
+}
+
+extension BoundedSemilattice where A == Bool {
+  static var and: Self {
+    BoundedSemilattice(apply: { $0 && $1 }, empty: true)
+  }
+
+  static var or: Self {
+    BoundedSemilattice(apply: { $0 || $1 }, empty: false)
   }
 }
 
@@ -547,8 +627,8 @@ extension TwoBinaryOperations where Self: LatticeLike {
   typealias MeetBinaryOperation = FirstBinaryOperation
   typealias JoinBinaryOperation = SecondBinaryOperation
 
-  var join: (A, A) -> A { second.apply } /// OR
-  var meet: (A, A) -> A { first.apply } /// AND
+  var join: (A, A) -> A { first.apply } /// ~ OR
+  var meet: (A, A) -> A { second.apply } /// ~ AND
 }
 
 // MARK: Lattice
@@ -593,4 +673,14 @@ struct Boolean<A>: LatticeLike, Distributive, WithZero, WithOne, WithImplies, Ex
   let first: BoundedSemilattice<A>
   let second: BoundedSemilattice<A>
   let implies: (A, A) -> A
+}
+
+extension Boolean where A == Bool {
+  static var bool: Self {
+    Boolean(
+      first: .or,
+      second: .and,
+      implies: { !$0 || $1 }
+    )
+  }
 }

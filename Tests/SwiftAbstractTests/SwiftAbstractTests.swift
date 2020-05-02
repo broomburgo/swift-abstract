@@ -1,22 +1,6 @@
 @testable import SwiftAbstract
 import XCTest
 
-extension Boolean where A == Bool {
-  static var bool: Self {
-    Boolean(
-      first: BoundedSemilattice(
-        apply: { $0 || $1 },
-        empty: false
-      ),
-      second: BoundedSemilattice(
-        apply: { $0 && $1 },
-        empty: true
-      ),
-      implies: { !$0 || $1 }
-    )
-  }
-}
-
 final class SwiftAbstractTests: XCTestCase {
   func testExample() {
     let verify = VerifyTwo(operations: Boolean.bool)
