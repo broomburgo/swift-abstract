@@ -374,6 +374,17 @@ struct CommutativeSemigroup<A>: Associative, Commutative {
   }
 }
 
+extension CommutativeSemigroup where A: Comparable {
+  static var max: Self {
+    CommutativeSemigroup(apply: { Swift.max($0, $1) })
+  }
+  
+  static var min: Self {
+    CommutativeSemigroup(apply: { Swift.min($0, $1) })
+  }
+}
+
+
 // MARK: Monoid
 
 struct Monoid<A>: Associative, WithIdentity {
@@ -387,6 +398,12 @@ struct Monoid<A>: Associative, WithIdentity {
 
   init<MoreSpecific: Associative & WithIdentity>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply, empty: s.empty)
+  }
+}
+
+extension Monoid where A == String {
+  static var string: Self {
+    Monoid(apply: { $0 + $1 }, empty: "")
   }
 }
 
@@ -498,6 +515,28 @@ struct Band<A>: Associative, Idempotent {
   }
 }
 
+// MARK: Idempotent Monoid
+
+struct IdempotentMonoid<A>: Associative, Idempotent, WithIdentity {
+  let apply: (A, A) -> A
+  let empty: A
+
+  init(apply: @escaping (A, A) -> A, empty: A) {
+    self.apply = apply
+    self.empty = empty
+  }
+
+  init<MoreSpecific: Associative & Idempotent & WithIdentity>(from s: MoreSpecific) where MoreSpecific.A == A {
+    self.init(apply: s.apply, empty: s.empty)
+  }
+}
+
+extension IdempotentMonoid where A == Ordering {
+  static var ordering: Self {
+    IdempotentMonoid(apply: { A.merge($0, $1) }, empty: A.neutral)
+  }
+}
+
 // MARK: Semilattice
 
 struct Semilattice<A>: Associative, Commutative, Idempotent {
@@ -553,6 +592,26 @@ extension BoundedSemilattice where A == Bool {
 
   static var or: Self {
     BoundedSemilattice(apply: { $0 || $1 }, empty: false)
+  }
+}
+
+extension BoundedSemilattice where A: FixedWidthInteger {
+  static var maxFixedWidthInteger: Self {
+    BoundedSemilattice(apply: { Swift.max($0, $1) }, empty: A.min)
+  }
+  
+  static var minFixedWidthInteger: Self {
+    BoundedSemilattice(apply: { Swift.min($0, $1) }, empty: A.max)
+  }
+}
+
+extension BoundedSemilattice where A: FloatingPoint {
+  static var maxFloatingPoint: Self {
+    BoundedSemilattice(apply: { Swift.max($0, $1) }, empty: -A.infinity)
+  }
+  
+  static var minFloatingPoint: Self {
+    BoundedSemilattice(apply: { Swift.min($0, $1) }, empty: A.infinity)
   }
 }
 
@@ -690,5 +749,26 @@ extension Boolean where A == Bool {
       second: .and,
       implies: { !$0 || $1 }
     )
+  }
+}
+
+// MARK: - Extra types
+
+enum Ordering {
+  case lowerThan
+  case equalTo
+  case greaterThan
+  
+  static func merge(_ lhs: Self, _ rhs: Self) -> Self {
+    switch lhs {
+    case .lowerThan, .greaterThan:
+      return lhs
+    case .equalTo:
+      return rhs
+    }
+  }
+  
+  static var neutral: Self {
+    .equalTo
   }
 }
