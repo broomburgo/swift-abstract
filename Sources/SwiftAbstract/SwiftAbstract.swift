@@ -601,13 +601,15 @@ extension BoundedSemilattice where A == Bool {
   }
 }
 
-extension BoundedSemilattice where A: Comparable & WithMinimumMaximum {
-  static var max: Self {
-    BoundedSemilattice(apply: { Swift.max($0, $1) }, empty: A.minimum)
-  }
-  
+extension BoundedSemilattice where A: Comparable & WithMinimum {
   static var min: Self {
     BoundedSemilattice(apply: { Swift.min($0, $1) }, empty: A.minimum)
+  }
+}
+
+extension BoundedSemilattice where A: Comparable & WithMaximum {
+  static var max: Self {
+    BoundedSemilattice(apply: { Swift.max($0, $1) }, empty: A.maximum)
   }
 }
 
@@ -643,14 +645,16 @@ struct Semiring<A>: RingLike, WithOne {
   let second: Monoid<A>
 }
 
-extension Semiring where A: AdditiveArithmetic & Comparable & WithMinimumMaximum {
+extension Semiring where A: AdditiveArithmetic & Comparable & WithMinimum {
   static var minTropical: Self {
     Semiring(
       first: .init(from: BoundedSemilattice.min),
       second: .init(from: CommutativeMonoid.sum)
     )
   }
-  
+}
+
+extension Semiring where A: AdditiveArithmetic & Comparable & WithMaximum {
   static var maxTropical: Self {
     Semiring(
       first: .init(from: BoundedSemilattice.max),
@@ -787,25 +791,66 @@ enum Ordering {
 
 // MARK: - Utility protocols
 
-protocol WithMinimumMaximum {
+protocol WithMinimum {
   static var minimum: Self { get }
+}
+
+protocol WithMaximum {
   static var maximum: Self { get }
 }
 
-extension FixedWidthInteger {
-  static var minimum: Self { min }
-  static var maximum: Self { max }
+extension Int8: WithMinimum {
+  static let minimum = min
 }
 
-extension FloatingPoint {
-  static var minimum: Self { infinity }
-  static var maximum: Self { -infinity }
+extension Int8: WithMaximum {
+  static let maximum = max
 }
 
-extension Int8: WithMinimumMaximum {}
-extension Int16: WithMinimumMaximum {}
-extension Int32: WithMinimumMaximum {}
-extension Int64: WithMinimumMaximum {}
-extension UInt: WithMinimumMaximum {}
-extension Float: WithMinimumMaximum {}
-extension Double: WithMinimumMaximum {}
+extension Int16: WithMinimum {
+  static let minimum = min
+}
+
+extension Int16: WithMaximum {
+  static let maximum = max
+}
+
+extension Int32: WithMinimum {
+  static let minimum = min
+}
+
+extension Int32: WithMaximum {
+  static let maximum = max
+}
+
+extension Int64: WithMinimum {
+  static let minimum = min
+}
+
+extension Int64: WithMaximum {
+  static let maximum = max
+}
+
+extension UInt: WithMinimum {
+  static let minimum = min
+}
+
+extension UInt: WithMaximum {
+  static let maximum = max
+}
+
+extension Float: WithMinimum {
+  static let minimum = -infinity
+}
+
+extension Float: WithMaximum {
+  static let maximum = infinity
+}
+
+extension Double: WithMinimum {
+  static let minimum = -infinity
+}
+
+extension Double: WithMaximum {
+  static let maximum = infinity
+}
