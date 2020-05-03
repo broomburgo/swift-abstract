@@ -407,7 +407,7 @@ extension Monoid where A == String {
 }
 
 extension Monoid /* where A == Array */ {
-  static func array<Element>() -> Self where A == [Element] {
+  static func array<Element>() -> Self where A == Array<Element> {
     Monoid(apply: { $0 + $1 }, empty: [])
   }
 }
@@ -525,13 +525,13 @@ struct IdempotentMonoid<A>: Associative, Idempotent, WithIdentity {
 }
 
 extension IdempotentMonoid /* where A == Optional */ {
-  static func firstIfPossible<Wrapped>() -> Self where A == Wrapped? {
+  static func firstIfPossible<Wrapped>() -> Self where A == Optional<Wrapped> {
     IdempotentMonoid(apply: { $0 ?? $1 }, empty: nil)
   }
 }
 
 extension IdempotentMonoid /* where A == Optional */ {
-  static func lastIfPossible<Wrapped>() -> Self where A == Wrapped? {
+  static func lastIfPossible<Wrapped>() -> Self where A == Optional<Wrapped> {
     IdempotentMonoid(apply: { $1 ?? $0 }, empty: nil)
   }
 }
