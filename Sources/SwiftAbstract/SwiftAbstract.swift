@@ -378,12 +378,11 @@ extension CommutativeSemigroup where A: Comparable {
   static var max: Self {
     CommutativeSemigroup(apply: { Swift.max($0, $1) })
   }
-  
+
   static var min: Self {
     CommutativeSemigroup(apply: { Swift.min($0, $1) })
   }
 }
-
 
 // MARK: Monoid
 
@@ -408,7 +407,7 @@ extension Monoid where A == String {
 }
 
 extension Monoid /* where A == Array */ {
-  static func array<Element>() -> Self where A == Array<Element> {
+  static func array<Element>() -> Self where A == [Element] {
     Monoid(apply: { $0 + $1 }, empty: [])
   }
 }
@@ -526,13 +525,13 @@ struct IdempotentMonoid<A>: Associative, Idempotent, WithIdentity {
 }
 
 extension IdempotentMonoid /* where A == Optional */ {
-  static func firstIfPossible<Wrapped>() -> Self where A == Optional<Wrapped> {
+  static func firstIfPossible<Wrapped>() -> Self where A == Wrapped? {
     IdempotentMonoid(apply: { $0 ?? $1 }, empty: nil)
   }
 }
 
 extension IdempotentMonoid /* where A == Optional */ {
-  static func lastIfPossible<Wrapped>() -> Self where A == Optional<Wrapped> {
+  static func lastIfPossible<Wrapped>() -> Self where A == Wrapped? {
     IdempotentMonoid(apply: { $1 ?? $0 }, empty: nil)
   }
 }
@@ -561,15 +560,15 @@ extension Semilattice where A: Comparable {
   static var lessThan: Self {
     Semilattice(apply: { $0 < $1 ? $0 : $1 })
   }
-  
+
   static var lessThanOrEqual: Self {
     Semilattice(apply: { $0 <= $1 ? $0 : $1 })
   }
-  
+
   static var greaterThan: Self {
     Semilattice(apply: { $0 > $1 ? $0 : $1 })
   }
-  
+
   static var greaterThanOrEqual: Self {
     Semilattice(apply: { $0 >= $1 ? $0 : $1 })
   }
@@ -614,10 +613,22 @@ extension BoundedSemilattice where A: Comparable & WithMaximum {
 }
 
 extension BoundedSemilattice /* where A == Set */ {
-  
   /// While this can be useful as the free bounded semilattice, to truly express the algebraic properties of sets, and define a boolean algebra based on them, we actually need `PredicateSet`.
   static func setUnion<Element>() -> Self where A == Set<Element> {
     BoundedSemilattice(apply: { $0.union($1) }, empty: [])
+  }
+}
+
+extension BoundedSemilattice /* where A == (Input) -> Output */ {
+  static func function<Input, Output>(over output: BoundedSemilattice<Output>) -> Self where A == (Input) -> Output {
+    BoundedSemilattice(
+      apply: { f1, f2 in
+        { input in
+          output.apply(f1(input), f2(input))
+        }
+      },
+      empty: { _ in output.empty }
+    )
   }
 }
 
@@ -774,7 +785,7 @@ enum Ordering {
   case lowerThan
   case equalTo
   case greaterThan
-  
+
   static func merge(_ lhs: Self, _ rhs: Self) -> Self {
     switch lhs {
     case .lowerThan, .greaterThan:
@@ -783,7 +794,7 @@ enum Ordering {
       return rhs
     }
   }
-  
+
   static var neutral: Self {
     .equalTo
   }
