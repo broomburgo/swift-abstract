@@ -364,6 +364,58 @@ extension Semigroup {
   }
 }
 
+extension Semigroup where A: Comparable {
+  static var max: Self {
+    Semigroup(from: CommutativeSemigroup.max)
+  }
+
+  static var min: Self {
+    Semigroup(from: CommutativeSemigroup.min)
+  }
+}
+
+extension Semigroup where A == String {
+  static var string: Self {
+    Semigroup(from: Monoid.string)
+  }
+}
+
+extension Semigroup where A: SignedNumeric {
+  static var sum: Self {
+    Semigroup(from: Monoid.sum)
+  }
+}
+
+extension Semigroup where A: FloatingPoint & ExpressibleByIntegerLiteral {
+  static var product: Self {
+    Semigroup(from: Monoid.product)
+  }
+}
+
+extension Semigroup /* where A == Array */ {
+  static func array<Element>() -> Self where A == Array<Element> {
+    Semigroup(from: Monoid.array())
+  }
+}
+
+extension Semigroup /* where A == (T) -> T */ {
+  static func endo<T>() -> Self where A == (T) -> T {
+    Semigroup(from: Monoid.endo())
+  }
+}
+
+extension Semigroup /* where A == (Input) -> Output */ {
+  static func function<Input, Output>(over output: Semigroup<Output>) -> Self where A == (Input) -> Output {
+    Semigroup(
+      apply: { f1, f2 in
+        { input in
+          output.apply(f1(input), f2(input))
+        }
+      }
+    )
+  }
+}
+
 // MARK: Commutative Semigroup
 
 struct CommutativeSemigroup<A>: Associative, Commutative {
@@ -385,6 +437,18 @@ extension CommutativeSemigroup where A: Comparable {
 
   static var min: Self {
     CommutativeSemigroup(apply: { Swift.min($0, $1) })
+  }
+}
+
+extension CommutativeSemigroup /* where A == (Input) -> Output */ {
+  static func function<Input, Output>(over output: CommutativeSemigroup<Output>) -> Self where A == (Input) -> Output {
+    CommutativeSemigroup(
+      apply: { f1, f2 in
+        { input in
+          output.apply(f1(input), f2(input))
+        }
+      }
+    )
   }
 }
 
@@ -410,6 +474,18 @@ extension Monoid where A == String {
   }
 }
 
+extension Monoid where A: SignedNumeric {
+  static var sum: Self {
+    Monoid(from: Group.sum)
+  }
+}
+
+extension Monoid where A: FloatingPoint & ExpressibleByIntegerLiteral {
+  static var product: Self {
+    Monoid(from: Group.product)
+  }
+}
+
 extension Monoid /* where A == Array */ {
   static func array<Element>() -> Self where A == Array<Element> {
     Monoid(apply: { $0 + $1 }, empty: [])
@@ -419,6 +495,19 @@ extension Monoid /* where A == Array */ {
 extension Monoid /* where A == (T) -> T */ {
   static func endo<T>() -> Self where A == (T) -> T {
     Monoid(apply: { f1, f2 in { f2(f1($0)) } }, empty: { $0 })
+  }
+}
+
+extension Monoid /* where A == (Input) -> Output */ {
+  static func function<Input, Output>(over output: Monoid<Output>) -> Self where A == (Input) -> Output {
+    Monoid(
+      apply: { f1, f2 in
+        { input in
+          output.apply(f1(input), f2(input))
+        }
+      },
+      empty: { _ in output.empty }
+    )
   }
 }
 
@@ -437,6 +526,36 @@ struct Group<A>: Associative, WithIdentity, WithInverse {
 
   init<MoreSpecific: Associative & WithIdentity & WithInverse>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply, empty: s.empty, inverse: s.inverse)
+  }
+}
+
+extension Group where A: SignedNumeric {
+  static var sum: Self {
+    Group(from: AbelianGroup.sum)
+  }
+}
+
+extension Group where A: FloatingPoint & ExpressibleByIntegerLiteral {
+  static var product: Self {
+    Group(from: AbelianGroup.product)
+  }
+}
+
+extension Group /* where A == (Input) -> Output */ {
+  static func function<Input, Output>(over output: Group<Output>) -> Self where A == (Input) -> Output {
+    Group(
+      apply: { f1, f2 in
+        { input in
+          output.apply(f1(input), f2(input))
+        }
+      },
+      empty: { _ in output.empty },
+      inverse: { f in
+        { input in
+          output.inverse(f(input))
+        }
+      }
+    )
   }
 }
 
@@ -465,6 +584,19 @@ extension CommutativeMonoid where A: AdditiveArithmetic {
 extension CommutativeMonoid where A: Numeric & ExpressibleByIntegerLiteral {
   static var product: Self {
     CommutativeMonoid(apply: { $0 * $1 }, empty: 1)
+  }
+}
+
+extension CommutativeMonoid /* where A == (Input) -> Output */ {
+  static func function<Input, Output>(over output: CommutativeMonoid<Output>) -> Self where A == (Input) -> Output {
+    CommutativeMonoid(
+      apply: { f1, f2 in
+        { input in
+          output.apply(f1(input), f2(input))
+        }
+      },
+      empty: { _ in output.empty }
+    )
   }
 }
 
@@ -498,6 +630,24 @@ extension AbelianGroup where A: FloatingPoint & ExpressibleByIntegerLiteral {
   }
 }
 
+extension AbelianGroup /* where A == (Input) -> Output */ {
+  static func function<Input, Output>(over output: AbelianGroup<Output>) -> Self where A == (Input) -> Output {
+    AbelianGroup(
+      apply: { f1, f2 in
+        { input in
+          output.apply(f1(input), f2(input))
+        }
+      },
+      empty: { _ in output.empty },
+      inverse: { f in
+        { input in
+          output.inverse(f(input))
+        }
+      }
+    )
+  }
+}
+
 // MARK: Band
 
 struct Band<A>: Associative, Idempotent {
@@ -509,6 +659,63 @@ struct Band<A>: Associative, Idempotent {
 
   init<MoreSpecific: Associative & Idempotent>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply)
+  }
+}
+
+extension Band where A == Ordering {
+  static var ordering: Self {
+    Band(from: IdempotentMonoid.ordering)
+  }
+}
+
+extension Band where A: Comparable {
+  static var min: Self {
+    Band(from: Semilattice.min)
+  }
+
+  static var max: Self {
+    Band(from: Semilattice.max)
+  }
+}
+
+extension Band where A == Bool {
+  static var and: Self {
+    Band(from: Semilattice.and)
+  }
+
+  static var or: Self {
+    Band(from: Semilattice.or)
+  }
+}
+
+extension Band /* where A == Set */ {
+  /// While this can be useful as the free bounded semilattice, to truly express the algebraic properties of sets, and define a boolean algebra based on them, we actually need `PredicateSet`.
+  static func setUnion<Element>() -> Self where A == Set<Element> {
+    Band(from: Semilattice.setUnion())
+  }
+}
+
+extension Band /* where A == Optional */ {
+  static func firstIfPossible<Wrapped>() -> Self where A == Optional<Wrapped> {
+    Band(from: IdempotentMonoid.firstIfPossible())
+  }
+}
+
+extension Band /* where A == Optional */ {
+  static func lastIfPossible<Wrapped>() -> Self where A == Optional<Wrapped> {
+    Band(from: IdempotentMonoid.lastIfPossible())
+  }
+}
+
+extension Band /* where A == (Input) -> Output */ {
+  static func function<Input, Output>(over output: Band<Output>) -> Self where A == (Input) -> Output {
+    Band(
+      apply: { f1, f2 in
+        { input in
+          output.apply(f1(input), f2(input))
+        }
+      }
+    )
   }
 }
 
@@ -528,6 +735,12 @@ struct IdempotentMonoid<A>: Associative, Idempotent, WithIdentity {
   }
 }
 
+extension IdempotentMonoid where A == Ordering {
+  static var ordering: Self {
+    IdempotentMonoid(apply: { A.merge($0, $1) }, empty: A.neutral)
+  }
+}
+
 extension IdempotentMonoid /* where A == Optional */ {
   static func firstIfPossible<Wrapped>() -> Self where A == Optional<Wrapped> {
     IdempotentMonoid(apply: { $0 ?? $1 }, empty: nil)
@@ -537,12 +750,6 @@ extension IdempotentMonoid /* where A == Optional */ {
 extension IdempotentMonoid /* where A == Optional */ {
   static func lastIfPossible<Wrapped>() -> Self where A == Optional<Wrapped> {
     IdempotentMonoid(apply: { $1 ?? $0 }, empty: nil)
-  }
-}
-
-extension IdempotentMonoid where A == Ordering {
-  static var ordering: Self {
-    IdempotentMonoid(apply: { A.merge($0, $1) }, empty: A.neutral)
   }
 }
 
@@ -561,20 +768,41 @@ struct Semilattice<A>: Associative, Commutative, Idempotent {
 }
 
 extension Semilattice where A: Comparable {
-  static var lessThan: Self {
-    Semilattice(apply: { $0 < $1 ? $0 : $1 })
+  static var min: Self {
+    Semilattice(apply: { Swift.min($0, $1) })
   }
 
-  static var lessThanOrEqual: Self {
-    Semilattice(apply: { $0 <= $1 ? $0 : $1 })
+  static var max: Self {
+    Semilattice(apply: { Swift.max($0, $1) })
+  }
+}
+
+extension Semilattice where A == Bool {
+  static var and: Self {
+    Semilattice(from: BoundedSemilattice.and)
   }
 
-  static var greaterThan: Self {
-    Semilattice(apply: { $0 > $1 ? $0 : $1 })
+  static var or: Self {
+    Semilattice(from: BoundedSemilattice.or)
   }
+}
 
-  static var greaterThanOrEqual: Self {
-    Semilattice(apply: { $0 >= $1 ? $0 : $1 })
+extension Semilattice /* where A == Set */ {
+  /// While this can be useful as the free bounded semilattice, to truly express the algebraic properties of sets, and define a boolean algebra based on them, we actually need `PredicateSet`.
+  static func setUnion<Element>() -> Self where A == Set<Element> {
+    Semilattice(from: BoundedSemilattice.setUnion())
+  }
+}
+
+extension Semilattice /* where A == (Input) -> Output */ {
+  static func function<Input, Output>(over output: Semilattice<Output>) -> Self where A == (Input) -> Output {
+    Semilattice(
+      apply: { f1, f2 in
+        { input in
+          output.apply(f1(input), f2(input))
+        }
+      }
+    )
   }
 }
 
