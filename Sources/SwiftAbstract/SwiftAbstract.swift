@@ -1,64 +1,69 @@
-// MARK: - BinaryOperation
+// MARK: - Algebraic structure
 
-protocol BinaryOperation {
+protocol AlgebraicStructure {
   associatedtype A
+}
+
+// MARK: - One binary operation
+
+protocol WithOneBinaryOperation: AlgebraicStructure {
   var apply: (A, A) -> A { get }
 }
 
-struct Verify<BO: BinaryOperation> where BO.A: Equatable {
-  let operation: BO
+struct VerifyOne<OBO: WithOneBinaryOperation> where OBO.A: Equatable {
+  let operation: OBO
 
-  init(operation: BO) {
+  init(operation: OBO) {
     self.operation = operation
   }
 
-  var run: (BO.A, BO.A) -> BO.A {
+  var run: (OBO.A, OBO.A) -> OBO.A {
     operation.apply
   }
 }
 
 // MARK: Associativity
 
-protocol Associative: BinaryOperation {}
+protocol Associative: WithOneBinaryOperation {}
 
-extension Verify where BO: Associative {
-  func associativity(_ a: BO.A, _ b: BO.A, _ c: BO.A) -> Bool {
+extension VerifyOne where OBO: Associative {
+  func associativity(_ a: OBO.A, _ b: OBO.A, _ c: OBO.A) -> Bool {
     run(run(a, b), c) == run(a, run(b, c))
   }
 }
 
 // MARK: Commutativity
 
-protocol Commutative: BinaryOperation {}
+protocol Commutative: WithOneBinaryOperation {}
 
-extension Verify where BO: Commutative {
-  func commutativity(_ a: BO.A, _ b: BO.A) -> Bool {
+extension VerifyOne where OBO: Commutative {
+  func commutativity(_ a: OBO.A, _ b: OBO.A) -> Bool {
     run(a, b) == run(b, a)
   }
 }
 
 // MARK: Idempotency
 
-protocol Idempotent: BinaryOperation {}
+protocol Idempotent: WithOneBinaryOperation {}
 
-extension Verify where BO: Idempotent {
-  func idempotency(_ a: BO.A, _ b: BO.A) -> Bool {
+extension VerifyOne where OBO: Idempotent {
+  func idempotency(_ a: OBO.A, _ b: OBO.A) -> Bool {
     run(run(a, b), b) == run(a, b)
   }
 }
 
 // MARK: Identity
 
-protocol WithIdentity: BinaryOperation {
+protocol WithIdentity: WithOneBinaryOperation {
   var empty: A { get }
 }
 
-extension Verify where BO: WithIdentity {
-  var id: BO.A {
+extension VerifyOne where OBO: WithIdentity {
+  var id: OBO.A {
     operation.empty
   }
 
-  func identity(_ a: BO.A) -> Bool {
+  func identity(_ a: OBO.A) -> Bool {
     run(a, id) == a && run(id, a) == a
   }
 }
@@ -69,28 +74,27 @@ protocol WithInverse: WithIdentity {
   var inverse: (A) -> A { get }
 }
 
-extension Verify where BO: WithInverse {
-  var inv: (BO.A) -> BO.A {
+extension VerifyOne where OBO: WithInverse {
+  var inv: (OBO.A) -> OBO.A {
     operation.inverse
   }
 
-  func inverse(_ a: BO.A) -> Bool {
+  func inverse(_ a: OBO.A) -> Bool {
     run(a, inv(a)) == id
   }
 }
 
-// MARK: - TwoBinaryOperations
+// MARK: - Two binary operations
 
-protocol TwoBinaryOperations {
-  associatedtype A
-  associatedtype FirstBinaryOperation: BinaryOperation where FirstBinaryOperation.A == A
-  associatedtype SecondBinaryOperation: BinaryOperation where SecondBinaryOperation.A == A
+protocol WithTwoBinaryOperations: AlgebraicStructure {
+  associatedtype FirstBinaryOperation: WithOneBinaryOperation where FirstBinaryOperation.A == A
+  associatedtype SecondBinaryOperation: WithOneBinaryOperation where SecondBinaryOperation.A == A
 
   var first: FirstBinaryOperation { get }
   var second: SecondBinaryOperation { get }
 }
 
-struct VerifyTwo<TBO: TwoBinaryOperations> where TBO.A: Equatable {
+struct VerifyTwo<TBO: WithTwoBinaryOperations> where TBO.A: Equatable {
   private let operations: TBO
 
   init(operations: TBO) {
@@ -108,8 +112,8 @@ struct VerifyTwo<TBO: TwoBinaryOperations> where TBO.A: Equatable {
 
 // MARK: Associativity
 
-protocol AssociativeFirst: TwoBinaryOperations where FirstBinaryOperation: Associative {}
-protocol AssociativeSecond: TwoBinaryOperations where SecondBinaryOperation: Associative {}
+protocol AssociativeFirst: WithTwoBinaryOperations where FirstBinaryOperation: Associative {}
+protocol AssociativeSecond: WithTwoBinaryOperations where SecondBinaryOperation: Associative {}
 typealias AssociativeBoth = AssociativeFirst & AssociativeSecond
 
 extension VerifyTwo where TBO: AssociativeFirst {
@@ -132,8 +136,8 @@ extension VerifyTwo where TBO: AssociativeBoth {
 
 // MARK: Commutativity
 
-protocol CommutativeFirst: TwoBinaryOperations where FirstBinaryOperation: Commutative {}
-protocol CommutativeSecond: TwoBinaryOperations where SecondBinaryOperation: Commutative {}
+protocol CommutativeFirst: WithTwoBinaryOperations where FirstBinaryOperation: Commutative {}
+protocol CommutativeSecond: WithTwoBinaryOperations where SecondBinaryOperation: Commutative {}
 typealias CommutativeBoth = CommutativeFirst & CommutativeSecond
 
 extension VerifyTwo where TBO: CommutativeFirst {
@@ -156,8 +160,8 @@ extension VerifyTwo where TBO: CommutativeBoth {
 
 // MARK: Idempotency
 
-protocol IdempotentFirst: TwoBinaryOperations where FirstBinaryOperation: Idempotent {}
-protocol IdempotentSecond: TwoBinaryOperations where SecondBinaryOperation: Idempotent {}
+protocol IdempotentFirst: WithTwoBinaryOperations where FirstBinaryOperation: Idempotent {}
+protocol IdempotentSecond: WithTwoBinaryOperations where SecondBinaryOperation: Idempotent {}
 typealias IdempotentBoth = IdempotentFirst & IdempotentSecond
 
 extension VerifyTwo where TBO: IdempotentFirst {
@@ -180,8 +184,8 @@ extension VerifyTwo where TBO: IdempotentBoth {
 
 // MARK: Distributivity
 
-protocol DistributiveFirstOverSecond: TwoBinaryOperations {}
-protocol DistributiveSecondOverFirst: TwoBinaryOperations {}
+protocol DistributiveFirstOverSecond: WithTwoBinaryOperations {}
+protocol DistributiveSecondOverFirst: WithTwoBinaryOperations {}
 typealias Distributive = DistributiveFirstOverSecond & DistributiveSecondOverFirst
 
 extension VerifyTwo where TBO: DistributiveFirstOverSecond {
@@ -204,7 +208,7 @@ extension VerifyTwo where TBO: Distributive {
 
 // MARK: Zero identity
 
-protocol WithZero: TwoBinaryOperations where FirstBinaryOperation: WithIdentity {}
+protocol WithZero: WithTwoBinaryOperations where FirstBinaryOperation: WithIdentity {}
 
 extension WithZero {
   var zero: A {
@@ -244,7 +248,7 @@ extension VerifyTwo where TBO: WithNegate {
 
 // MARK: One identity
 
-protocol WithOne: TwoBinaryOperations where SecondBinaryOperation: WithIdentity {}
+protocol WithOne: WithTwoBinaryOperations where SecondBinaryOperation: WithIdentity {}
 
 extension WithOne {
   var one: A {
@@ -294,7 +298,7 @@ extension VerifyTwo where TBO: WithAnnihilation {
 
 // MARK: Absorbability
 
-protocol Absorption: TwoBinaryOperations {}
+protocol Absorption: WithTwoBinaryOperations {}
 
 extension VerifyTwo where TBO: Absorption {
   func absorbability(_ a: TBO.A, _ b: TBO.A) -> Bool {
@@ -634,14 +638,14 @@ extension BoundedSemilattice /* where A == (Input) -> Output */ {
 
 // MARK: - Ring-like
 
-typealias RingLike = TwoBinaryOperations
+typealias RingLike = WithTwoBinaryOperations
   & AssociativeBoth
   & CommutativeFirst
   & DistributiveSecondOverFirst
   & WithZero
   & WithAnnihilation
 
-extension TwoBinaryOperations where Self: RingLike {
+extension WithTwoBinaryOperations where Self: RingLike {
   typealias PlusBinaryOperation = FirstBinaryOperation
   typealias TimesBinaryOperation = SecondBinaryOperation
 
@@ -711,13 +715,13 @@ struct Field<A>: RingLike, WithOne, WithNegate, CommutativeSecond, WithReciproca
 
 // MARK: - Lattice-like
 
-typealias LatticeLike = TwoBinaryOperations
+typealias LatticeLike = WithTwoBinaryOperations
   & AssociativeBoth
   & CommutativeBoth
   & IdempotentBoth
   & Absorption
 
-extension TwoBinaryOperations where Self: LatticeLike {
+extension WithTwoBinaryOperations where Self: LatticeLike {
   typealias MeetBinaryOperation = FirstBinaryOperation
   typealias JoinBinaryOperation = SecondBinaryOperation
 
