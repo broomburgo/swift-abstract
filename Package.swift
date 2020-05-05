@@ -4,9 +4,9 @@
 import PackageDescription
 
 let package = Package(
-    name: "SwiftAbstract",
+    name: "swift-abstract",
     products: [
-        .library(name: "swift-abstract", targets: ["SwiftAbstract"]),
+      .library(name: "SwiftAbstract", type: .dynamic, targets: ["SwiftAbstract"]),
     ],
     targets: [
         .target(name: "SwiftAbstract", dependencies: []),
