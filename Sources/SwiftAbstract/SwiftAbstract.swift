@@ -1,421 +1,3 @@
-// MARK: - Algebraic structure
-
-protocol AlgebraicStructure {
-  associatedtype A
-}
-
-// MARK: - One binary operation
-
-protocol WithOneBinaryOperation: AlgebraicStructure {
-  var apply: (A, A) -> A { get }
-}
-
-struct VerifyOne<OneBO: WithOneBinaryOperation> where OneBO.A: Equatable {
-  let operation: OneBO
-
-  init(operation: OneBO) {
-    self.operation = operation
-  }
-
-  var run: (OneBO.A, OneBO.A) -> OneBO.A {
-    operation.apply
-  }
-}
-
-// MARK: Associativity
-
-protocol Associative: WithOneBinaryOperation {}
-
-extension VerifyOne where OneBO: Associative {
-  func associativity(_ a: OneBO.A, _ b: OneBO.A, _ c: OneBO.A) -> Bool {
-    run(run(a, b), c) == run(a, run(b, c))
-  }
-}
-
-// MARK: Commutativity
-
-protocol Commutative: WithOneBinaryOperation {}
-
-extension VerifyOne where OneBO: Commutative {
-  func commutativity(_ a: OneBO.A, _ b: OneBO.A) -> Bool {
-    run(a, b) == run(b, a)
-  }
-}
-
-// MARK: Idempotency
-
-protocol Idempotent: WithOneBinaryOperation {}
-
-extension VerifyOne where OneBO: Idempotent {
-  func idempotency(_ a: OneBO.A, _ b: OneBO.A) -> Bool {
-    run(run(a, b), b) == run(a, b)
-  }
-}
-
-// MARK: Identity
-
-protocol WithIdentity: WithOneBinaryOperation {
-  var empty: A { get }
-}
-
-extension VerifyOne where OneBO: WithIdentity {
-  var id: OneBO.A {
-    operation.empty
-  }
-
-  func identity(_ a: OneBO.A) -> Bool {
-    run(a, id) == a && run(id, a) == a
-  }
-}
-
-// MARK: Invertibility
-
-protocol WithInverse: WithIdentity {
-  var inverse: (A) -> A { get }
-}
-
-extension VerifyOne where OneBO: WithInverse {
-  var inv: (OneBO.A) -> OneBO.A {
-    operation.inverse
-  }
-
-  func inverse(_ a: OneBO.A) -> Bool {
-    run(a, inv(a)) == id
-  }
-}
-
-// MARK: - Two binary operations
-
-protocol WithTwoBinaryOperations: AlgebraicStructure {
-  associatedtype FirstBinaryOperation: WithOneBinaryOperation where FirstBinaryOperation.A == A
-  associatedtype SecondBinaryOperation: WithOneBinaryOperation where SecondBinaryOperation.A == A
-
-  var first: FirstBinaryOperation { get }
-  var second: SecondBinaryOperation { get }
-}
-
-struct VerifyTwo<TwoBO: WithTwoBinaryOperations> where TwoBO.A: Equatable {
-  private let operations: TwoBO
-
-  init(operations: TwoBO) {
-    self.operations = operations
-  }
-
-  private var runFst: (TwoBO.A, TwoBO.A) -> TwoBO.A {
-    operations.first.apply
-  }
-
-  private var runSnd: (TwoBO.A, TwoBO.A) -> TwoBO.A {
-    operations.second.apply
-  }
-}
-
-// MARK: Associativity
-
-protocol AssociativeFirst: WithTwoBinaryOperations where FirstBinaryOperation: Associative {}
-protocol AssociativeSecond: WithTwoBinaryOperations where SecondBinaryOperation: Associative {}
-typealias AssociativeBoth = AssociativeFirst & AssociativeSecond
-
-extension VerifyTwo where TwoBO: AssociativeFirst {
-  func associativityOfFirst(_ a: TwoBO.A, _ b: TwoBO.A, _ c: TwoBO.A) -> Bool {
-    runFst(runFst(a, b), c) == runFst(a, runFst(b, c))
-  }
-}
-
-extension VerifyTwo where TwoBO: AssociativeSecond {
-  func associativityOfSecond(_ a: TwoBO.A, _ b: TwoBO.A, _ c: TwoBO.A) -> Bool {
-    runSnd(runSnd(a, b), c) == runSnd(a, runSnd(b, c))
-  }
-}
-
-extension VerifyTwo where TwoBO: AssociativeBoth {
-  func associativity(_ a: TwoBO.A, _ b: TwoBO.A, _ c: TwoBO.A) -> Bool {
-    associativityOfFirst(a, b, c) && associativityOfSecond(a, b, c)
-  }
-}
-
-// MARK: Commutativity
-
-protocol CommutativeFirst: WithTwoBinaryOperations where FirstBinaryOperation: Commutative {}
-protocol CommutativeSecond: WithTwoBinaryOperations where SecondBinaryOperation: Commutative {}
-typealias CommutativeBoth = CommutativeFirst & CommutativeSecond
-
-extension VerifyTwo where TwoBO: CommutativeFirst {
-  func commutativityOfFirst(_ a: TwoBO.A, _ b: TwoBO.A) -> Bool {
-    runFst(a, b) == runFst(b, a)
-  }
-}
-
-extension VerifyTwo where TwoBO: CommutativeSecond {
-  func commutativityOfSecond(_ a: TwoBO.A, _ b: TwoBO.A) -> Bool {
-    runSnd(a, b) == runSnd(b, a)
-  }
-}
-
-extension VerifyTwo where TwoBO: CommutativeBoth {
-  func commutativity(_ a: TwoBO.A, _ b: TwoBO.A) -> Bool {
-    commutativityOfFirst(a, b) && commutativityOfSecond(a, b)
-  }
-}
-
-// MARK: Idempotency
-
-protocol IdempotentFirst: WithTwoBinaryOperations where FirstBinaryOperation: Idempotent {}
-protocol IdempotentSecond: WithTwoBinaryOperations where SecondBinaryOperation: Idempotent {}
-typealias IdempotentBoth = IdempotentFirst & IdempotentSecond
-
-extension VerifyTwo where TwoBO: IdempotentFirst {
-  func idempotencyOfFirst(_ a: TwoBO.A, _ b: TwoBO.A) -> Bool {
-    runFst(runFst(a, b), b) == runFst(a, b)
-  }
-}
-
-extension VerifyTwo where TwoBO: IdempotentSecond {
-  func idempotencyOfSecond(_ a: TwoBO.A, _ b: TwoBO.A) -> Bool {
-    runSnd(runSnd(a, b), b) == runSnd(a, b)
-  }
-}
-
-extension VerifyTwo where TwoBO: IdempotentBoth {
-  func idempotency(_ a: TwoBO.A, _ b: TwoBO.A) -> Bool {
-    idempotencyOfFirst(a, b) && idempotencyOfSecond(a, b)
-  }
-}
-
-// MARK: Distributivity
-
-protocol DistributiveFirstOverSecond: WithTwoBinaryOperations {}
-protocol DistributiveSecondOverFirst: WithTwoBinaryOperations {}
-typealias Distributive = DistributiveFirstOverSecond & DistributiveSecondOverFirst
-
-extension VerifyTwo where TwoBO: DistributiveFirstOverSecond {
-  func distributivityOfFirstOverSecond(_ a: TwoBO.A, _ b: TwoBO.A, _ c: TwoBO.A) -> Bool {
-    runFst(a, runSnd(b, c)) == runSnd(runFst(a, b), runFst(a, c))
-  }
-}
-
-extension VerifyTwo where TwoBO: DistributiveSecondOverFirst {
-  func distributivityOfSecondOverFirst(_ a: TwoBO.A, _ b: TwoBO.A, _ c: TwoBO.A) -> Bool {
-    runSnd(a, runFst(b, c)) == runFst(runSnd(a, b), runSnd(a, c))
-  }
-}
-
-extension VerifyTwo where TwoBO: Distributive {
-  func distributivity(_ a: TwoBO.A, _ b: TwoBO.A, _ c: TwoBO.A) -> Bool {
-    distributivityOfFirstOverSecond(a, b, c) && distributivityOfSecondOverFirst(a, b, c)
-  }
-}
-
-// MARK: Zero identity
-
-protocol WithZero: WithTwoBinaryOperations where FirstBinaryOperation: WithIdentity {}
-
-extension WithZero {
-  var zero: A {
-    first.empty
-  }
-}
-
-extension VerifyTwo where TwoBO: WithZero {
-  private var zero: TwoBO.A {
-    operations.zero
-  }
-
-  func zeroIdentity(_ a: TwoBO.A) -> Bool {
-    runFst(a, zero) == a && runFst(zero, a) == a
-  }
-}
-
-// MARK: Negation
-
-protocol WithNegate: WithZero where FirstBinaryOperation: WithInverse {}
-
-extension WithNegate {
-  var negate: (A) -> A {
-    first.inverse
-  }
-}
-
-extension VerifyTwo where TwoBO: WithNegate {
-  private var neg: (TwoBO.A) -> TwoBO.A {
-    operations.negate
-  }
-
-  func negation(_ a: TwoBO.A) -> Bool {
-    runFst(a, neg(a)) == zero && runFst(neg(a), a) == zero
-  }
-}
-
-// MARK: One identity
-
-protocol WithOne: WithTwoBinaryOperations where SecondBinaryOperation: WithIdentity {}
-
-extension WithOne {
-  var one: A {
-    second.empty
-  }
-}
-
-extension VerifyTwo where TwoBO: WithOne {
-  private var one: TwoBO.A {
-    operations.one
-  }
-
-  func oneIdentity(_ a: TwoBO.A) -> Bool {
-    runSnd(a, one) == a && runSnd(one, a) == a
-  }
-}
-
-// MARK: Reciprocity
-
-protocol WithReciprocal: WithOne where SecondBinaryOperation: WithInverse {}
-
-extension WithReciprocal {
-  var reciprocal: (A) -> A {
-    second.inverse
-  }
-}
-
-extension VerifyTwo where TwoBO: WithReciprocal {
-  private var rec: (TwoBO.A) -> TwoBO.A {
-    operations.reciprocal
-  }
-
-  func reciprocity(_ a: TwoBO.A) -> Bool {
-    runSnd(a, rec(a)) == one && runSnd(rec(a), a) == one
-  }
-}
-
-// MARK: Annihilability
-
-protocol WithAnnihilation: WithZero {}
-
-extension VerifyTwo where TwoBO: WithAnnihilation {
-  func annihilability(_ a: TwoBO.A) -> Bool {
-    runSnd(a, zero) == zero && runSnd(zero, a) == zero
-  }
-}
-
-// MARK: Absorbability
-
-protocol Absorption: WithTwoBinaryOperations {}
-
-extension VerifyTwo where TwoBO: Absorption {
-  func absorbability(_ a: TwoBO.A, _ b: TwoBO.A) -> Bool {
-    runSnd(a, runFst(a, b)) == a
-      && runFst(a, runSnd(a, b)) == a
-  }
-}
-
-// MARK: Implication
-
-protocol WithImplies: LatticeLike, WithOne {
-  var implies: (A, A) -> A { get }
-}
-
-extension VerifyTwo where TwoBO: WithImplies {
-  private var imp: (TwoBO.A, TwoBO.A) -> TwoBO.A {
-    operations.implies
-  }
-
-  func implication(_ a: TwoBO.A, _ b: TwoBO.A, _ c: TwoBO.A) -> Bool {
-    imp(a, a) == one
-      && runSnd(a, imp(a, b)) == runSnd(a, b)
-      && runSnd(b, imp(a, b)) == b
-      && imp(a, runSnd(b, c)) == runSnd(imp(a, b), imp(a, c))
-  }
-}
-
-// MARK: Excluded middle
-
-protocol ExcludedMiddle: WithImplies, WithZero {}
-
-extension VerifyTwo where TwoBO: ExcludedMiddle {
-  func excludedMiddle(_ a: TwoBO.A) -> Bool {
-    runFst(a, imp(a, zero)) == one
-  }
-}
-
-// MARK: - Magma-like
-
-//
-
-// MARK: Semigroup
-
-struct Semigroup<A>: Associative {
-  let apply: (A, A) -> A
-
-  init(apply: @escaping (A, A) -> A) {
-    self.apply = apply
-  }
-
-  init<MoreSpecific: Associative>(from s: MoreSpecific) where MoreSpecific.A == A {
-    self.init(apply: s.apply)
-  }
-}
-
-extension Semigroup {
-  static var first: Self {
-    Semigroup(apply: { a, _ in a })
-  }
-
-  static var last: Self {
-    Semigroup(apply: { _, b in b })
-  }
-}
-
-extension Semigroup where A: Comparable {
-  static var max: Self {
-    Semigroup(from: CommutativeSemigroup.max)
-  }
-
-  static var min: Self {
-    Semigroup(from: CommutativeSemigroup.min)
-  }
-}
-
-extension Semigroup where A == String {
-  static var string: Self {
-    Semigroup(from: Monoid.string)
-  }
-}
-
-extension Semigroup where A: SignedNumeric {
-  static var sum: Self {
-    Semigroup(from: Monoid.sum)
-  }
-}
-
-extension Semigroup where A: FloatingPoint & ExpressibleByIntegerLiteral {
-  static var product: Self {
-    Semigroup(from: Monoid.product)
-  }
-}
-
-extension Semigroup /* where A == Array */ {
-  static func array<Element>() -> Self where A == Array<Element> {
-    Semigroup(from: Monoid.array())
-  }
-}
-
-extension Semigroup /* where A == (T) -> T */ {
-  static func endo<T>() -> Self where A == (T) -> T {
-    Semigroup(from: Monoid.endo())
-  }
-}
-
-extension Semigroup /* where A == (Input) -> Output */ {
-  static func function<Input, Output>(over output: Semigroup<Output>) -> Self where A == (Input) -> Output {
-    Semigroup(
-      apply: { f1, f2 in
-        { input in
-          output.apply(f1(input), f2(input))
-        }
-      }
-    )
-  }
-}
-
 // MARK: Commutative Semigroup
 
 struct CommutativeSemigroup<A>: Associative, Commutative {
@@ -474,15 +56,15 @@ extension Monoid where A == String {
   }
 }
 
-extension Monoid where A: SignedNumeric {
+extension Monoid where A: AdditiveArithmetic {
   static var sum: Self {
-    Monoid(from: Group.sum)
+    Monoid(from: CommutativeMonoid.sum)
   }
 }
 
-extension Monoid where A: FloatingPoint & ExpressibleByIntegerLiteral {
+extension Monoid where A: Numeric & ExpressibleByIntegerLiteral {
   static var product: Self {
-    Monoid(from: Group.product)
+    Monoid(from: CommutativeMonoid.product)
   }
 }
 
@@ -680,11 +262,11 @@ extension Band where A: Comparable {
 
 extension Band where A == Bool {
   static var and: Self {
-    Band(from: Semilattice.and)
+    Band(from: IdempotentMonoid.and)
   }
 
   static var or: Self {
-    Band(from: Semilattice.or)
+    Band(from: IdempotentMonoid.or)
   }
 }
 
@@ -732,6 +314,16 @@ struct IdempotentMonoid<A>: Associative, Idempotent, WithIdentity {
 
   init<MoreSpecific: Associative & Idempotent & WithIdentity>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply, empty: s.empty)
+  }
+}
+
+extension IdempotentMonoid where A == Bool {
+  static var and: Self {
+    IdempotentMonoid(from: BoundedSemilattice.and)
+  }
+
+  static var or: Self {
+    IdempotentMonoid(from: BoundedSemilattice.or)
   }
 }
 
@@ -943,7 +535,7 @@ struct Field<A>: RingLike, WithOne, WithNegate, CommutativeSecond, WithReciproca
 
 // MARK: - Lattice-like
 
-typealias LatticeLike = WithTwoBinaryOperations
+public typealias LatticeLike = WithTwoBinaryOperations
   & AssociativeBoth
   & CommutativeBoth
   & IdempotentBoth
