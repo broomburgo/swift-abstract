@@ -1,3 +1,5 @@
+// MARK: - Definition
+
 struct CommutativeSemigroup<A>: Associative, Commutative {
   let apply: (A, A) -> A
 

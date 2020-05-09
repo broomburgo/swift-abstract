@@ -1,3 +1,5 @@
+// MARK: - Definition
+
 struct CommutativeMonoid<A>: Associative, Commutative, WithIdentity {
   let apply: (A, A) -> A
   let empty: A

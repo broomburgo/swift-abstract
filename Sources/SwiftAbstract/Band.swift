@@ -1,3 +1,5 @@
+// MARK: - Definition
+
 struct Band<A>: Associative, Idempotent {
   let apply: (A, A) -> A
 

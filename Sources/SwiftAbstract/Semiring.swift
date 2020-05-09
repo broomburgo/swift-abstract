@@ -1,3 +1,5 @@
+// MARK: - Definition
+
 struct Semiring<A>: RingLike, WithOne {
   let first: CommutativeMonoid<A>
   let second: Monoid<A>

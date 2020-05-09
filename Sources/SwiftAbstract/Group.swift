@@ -1,3 +1,5 @@
+// MARK: - Definition
+
 struct Group<A>: Associative, WithIdentity, WithInverse {
   let apply: (A, A) -> A
   let empty: A

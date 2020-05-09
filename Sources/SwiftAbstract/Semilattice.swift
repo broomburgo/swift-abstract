@@ -1,3 +1,5 @@
+// MARK: - Definition
+
 struct Semilattice<A>: Associative, Commutative, Idempotent {
   let apply: (A, A) -> A
 

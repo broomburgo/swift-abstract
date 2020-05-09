@@ -1,3 +1,5 @@
+// MARK: - Definition
+
 struct Semigroup<A>: Associative {
   let apply: (A, A) -> A
 

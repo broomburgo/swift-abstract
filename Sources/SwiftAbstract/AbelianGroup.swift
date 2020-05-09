@@ -1,3 +1,5 @@
+// MARK: - Definition
+
 struct AbelianGroup<A>: Associative, Commutative, WithIdentity, WithInverse {
   let apply: (A, A) -> A
   let empty: A

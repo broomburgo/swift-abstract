@@ -1,3 +1,5 @@
+// MARK: - Definition
+
 struct BoundedSemilattice<A>: Associative, Commutative, Idempotent, WithIdentity {
   let apply: (A, A) -> A
   let empty: A

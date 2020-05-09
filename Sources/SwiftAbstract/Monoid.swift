@@ -1,3 +1,5 @@
+// MARK: - Definition
+
 struct Monoid<A>: Associative, WithIdentity {
   let apply: (A, A) -> A
   let empty: A

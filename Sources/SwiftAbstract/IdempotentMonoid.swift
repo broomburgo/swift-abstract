@@ -1,3 +1,5 @@
+// MARK: - Definition
+
 struct IdempotentMonoid<A>: Associative, Idempotent, WithIdentity {
   let apply: (A, A) -> A
   let empty: A
