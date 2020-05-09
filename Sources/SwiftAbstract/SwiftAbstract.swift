@@ -1,145 +1,9 @@
-// MARK: Commutative Semigroup
 
-struct CommutativeSemigroup<A>: Associative, Commutative {
-  let apply: (A, A) -> A
-
-  init(apply: @escaping (A, A) -> A) {
-    self.apply = apply
-  }
-
-  init<MoreSpecific: Associative & Commutative>(from s: MoreSpecific) where MoreSpecific.A == A {
-    self.init(apply: s.apply)
-  }
-}
-
-extension CommutativeSemigroup where A: Comparable {
-  static var max: Self {
-    CommutativeSemigroup(apply: { Swift.max($0, $1) })
-  }
-
-  static var min: Self {
-    CommutativeSemigroup(apply: { Swift.min($0, $1) })
-  }
-}
-
-extension CommutativeSemigroup /* where A == (Input) -> Output */ {
-  static func function<Input, Output>(over output: CommutativeSemigroup<Output>) -> Self where A == (Input) -> Output {
-    CommutativeSemigroup(
-      apply: { f1, f2 in
-        { input in
-          output.apply(f1(input), f2(input))
-        }
-      }
-    )
-  }
-}
 
 // MARK: Monoid
 
-struct Monoid<A>: Associative, WithIdentity {
-  let apply: (A, A) -> A
-  let empty: A
-
-  init(apply: @escaping (A, A) -> A, empty: A) {
-    self.apply = apply
-    self.empty = empty
-  }
-
-  init<MoreSpecific: Associative & WithIdentity>(from s: MoreSpecific) where MoreSpecific.A == A {
-    self.init(apply: s.apply, empty: s.empty)
-  }
-}
-
-extension Monoid where A == String {
-  static var string: Self {
-    Monoid(apply: { $0 + $1 }, empty: "")
-  }
-}
-
-extension Monoid where A: AdditiveArithmetic {
-  static var sum: Self {
-    Monoid(from: CommutativeMonoid.sum)
-  }
-}
-
-extension Monoid where A: Numeric & ExpressibleByIntegerLiteral {
-  static var product: Self {
-    Monoid(from: CommutativeMonoid.product)
-  }
-}
-
-extension Monoid /* where A == Array */ {
-  static func array<Element>() -> Self where A == Array<Element> {
-    Monoid(apply: { $0 + $1 }, empty: [])
-  }
-}
-
-extension Monoid /* where A == (T) -> T */ {
-  static func endo<T>() -> Self where A == (T) -> T {
-    Monoid(apply: { f1, f2 in { f2(f1($0)) } }, empty: { $0 })
-  }
-}
-
-extension Monoid /* where A == (Input) -> Output */ {
-  static func function<Input, Output>(over output: Monoid<Output>) -> Self where A == (Input) -> Output {
-    Monoid(
-      apply: { f1, f2 in
-        { input in
-          output.apply(f1(input), f2(input))
-        }
-      },
-      empty: { _ in output.empty }
-    )
-  }
-}
-
 // MARK: Group
 
-struct Group<A>: Associative, WithIdentity, WithInverse {
-  let apply: (A, A) -> A
-  let empty: A
-  let inverse: (A) -> A
-
-  init(apply: @escaping (A, A) -> A, empty: A, inverse: @escaping (A) -> A) {
-    self.apply = apply
-    self.empty = empty
-    self.inverse = inverse
-  }
-
-  init<MoreSpecific: Associative & WithIdentity & WithInverse>(from s: MoreSpecific) where MoreSpecific.A == A {
-    self.init(apply: s.apply, empty: s.empty, inverse: s.inverse)
-  }
-}
-
-extension Group where A: SignedNumeric {
-  static var sum: Self {
-    Group(from: AbelianGroup.sum)
-  }
-}
-
-extension Group where A: FloatingPoint & ExpressibleByIntegerLiteral {
-  static var product: Self {
-    Group(from: AbelianGroup.product)
-  }
-}
-
-extension Group /* where A == (Input) -> Output */ {
-  static func function<Input, Output>(over output: Group<Output>) -> Self where A == (Input) -> Output {
-    Group(
-      apply: { f1, f2 in
-        { input in
-          output.apply(f1(input), f2(input))
-        }
-      },
-      empty: { _ in output.empty },
-      inverse: { f in
-        { input in
-          output.inverse(f(input))
-        }
-      }
-    )
-  }
-}
 
 // MARK: Commutative Monoid
 
@@ -329,7 +193,7 @@ extension IdempotentMonoid where A == Bool {
 
 extension IdempotentMonoid where A == Ordering {
   static var ordering: Self {
-    IdempotentMonoid(apply: { A.merge($0, $1) }, empty: A.neutral)
+    IdempotentMonoid(apply: { A.merge($0, $1) }, empty: .equalTo)
   }
 }
 
@@ -617,10 +481,6 @@ enum Ordering {
     case .equalTo:
       return rhs
     }
-  }
-
-  static var neutral: Self {
-    .equalTo
   }
 }
 

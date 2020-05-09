@@ -1,4 +1,4 @@
-// MARK: - Absorbability
+// MARK: - Absorption
 
 public protocol Absorption: WithTwoBinaryOperations {}
 
@@ -8,7 +8,7 @@ extension VerifyTwo where TwoBO: Absorption {
   }
 }
 
-// MARK: - Annihilability
+// MARK: - Annihilation
 
 protocol WithAnnihilation: WithZero {}
 
