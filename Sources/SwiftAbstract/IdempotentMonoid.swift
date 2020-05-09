@@ -90,7 +90,8 @@ extension IdempotentMonoid /* where A == (Input) -> Output */ {
     IdempotentMonoid(
       apply: { f1, f2 in
         { output.apply(f1($0), f2($0)) }
-      }
+      },
+      empty: { _ in output.empty }
     )
   }
 }
