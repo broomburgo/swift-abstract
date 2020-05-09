@@ -16,72 +16,108 @@ struct Monoid<A>: Associative, WithIdentity {
 
 extension Monoid where A: Comparable & WithMinimum {
   static var max: Self {
-    Monoid(apply: { Swift.max($0, $1) }, empty: .minimum)
+    Monoid(
+      apply: { Swift.max($0, $1) },
+      empty: .minimum
+    )
   }
 }
 
 extension Monoid where A: Comparable & WithMaximum {
   static var min: Self {
-    Monoid(apply: { Swift.min($0, $1) }, empty: .maximum)
+    Monoid(
+      apply: { Swift.min($0, $1) },
+      empty: .maximum
+    )
   }
 }
 
 extension Monoid where A: AdditiveArithmetic {
   static var sum: Self {
-    Monoid(apply: { $0 + $1 }, empty: .zero)
+    Monoid(
+      apply: { $0 + $1 },
+      empty: .zero
+    )
   }
 }
 
 extension Monoid where A: Numeric & ExpressibleByIntegerLiteral {
   static var product: Self {
-    Monoid(apply: { $0 * $1 }, empty: 1)
+    Monoid(
+      apply: { $0 * $1 },
+      empty: 1
+    )
   }
 }
 
 extension Monoid where A == Bool {
   static var and: Self {
-    Monoid(apply: { $0 && $1 }, empty: true)
+    Monoid(
+      apply: { $0 && $1 },
+      empty: true
+    )
   }
 
   static var or: Self {
-    Monoid(apply: { $0 || $1 }, empty: false)
+    Monoid(
+      apply: { $0 || $1 },
+      empty: false
+    )
   }
 }
 
 extension Monoid where A == String {
   static var string: Self {
-    Monoid(apply: { $0 + $1 }, empty: "")
+    Monoid(
+      apply: { $0 + $1 },
+      empty: ""
+    )
   }
 }
 
 extension Monoid where A == Ordering {
   static var ordering: Self {
-    Monoid(apply: { A.merge($0, $1) }, empty: .equalTo)
+    Monoid(
+      apply: { A.merge($0, $1) },
+      empty: .equalTo
+    )
   }
 }
 
 extension Monoid /* where A == Optional */ {
   static func firstIfPossible<Wrapped>() -> Self where A == Optional<Wrapped> {
-    Monoid(apply: { $0 ?? $1 }, empty: nil)
+    Monoid(
+      apply: { $0 ?? $1 },
+      empty: nil
+    )
   }
 }
 
 extension Monoid /* where A == Optional */ {
   static func lastIfPossible<Wrapped>() -> Self where A == Optional<Wrapped> {
-    Monoid(apply: { $1 ?? $0 }, empty: nil)
+    Monoid(
+      apply: { $1 ?? $0 },
+      empty: nil
+    )
   }
 }
 
 extension Monoid /* where A == Array */ {
   static func array<Element>() -> Self where A == Array<Element> {
-    Monoid(apply: { $1 + $0 }, empty: [])
+    Monoid(
+      apply: { $1 + $0 },
+      empty: []
+    )
   }
 }
 
 extension Monoid /* where A == Set */ {
   /// While this can be useful as the free bounded semilattice, to truly express the algebraic properties of sets, and define a boolean algebra based on them, we actually need `PredicateSet`.
   static func setUnion<Element>() -> Self where A == Set<Element> {
-    Monoid(apply: { $0.union($1) }, empty: [])
+    Monoid(
+      apply: { $0.union($1) },
+      empty: []
+    )
   }
 }
 

@@ -7,44 +7,6 @@
 
 // MARK: Commutative Monoid
 
-struct CommutativeMonoid<A>: Associative, Commutative, WithIdentity {
-  let apply: (A, A) -> A
-  let empty: A
-
-  init(apply: @escaping (A, A) -> A, empty: A) {
-    self.apply = apply
-    self.empty = empty
-  }
-
-  init<MoreSpecific: Associative & Commutative & WithIdentity>(from s: MoreSpecific) where MoreSpecific.A == A {
-    self.init(apply: s.apply, empty: s.empty)
-  }
-}
-
-extension CommutativeMonoid where A: AdditiveArithmetic {
-  static var sum: Self {
-    CommutativeMonoid(apply: { $0 + $1 }, empty: A.zero)
-  }
-}
-
-extension CommutativeMonoid where A: Numeric & ExpressibleByIntegerLiteral {
-  static var product: Self {
-    CommutativeMonoid(apply: { $0 * $1 }, empty: 1)
-  }
-}
-
-extension CommutativeMonoid /* where A == (Input) -> Output */ {
-  static func function<Input, Output>(over output: CommutativeMonoid<Output>) -> Self where A == (Input) -> Output {
-    CommutativeMonoid(
-      apply: { f1, f2 in
-        { input in
-          output.apply(f1(input), f2(input))
-        }
-      },
-      empty: { _ in output.empty }
-    )
-  }
-}
 
 // MARK: Abelian Group
 

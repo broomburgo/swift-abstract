@@ -14,51 +14,69 @@ struct CommutativeSemigroup<A>: Associative, Commutative {
 
 extension CommutativeSemigroup where A: Comparable {
   static var max: Self {
-    CommutativeSemigroup(apply: { Swift.max($0, $1) })
+    CommutativeSemigroup(
+      apply: { Swift.max($0, $1) }
+    )
   }
 
   static var min: Self {
-    CommutativeSemigroup(apply: { Swift.min($0, $1) })
+    CommutativeSemigroup(
+      apply: { Swift.min($0, $1) }
+    )
   }
 }
 
 extension CommutativeSemigroup where A: AdditiveArithmetic {
   static var sum: Self {
-    CommutativeSemigroup(apply: { $0 + $1 })
+    CommutativeSemigroup(
+      apply: { $0 + $1 }
+    )
   }
 }
 
 extension CommutativeSemigroup where A: Numeric {
   static var product: Self {
-    CommutativeSemigroup(apply: { $0 * $1 })
+    CommutativeSemigroup(
+      apply: { $0 * $1 }
+    )
   }
 }
 
 extension CommutativeSemigroup where A == Bool {
   static var and: Self {
-    CommutativeSemigroup(apply: { $0 && $1 })
+    CommutativeSemigroup(
+      apply: { $0 && $1 }
+    )
   }
 
   static var or: Self {
-    CommutativeSemigroup(apply: { $0 || $1 })
+    CommutativeSemigroup(
+      apply: { $0 || $1 }
+    )
   }
 }
 
 extension CommutativeSemigroup where A == String {
   static var string: Self {
-    CommutativeSemigroup(apply: { $0 + $1 })
+    CommutativeSemigroup(
+      apply: { $0 + $1 }
+    )
   }
 }
 
 extension CommutativeSemigroup /* where A == Set */ {
   /// While this can be useful as the free bounded semilattice, to truly express the algebraic properties of sets, and define a boolean algebra based on them, we actually need `PredicateSet`.
   static func setUnion<Element>() -> Self where A == Set<Element> {
-    CommutativeSemigroup(apply: { $0.union($1) })
+    CommutativeSemigroup(
+      apply: { $0.union($1) }
+    )
   }
 
   /// This cannot be suitable for `WithEmpty` types, because there not such thing as the "universe" set, but it could be done with `PredicateSet`.
   static func setIntersection<Element>() -> Self where A == Set<Element> {
-    CommutativeSemigroup(apply: { $0.intersection($1) })
+    CommutativeSemigroup(
+      apply: { $0.intersection($1) }
+    )
   }
 }
 
