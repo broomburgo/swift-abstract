@@ -33,7 +33,7 @@ public protocol WithTwoBinaryOperations: AlgebraicStructure {
 }
 
 public struct VerifyTwo<TwoBO: WithTwoBinaryOperations> where TwoBO.A: Equatable {
-  public  let operations: TwoBO
+  public let operations: TwoBO
 
   public init(operations: TwoBO) {
     self.operations = operations
@@ -46,4 +46,37 @@ public struct VerifyTwo<TwoBO: WithTwoBinaryOperations> where TwoBO.A: Equatable
   public var runSecond: (TwoBO.A, TwoBO.A) -> TwoBO.A {
     operations.second.apply
   }
+}
+
+// MARK: - Ring-like
+
+typealias RingLike = WithTwoBinaryOperations
+  & AssociativeBoth
+  & CommutativeFirst
+  & DistributiveSecondOverFirst
+  & WithZero
+  & WithAnnihilation
+
+extension WithTwoBinaryOperations where Self: RingLike {
+  typealias PlusBinaryOperation = FirstBinaryOperation
+  typealias TimesBinaryOperation = SecondBinaryOperation
+
+  var plus: (A, A) -> A { first.apply }
+  var times: (A, A) -> A { second.apply }
+}
+
+// MARK: - Lattice-like
+
+public typealias LatticeLike = WithTwoBinaryOperations
+  & AssociativeBoth
+  & CommutativeBoth
+  & IdempotentBoth
+  & Absorption
+
+extension WithTwoBinaryOperations where Self: LatticeLike {
+  typealias MeetBinaryOperation = FirstBinaryOperation
+  typealias JoinBinaryOperation = SecondBinaryOperation
+
+  var join: (A, A) -> A { first.apply } /// ~ OR
+  var meet: (A, A) -> A { second.apply } /// ~ AND
 }

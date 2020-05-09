@@ -25,45 +25,10 @@
 
 // MARK: - Ring-like
 
-typealias RingLike = WithTwoBinaryOperations
-  & AssociativeBoth
-  & CommutativeFirst
-  & DistributiveSecondOverFirst
-  & WithZero
-  & WithAnnihilation
 
-extension WithTwoBinaryOperations where Self: RingLike {
-  typealias PlusBinaryOperation = FirstBinaryOperation
-  typealias TimesBinaryOperation = SecondBinaryOperation
-
-  var plus: (A, A) -> A { first.apply }
-  var times: (A, A) -> A { second.apply }
-}
 
 // MARK: Semiring
 
-struct Semiring<A>: RingLike, WithOne {
-  let first: CommutativeMonoid<A>
-  let second: Monoid<A>
-}
-
-extension Semiring where A: AdditiveArithmetic & Comparable & WithMaximum {
-  static var minTropical: Self {
-    Semiring(
-      first: CommutativeMonoid.min,
-      second: Monoid.sum
-    )
-  }
-}
-
-extension Semiring where A: AdditiveArithmetic & Comparable & WithMinimum {
-  static var maxTropical: Self {
-    Semiring(
-      first: CommutativeMonoid.max,
-      second: Monoid.sum
-    )
-  }
-}
 
 // MARK: Rng
 
@@ -100,21 +65,6 @@ struct Field<A>: RingLike, WithOne, WithNegate, CommutativeSecond, WithReciproca
   let second: AbelianGroup<A>
 }
 
-// MARK: - Lattice-like
-
-public typealias LatticeLike = WithTwoBinaryOperations
-  & AssociativeBoth
-  & CommutativeBoth
-  & IdempotentBoth
-  & Absorption
-
-extension WithTwoBinaryOperations where Self: LatticeLike {
-  typealias MeetBinaryOperation = FirstBinaryOperation
-  typealias JoinBinaryOperation = SecondBinaryOperation
-
-  var join: (A, A) -> A { first.apply } /// ~ OR
-  var meet: (A, A) -> A { second.apply } /// ~ AND
-}
 
 // MARK: Lattice
 
