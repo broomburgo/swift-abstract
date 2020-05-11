@@ -4,22 +4,26 @@ import XCTest
 
 final class BooleanTests: XCTestCase {
   func testBool() {
-    let verify = VerifyTwo(Boolean.bool, equating: ==)
-
-    property("Boolean.bool respects laws") <- forAll { (a: Bool, b: Bool, c: Bool) in
-      verify.absorbability(a, b) <?> "absorbability"
-        ^&&^ verify.associativity(a, b, c) <?> "associativity"
-        ^&&^ verify.commutativity(a, b) <?> "commutativity"
-        ^&&^ verify.distributivity(a, b, c) <?> "distributivity"
-        ^&&^ verify.excludedMiddle(a) <?> "excludedMiddle"
-        ^&&^ verify.idempotency(a, b) <?> "idempotency"
-        ^&&^ verify.implication(a, b, c) <?> "implication"
-        ^&&^ verify.oneIdentity(a) <?> "oneIdentity"
-        ^&&^ verify.zeroIdentity(a) <?> "zeroIdentity"
-    }
+    verifyAllProperties(
+      ofStructure: Boolean<Bool>.self,
+      checking: [
+        ("absorbability", { $3.absorbability($0, $1) }),
+        ("associativity", { $3.associativity($0, $1, $2) }),
+        ("commutativity", { $3.commutativity($0, $1) }),
+        ("distributivity", { $3.distributivity($0, $1, $2) }),
+        ("excludedMiddle", { $3.excludedMiddle($0) }),
+        ("idempotency", { $3.idempotency($0, $1) }),
+        ("implication", { $3.implication($0, $1, $2) }),
+        ("oneIdentity", { $3.oneIdentity($0) }),
+        ("zeroIdentity", { $3.zeroIdentity($0) })
+      ],
+      onInstances: [
+        ("bool", .bool)
+      ]
+    )
   }
 
   static var allTests = [
-    ("testBool", testBool),
+    ("testBool", testBool)
   ]
 }

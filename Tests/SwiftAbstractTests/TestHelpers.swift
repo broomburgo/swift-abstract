@@ -18,9 +18,9 @@ func cartesian<AS: Sequence, BS: Sequence>(_ as: AS, _ bs: BS) -> [(AS.Element, 
 }
 
 func verifyAllProperties<Algebraic: WithOneBinaryOperation>(
-  onStructure algebraicStructure: Algebraic.Type,
-  ofInstances instances: [(name: String, instance: Algebraic)],
+  ofStructure algebraicStructure: Algebraic.Type,
   checking checks: [(name: String, property: (Algebraic.A, Algebraic.A, Algebraic.A, VerifyOne<Algebraic>) -> Bool)],
+  onInstances instances: [(name: String, instance: Algebraic)],
   file: StaticString = #file,
   line: UInt = #line
 ) where Algebraic.A: Equatable & Arbitrary {
@@ -37,9 +37,9 @@ func verifyAllProperties<Algebraic: WithOneBinaryOperation>(
 }
 
 func verifyAllProperties<Algebraic: WithTwoBinaryOperations>(
-  onStructure algebraicStructure: Algebraic.Type,
-  ofInstances instances: [(name: String, instance: Algebraic)],
+  ofStructure algebraicStructure: Algebraic.Type,
   checking checks: [(name: String, property: (Algebraic.A, Algebraic.A, Algebraic.A, VerifyTwo<Algebraic>) -> Bool)],
+  onInstances instances: [(name: String, instance: Algebraic)],
   file: StaticString = #file,
   line: UInt = #line
 ) where Algebraic.A: Equatable & Arbitrary {

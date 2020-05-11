@@ -50,11 +50,11 @@ final class SemigroupTests: XCTestCase {
     line: UInt = #line
   ) {
     verifyAllProperties(
-      onStructure: Semigroup<A>.self,
-      ofInstances: semigroups,
+      ofStructure: Semigroup<A>.self,
       checking: [
         ("is associative", { $3.associativity($0, $1, $2) })
       ],
+      onInstances: semigroups,
       file: file,
       line: line
     )
