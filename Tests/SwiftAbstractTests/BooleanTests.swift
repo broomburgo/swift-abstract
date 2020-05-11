@@ -3,7 +3,7 @@ import SwiftCheck
 import XCTest
 
 final class BooleanTests: XCTestCase {
-  func testBool() {
+  func testProperties() {
     verifyAllProperties(
       ofStructure: Boolean<Bool>.self,
       checking: [
@@ -24,6 +24,6 @@ final class BooleanTests: XCTestCase {
   }
 
   static var allTests = [
-    ("testBool", testBool)
+    ("testProperties", testProperties)
   ]
 }
