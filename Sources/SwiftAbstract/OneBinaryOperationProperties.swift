@@ -4,7 +4,10 @@ public protocol Associative: WithOneBinaryOperation {}
 
 extension VerifyOne where OneBO: Associative {
   public func associativity(_ a: OneBO.A, _ b: OneBO.A, _ c: OneBO.A) -> Bool {
-    run(run(a, b), c) == run(a, run(b, c))
+    equating(
+      run(run(a, b), c),
+      run(a, run(b, c))
+    )
   }
 }
 
@@ -36,7 +39,10 @@ public protocol Commutative: WithOneBinaryOperation {}
 
 extension VerifyOne where OneBO: Commutative {
   public func commutativity(_ a: OneBO.A, _ b: OneBO.A) -> Bool {
-    run(a, b) == run(b, a)
+    equating(
+      run(a, b),
+      run(b, a)
+    )
   }
 }
 
@@ -68,7 +74,10 @@ public protocol Idempotent: WithOneBinaryOperation {}
 
 extension VerifyOne where OneBO: Idempotent {
   public func idempotency(_ a: OneBO.A, _ b: OneBO.A) -> Bool {
-    run(run(a, b), b) == run(a, b)
+    equating(
+      run(run(a, b), b),
+      run(a, b)
+    )
   }
 }
 
@@ -102,7 +111,13 @@ public protocol WithIdentity: WithOneBinaryOperation {
 
 extension VerifyOne where OneBO: WithIdentity {
   public func identity(_ a: OneBO.A) -> Bool {
-    run(a, operation.empty) == a && run(operation.empty, a) == a
+    equating(
+      run(a, operation.empty),
+      a
+    ) && equating(
+      run(operation.empty, a),
+      a
+    )
   }
 }
 
@@ -114,6 +129,9 @@ public protocol WithInverse: WithIdentity {
 
 extension VerifyOne where OneBO: WithInverse {
   public func inverse(_ a: OneBO.A) -> Bool {
-    run(a, operation.inverse(a)) == operation.empty
+    equating(
+      run(a, operation.inverse(a)),
+      operation.empty
+    )
   }
 }

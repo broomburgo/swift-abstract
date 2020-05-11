@@ -1,6 +1,6 @@
 // MARK: - Types
 
-enum Ordering {
+enum Ordering: CaseIterable {
   case lowerThan
   case equalTo
   case greaterThan

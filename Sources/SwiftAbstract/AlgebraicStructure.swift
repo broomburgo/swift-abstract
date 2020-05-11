@@ -10,11 +10,13 @@ public protocol WithOneBinaryOperation: AlgebraicStructure {
   var apply: (A, A) -> A { get }
 }
 
-public struct VerifyOne<OneBO: WithOneBinaryOperation> where OneBO.A: Equatable {
+public struct VerifyOne<OneBO: WithOneBinaryOperation> {
   public let operation: OneBO
+  public let equating: (OneBO.A, OneBO.A) -> Bool
 
-  public init(operation: OneBO) {
+  public init(_ operation: OneBO, equating: @escaping (OneBO.A, OneBO.A) -> Bool) {
     self.operation = operation
+    self.equating = equating
   }
 
   public var run: (OneBO.A, OneBO.A) -> OneBO.A {
@@ -35,7 +37,7 @@ public protocol WithTwoBinaryOperations: AlgebraicStructure {
 public struct VerifyTwo<TwoBO: WithTwoBinaryOperations> where TwoBO.A: Equatable {
   public let operations: TwoBO
 
-  public init(operations: TwoBO) {
+  public init(_ operations: TwoBO) {
     self.operations = operations
   }
 

@@ -2,9 +2,9 @@
 import SwiftCheck
 import XCTest
 
-final class SwiftAbstractTests: XCTestCase {
-  func testExample() {
-    let verify = VerifyTwo(operations: Boolean.bool)
+final class BooleanTests: XCTestCase {
+  func testBool() {
+    let verify = VerifyTwo(Boolean.bool)
 
     property("Boolean.bool respects laws") <- forAll { (a: Bool, b: Bool, c: Bool) in
       verify.absorbability(a, b) <?> "absorbability"
@@ -20,6 +20,6 @@ final class SwiftAbstractTests: XCTestCase {
   }
 
   static var allTests = [
-    ("testExample", testExample),
+    ("testBool", testBool),
   ]
 }
