@@ -49,11 +49,15 @@ final class SemigroupTests: XCTestCase {
     file: StaticString = #file,
     line: UInt = #line
   ) {
-    property("Semigroup instances respect some laws", file: file, line: line) <- forAll { (a: A, b: A, c: A) in
-      semigroups.reduce(TestResult.succeeded.property) { $0
-        ^&&^ VerifyOne($1.instance, equating: ==).associativity(a, b, c) <?> "Semigroup.\($1.name) is associative"
-      }
-    }
+    verifyAllProperties(
+      onStructure: Semigroup<A>.self,
+      ofInstances: semigroups,
+      checking: [
+        ("is associative", { $3.associativity($0, $1, $2) })
+      ],
+      file: file,
+      line: line
+    )
   }
 
   private func verifyFunctionInstancesProperties(file: StaticString = #file, line: UInt = #line) {
@@ -62,7 +66,10 @@ final class SemigroupTests: XCTestCase {
     property("Semigroup.endo respects some laws", file: file, line: line) <- forAll { (a: ArrowOf<Int, Int>, b: ArrowOf<Int, Int>, c: ArrowOf<Int, Int>, value: Int) in
       let verifyEndo = VerifyOne(endo) { $0(value) == $1(value) }
 
-      return verifyEndo.associativity(a.getArrow, b.getArrow, c.getArrow) <?> "Semigroup.endo is associative"
+      return TestResult(
+        require: "Semigroup.endo is associative",
+        check: verifyEndo.associativity(a.getArrow, b.getArrow, c.getArrow)
+      )
     }
 
     struct GeneratedSemigroup: Arbitrary {
@@ -84,19 +91,16 @@ final class SemigroupTests: XCTestCase {
 
     property("Semigroup.function respects some laws", file: file, line: line) <- forAll { (a: ArrowOf<String, Int>, b: ArrowOf<String, Int>, c: ArrowOf<String, Int>, semigroup: GeneratedSemigroup, value: String) in
       let function = Semigroup<(String) -> Int>.function(over: semigroup.get)
-      let verifyFunction = VerifyOne(function) { $0(value) == $1(value)  }
+      let verifyFunction = VerifyOne(function) { $0(value) == $1(value) }
 
-      return verifyFunction.associativity(a.getArrow, b.getArrow, c.getArrow) <?> "Semigroup.function is associative"
+      return TestResult(
+        require: "Semigroup.function is associative",
+        check: verifyFunction.associativity(a.getArrow, b.getArrow, c.getArrow)
+      )
     }
   }
 
   static var allTests = [
     ("testProperties", testProperties)
   ]
-}
-
-extension Ordering: Arbitrary {
-  public static var arbitrary: Gen<Ordering> {
-    Gen.fromElements(of: Ordering.allCases)
-  }
 }
