@@ -58,8 +58,8 @@ typealias RingLike = WithTwoBinaryOperations
   & WithAnnihilation
 
 extension WithTwoBinaryOperations where Self: RingLike {
-  typealias PlusBinaryOperation = FirstBinaryOperation
-  typealias TimesBinaryOperation = SecondBinaryOperation
+  typealias Plus = FirstBinaryOperation
+  typealias Times = SecondBinaryOperation
 
   var plus: (A, A) -> A { first.apply }
   var times: (A, A) -> A { second.apply }
@@ -74,9 +74,9 @@ public typealias LatticeLike = WithTwoBinaryOperations
   & Absorption
 
 extension WithTwoBinaryOperations where Self: LatticeLike {
-  typealias MeetBinaryOperation = FirstBinaryOperation
-  typealias JoinBinaryOperation = SecondBinaryOperation
+  typealias Join = FirstBinaryOperation
+  typealias Meet = SecondBinaryOperation
 
-  var join: (A, A) -> A { first.apply } /// ~ OR
-  var meet: (A, A) -> A { second.apply } /// ~ AND
+  var join: (A, A) -> A { first.apply } /// ~ OR ; ~ MAX
+  var meet: (A, A) -> A { second.apply } /// ~ AND; ~ MIN
 }
