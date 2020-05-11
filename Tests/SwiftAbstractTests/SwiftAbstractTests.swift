@@ -1,29 +1,21 @@
 @testable import SwiftAbstract
+import SwiftCheck
 import XCTest
 
 final class SwiftAbstractTests: XCTestCase {
   func testExample() {
     let verify = VerifyTwo(operations: Boolean.bool)
 
-    [
-      (true, true, true),
-      (false, true, true),
-      (true, false, true),
-      (false, false, true),
-      (true, true, false),
-      (false, true, false),
-      (true, false, false),
-      (false, false, false),
-    ].forEach { a, b, c in
-      XCTAssert(verify.absorbability(a, b), "\(a), \(b)")
-      XCTAssert(verify.associativity(a, b, c), "\(a), \(b), \(c)")
-      XCTAssert(verify.commutativity(a, b), "\(a), \(b)")
-      XCTAssert(verify.distributivity(a, b, c), "\(a), \(b), \(c)")
-      XCTAssert(verify.excludedMiddle(a), "\(a)")
-      XCTAssert(verify.idempotency(a, b), "\(a), \(b)")
-      XCTAssert(verify.implication(a, b, c), "\(a), \(b), \(c)")
-      XCTAssert(verify.oneIdentity(a), "\(a)")
-      XCTAssert(verify.zeroIdentity(a), "\(a)")
+    property("Boolean.bool respects laws") <- forAll { (a: Bool, b: Bool, c: Bool) in
+      verify.absorbability(a, b) <?> "absorbability"
+        ^&&^ verify.associativity(a, b, c) <?> "associativity"
+        ^&&^ verify.commutativity(a, b) <?> "commutativity"
+        ^&&^ verify.distributivity(a, b, c) <?> "distributivity"
+        ^&&^ verify.excludedMiddle(a) <?> "excludedMiddle"
+        ^&&^ verify.idempotency(a, b) <?> "idempotency"
+        ^&&^ verify.implication(a, b, c) <?> "implication"
+        ^&&^ verify.oneIdentity(a) <?> "oneIdentity"
+        ^&&^ verify.zeroIdentity(a) <?> "zeroIdentity"
     }
   }
 

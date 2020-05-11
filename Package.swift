@@ -4,12 +4,15 @@
 import PackageDescription
 
 let package = Package(
-    name: "swift-abstract",
-    products: [
-      .library(name: "SwiftAbstract", type: .dynamic, targets: ["SwiftAbstract"]),
-    ],
-    targets: [
-        .target(name: "SwiftAbstract", dependencies: []),
-        .testTarget(name: "SwiftAbstractTests", dependencies: ["SwiftAbstract"]),
-    ]
+  name: "swift-abstract",
+  products: [
+    .library(name: "SwiftAbstract", type: .dynamic, targets: ["SwiftAbstract"]),
+  ],
+  dependencies: [
+    .package(url: "https://github.com/typelift/SwiftCheck.git", .exact("0.12.0"))
+  ],
+  targets: [
+    .target(name: "SwiftAbstract", dependencies: []),
+    .testTarget(name: "SwiftAbstractTests", dependencies: ["SwiftAbstract", "SwiftCheck"]),
+  ]
 )
