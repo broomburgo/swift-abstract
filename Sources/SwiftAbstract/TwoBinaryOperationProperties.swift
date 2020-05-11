@@ -4,7 +4,13 @@ public protocol Absorption: WithTwoBinaryOperations {}
 
 extension VerifyTwo where TwoBO: Absorption {
   public func absorbability(_ a: TwoBO.A, _ b: TwoBO.A) -> Bool {
-    runSecond(a, runFirst(a, b)) == a && runFirst(a, runSecond(a, b)) == a
+    equating(
+      runSecond(a, runFirst(a, b)),
+      a
+    ) && equating(
+      runFirst(a, runSecond(a, b)),
+      a
+    )
   }
 }
 
@@ -14,7 +20,13 @@ protocol WithAnnihilation: WithZero {}
 
 extension VerifyTwo where TwoBO: WithAnnihilation {
   func annihilability(_ a: TwoBO.A) -> Bool {
-    runSecond(a, operations.zero) == operations.zero && runSecond(operations.zero, a) == operations.zero
+    equating(
+      runSecond(a, operations.zero),
+      operations.zero
+    ) && equating(
+      runSecond(operations.zero, a),
+      operations.zero
+    )
   }
 }
 
@@ -26,13 +38,19 @@ public typealias Distributive = DistributiveFirstOverSecond & DistributiveSecond
 
 extension VerifyTwo where TwoBO: DistributiveFirstOverSecond {
   public func distributivityOfFirstOverSecond(_ a: TwoBO.A, _ b: TwoBO.A, _ c: TwoBO.A) -> Bool {
-    runFirst(a, runSecond(b, c)) == runSecond(runFirst(a, b), runFirst(a, c))
+    equating(
+      runFirst(a, runSecond(b, c)),
+      runSecond(runFirst(a, b), runFirst(a, c))
+    )
   }
 }
 
 extension VerifyTwo where TwoBO: DistributiveSecondOverFirst {
   public func distributivityOfSecondOverFirst(_ a: TwoBO.A, _ b: TwoBO.A, _ c: TwoBO.A) -> Bool {
-    runSecond(a, runFirst(b, c)) == runFirst(runSecond(a, b), runSecond(a, c))
+    equating(
+      runSecond(a, runFirst(b, c)),
+      runFirst(runSecond(a, b), runSecond(a, c))
+    )
   }
 }
 
@@ -48,7 +66,10 @@ public protocol ExcludedMiddle: WithImplies, WithZero {}
 
 extension VerifyTwo where TwoBO: ExcludedMiddle {
   public func excludedMiddle(_ a: TwoBO.A) -> Bool {
-    runFirst(a, operations.implies(a, operations.zero)) == operations.one
+    equating(
+      runFirst(a, operations.implies(a, operations.zero)),
+      operations.one
+    )
   }
 }
 
@@ -60,10 +81,19 @@ public protocol WithImplies: LatticeLike, WithOne {
 
 extension VerifyTwo where TwoBO: WithImplies {
   public func implication(_ a: TwoBO.A, _ b: TwoBO.A, _ c: TwoBO.A) -> Bool {
-    operations.implies(a, a) == operations.one
-      && runSecond(a, operations.implies(a, b)) == runSecond(a, b)
-      && runSecond(b, operations.implies(a, b)) == b
-      && operations.implies(a, runSecond(b, c)) == runSecond(operations.implies(a, b), operations.implies(a, c))
+    equating(
+      operations.implies(a, a),
+      operations.one
+    ) && equating(
+      runSecond(a, operations.implies(a, b)),
+      runSecond(a, b)
+    ) && equating(
+      runSecond(b, operations.implies(a, b)),
+      b
+    ) && equating(
+      operations.implies(a, runSecond(b, c)),
+      runSecond(operations.implies(a, b), operations.implies(a, c))
+    )
   }
 }
 
@@ -79,7 +109,13 @@ extension WithNegate {
 
 extension VerifyTwo where TwoBO: WithNegate {
   public func negation(_ a: TwoBO.A) -> Bool {
-    runFirst(a, operations.negate(a)) == operations.zero && runFirst(operations.negate(a), a) == operations.zero
+    equating(
+      runFirst(a, operations.negate(a)),
+      operations.zero
+    ) && equating(
+      runFirst(operations.negate(a), a),
+      operations.zero
+    )
   }
 }
 
@@ -95,7 +131,13 @@ extension WithOne {
 
 extension VerifyTwo where TwoBO: WithOne {
   public func oneIdentity(_ a: TwoBO.A) -> Bool {
-    runSecond(a, operations.one) == a && runSecond(operations.one, a) == a
+    equating(
+      runSecond(a, operations.one),
+      a
+    ) && equating(
+      runSecond(operations.one, a),
+      a
+    )
   }
 }
 
@@ -111,7 +153,13 @@ extension WithReciprocal {
 
 extension VerifyTwo where TwoBO: WithReciprocal {
   public func reciprocity(_ a: TwoBO.A) -> Bool {
-    runSecond(a, operations.reciprocal(a)) == operations.one && runSecond(operations.reciprocal(a), a) == operations.one
+    equating(
+      runSecond(a, operations.reciprocal(a)),
+      operations.one
+    ) && equating(
+      runSecond(operations.reciprocal(a), a),
+      operations.one
+    )
   }
 }
 
@@ -127,6 +175,12 @@ extension WithZero {
 
 extension VerifyTwo where TwoBO: WithZero {
   public func zeroIdentity(_ a: TwoBO.A) -> Bool {
-    runFirst(a, operations.zero) == a && runFirst(operations.zero, a) == a
+    equating(
+      runFirst(a, operations.zero),
+      a
+    ) && equating(
+      runFirst(operations.zero, a),
+      a
+    )
   }
 }

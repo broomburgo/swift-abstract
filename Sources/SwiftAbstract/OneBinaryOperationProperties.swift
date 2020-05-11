@@ -17,13 +17,19 @@ public typealias AssociativeBoth = AssociativeFirst & AssociativeSecond
 
 extension VerifyTwo where TwoBO: AssociativeFirst {
   public func associativityOfFirst(_ a: TwoBO.A, _ b: TwoBO.A, _ c: TwoBO.A) -> Bool {
-    runFirst(runFirst(a, b), c) == runFirst(a, runFirst(b, c))
+    equating(
+      runFirst(runFirst(a, b), c),
+      runFirst(a, runFirst(b, c))
+    )
   }
 }
 
 extension VerifyTwo where TwoBO: AssociativeSecond {
   public func associativityOfSecond(_ a: TwoBO.A, _ b: TwoBO.A, _ c: TwoBO.A) -> Bool {
-    runSecond(runSecond(a, b), c) == runSecond(a, runSecond(b, c))
+    equating(
+      runSecond(runSecond(a, b), c),
+      runSecond(a, runSecond(b, c))
+    )
   }
 }
 
@@ -52,13 +58,19 @@ public typealias CommutativeBoth = CommutativeFirst & CommutativeSecond
 
 extension VerifyTwo where TwoBO: CommutativeFirst {
   public func commutativityOfFirst(_ a: TwoBO.A, _ b: TwoBO.A) -> Bool {
-    runFirst(a, b) == runFirst(b, a)
+    equating(
+      runFirst(a, b),
+      runFirst(b, a)
+    )
   }
 }
 
 extension VerifyTwo where TwoBO: CommutativeSecond {
   public func commutativityOfSecond(_ a: TwoBO.A, _ b: TwoBO.A) -> Bool {
-    runSecond(a, b) == runSecond(b, a)
+    equating(
+      runSecond(a, b),
+      runSecond(b, a)
+    )
   }
 }
 
@@ -87,13 +99,19 @@ public typealias IdempotentBoth = IdempotentFirst & IdempotentSecond
 
 extension VerifyTwo where TwoBO: IdempotentFirst {
   public func idempotencyOfFirst(_ a: TwoBO.A, _ b: TwoBO.A) -> Bool {
-    runFirst(runFirst(a, b), b) == runFirst(a, b)
+    equating(
+      runFirst(runFirst(a, b), b),
+      runFirst(a, b)
+    )
   }
 }
 
 extension VerifyTwo where TwoBO: IdempotentSecond {
   public func idempotencyOfSecond(_ a: TwoBO.A, _ b: TwoBO.A) -> Bool {
-    runSecond(runSecond(a, b), b) == runSecond(a, b)
+    equating(
+      runSecond(runSecond(a, b), b),
+      runSecond(a, b)
+    )
   }
 }
 

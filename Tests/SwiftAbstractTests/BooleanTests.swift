@@ -4,7 +4,7 @@ import XCTest
 
 final class BooleanTests: XCTestCase {
   func testBool() {
-    let verify = VerifyTwo(Boolean.bool)
+    let verify = VerifyTwo(Boolean.bool, equating: ==)
 
     property("Boolean.bool respects laws") <- forAll { (a: Bool, b: Bool, c: Bool) in
       verify.absorbability(a, b) <?> "absorbability"

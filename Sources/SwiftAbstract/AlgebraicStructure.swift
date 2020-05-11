@@ -34,11 +34,13 @@ public protocol WithTwoBinaryOperations: AlgebraicStructure {
   var second: SecondBinaryOperation { get }
 }
 
-public struct VerifyTwo<TwoBO: WithTwoBinaryOperations> where TwoBO.A: Equatable {
+public struct VerifyTwo<TwoBO: WithTwoBinaryOperations> {
   public let operations: TwoBO
+  public let equating: (TwoBO.A, TwoBO.A) -> Bool
 
-  public init(_ operations: TwoBO) {
+  public init(_ operations: TwoBO, equating: @escaping (TwoBO.A, TwoBO.A) -> Bool) {
     self.operations = operations
+    self.equating = equating
   }
 
   public var runFirst: (TwoBO.A, TwoBO.A) -> TwoBO.A {
