@@ -10,6 +10,14 @@ struct Semigroup<A>: Associative {
   init<MoreSpecific: Associative>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply)
   }
+
+  func verifyProperties(equating: @escaping (A, A) -> Bool) -> [(property: String, verify: (A, A, A) -> Bool)] {
+    let verify = VerifyOne(self, equating: equating)
+
+    return [
+      ("is associative", { a, b, c in verify.associativity(a, b, c) })
+    ]
+  }
 }
 
 // MARK: - Instances
@@ -89,7 +97,7 @@ extension Semigroup where A == Ordering {
 }
 
 extension Semigroup /* where A == Optional */ {
-  static func firstIfPossible<Wrapped>() -> Self where A == Optional<Wrapped> {
+  static func firstIfPossible<Wrapped>() -> Self where A == Wrapped? {
     Semigroup(
       apply: { $0 ?? $1 }
     )
@@ -97,7 +105,7 @@ extension Semigroup /* where A == Optional */ {
 }
 
 extension Semigroup /* where A == Optional */ {
-  static func lastIfPossible<Wrapped>() -> Self where A == Optional<Wrapped> {
+  static func lastIfPossible<Wrapped>() -> Self where A == Wrapped? {
     Semigroup(
       apply: { $1 ?? $0 }
     )
@@ -105,7 +113,7 @@ extension Semigroup /* where A == Optional */ {
 }
 
 extension Semigroup /* where A == Array */ {
-  static func array<Element>() -> Self where A == Array<Element> {
+  static func array<Element>() -> Self where A == [Element] {
     Semigroup(
       apply: { $1 + $0 }
     )

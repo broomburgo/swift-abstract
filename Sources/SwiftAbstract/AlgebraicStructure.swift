@@ -2,6 +2,14 @@
 
 public protocol AlgebraicStructure {
   associatedtype A
+
+  func verifyProperties(equating: @escaping (A, A) -> Bool) -> [(property: String, verify: (A, A, A) -> Bool)]
+}
+
+extension AlgebraicStructure {
+  func verifyProperties(equating: @escaping (A, A) -> Bool) -> [(property: String, verify: (A, A, A) -> Bool)] {
+    []
+  }
 }
 
 // MARK: - One binary operation

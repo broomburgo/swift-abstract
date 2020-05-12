@@ -4,60 +4,64 @@ import XCTest
 
 final class SemigroupTests: XCTestCase {
   func testProperties() {
-    verifyProperties(onValue: Int.self, ofInstances: [
-      ("first", .first),
-      ("last", .last),
-      ("max", .max),
-      ("min", .min),
-      ("product", .product),
-      ("sum", .sum)
-    ])
+    verifyAllProperties(
+      ofStructure: Semigroup<Int>.self,
+      onInstances: [
+        ("first", .first),
+        ("last", .last),
+        ("max", .max),
+        ("min", .min),
+        ("product", .product),
+        ("sum", .sum)
+      ]
+    )
 
-    verifyProperties(onValue: Bool.self, ofInstances: [
-      ("and", .and),
-      ("or", .or)
-    ])
+    verifyAllProperties(
+      ofStructure: Semigroup<Bool>.self,
+      onInstances: [
+        ("and", .and),
+        ("or", .or)
+      ]
+    )
 
-    verifyProperties(onValue: String.self, ofInstances: [
-      ("string", .string)
-    ])
+    verifyAllProperties(
+      ofStructure: Semigroup<String>.self,
+      onInstances: [
+        ("string", .string)
+      ]
+    )
 
-    verifyProperties(onValue: Ordering.self, ofInstances: [
-      ("ordering", .ordering)
-    ])
+    verifyAllProperties(
+      ofStructure: Semigroup<Ordering>.self,
+      onInstances: [
+        ("ordering", .ordering)
+      ]
+    )
 
-    verifyProperties(onValue: Int?.self, ofInstances: [
-      ("firstIfPossible", .firstIfPossible()),
-      ("lastIfPossible", .lastIfPossible())
-    ])
+    verifyAllProperties(
+      ofStructure: Semigroup<Int?>.self,
+      onInstances: [
+        ("firstIfPossible", .firstIfPossible()),
+        ("lastIfPossible", .lastIfPossible())
+      ]
+    )
 
-    verifyProperties(onValue: [Int].self, ofInstances: [
-      ("array", .array())
-    ])
+    verifyAllProperties(
+      ofStructure: Semigroup<[Int]>.self,
+      onInstances: [
+        ("array", .array())
+      ]
+    )
 
-    verifyProperties(onValue: Set<Int>.self, ofInstances: [
-      ("setIntersection", .setIntersection()),
-      ("setUnion", .setUnion())
-    ])
+    verifyAllProperties(
+      ofStructure: Semigroup<Set<Int>>.self,
+      onInstances: [
+        ("setIntersection", .setIntersection()),
+        ("setUnion", .setUnion())
+      ]
+    )
 
     verifyFunctionInstancesProperties()
-  }
-
-  private func verifyProperties<A: Equatable & Arbitrary>(
-    onValue: A.Type,
-    ofInstances semigroups: [(name: String, instance: Semigroup<A>)],
-    file: StaticString = #file,
-    line: UInt = #line
-  ) {
-    verifyAllProperties(
-      ofStructure: Semigroup<A>.self,
-      checking: [
-        ("is associative", { $3.associativity($0, $1, $2) })
-      ],
-      onInstances: semigroups,
-      file: file,
-      line: line
-    )
   }
 
   private func verifyFunctionInstancesProperties(file: StaticString = #file, line: UInt = #line) {

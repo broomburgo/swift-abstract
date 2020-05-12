@@ -14,6 +14,17 @@ struct AbelianGroup<A>: Associative, Commutative, WithIdentity, WithInverse {
   init<MoreSpecific: Associative & Commutative & WithIdentity & WithInverse>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply, empty: s.empty, inverse: s.inverse)
   }
+
+  func verifyProperties(equating: @escaping (A, A) -> Bool) -> [(property: String, verify: (A, A, A) -> Bool)] {
+    let verify = VerifyOne(self, equating: equating)
+
+    return [
+      ("is associative", { a, b, c in verify.associativity(a, b, c) }),
+      ("is commutative", { a, b, _ in verify.commutativity(a, b) }),
+      ("has proper identity element", { a, _, _ in verify.identity(a) }),
+      ("has proper invertibility", { a, _, _ in verify.inverse(a) })
+    ]
+  }
 }
 
 // MARK: - Instances

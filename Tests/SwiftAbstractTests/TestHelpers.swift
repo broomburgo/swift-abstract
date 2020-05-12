@@ -17,40 +17,73 @@ func cartesian<AS: Sequence, BS: Sequence>(_ as: AS, _ bs: BS) -> [(AS.Element, 
   `as`.flatMap { a in bs.map { b in (a, b) } }
 }
 
-func verifyAllProperties<Algebraic: WithOneBinaryOperation>(
+func verifyAllProperties<Algebraic: AlgebraicStructure>(
   ofStructure algebraicStructure: Algebraic.Type,
-  checking checks: [(name: String, property: (Algebraic.A, Algebraic.A, Algebraic.A, VerifyOne<Algebraic>) -> Bool)],
-  onInstances instances: [(name: String, instance: Algebraic)],
+  onInstances instances: [(instance: String, value: Algebraic)],
+  equating: @escaping (Algebraic.A, Algebraic.A) -> Bool,
   file: StaticString = #file,
   line: UInt = #line
-) where Algebraic.A: Equatable & Arbitrary {
+) where Algebraic.A: Arbitrary {
   property("\(algebraicStructure) instances respect some laws", file: file, line: line) <- forAll { (a: Algebraic.A, b: Algebraic.A, c: Algebraic.A) in
-    cartesian(instances, checks)
-      .map {
+    instances
+      .flatMap { instance, value in
+        value.verifyProperties(equating: equating).map { (instance, $0.property, $0.verify) }
+      }
+      .map { instance, property, verify in
         TestResult(
-          require: "\(algebraicStructure).\($0.name) \($1.name)",
-          check: $1.property(a, b, c, VerifyOne($0.instance, equating: ==))
+          require: "\(algebraicStructure).\(instance) \(property)",
+          check: verify(a, b, c)
         )
       }
       .reduce(TestResult.succeeded.property) { conjoin($0, $1) }
   }
 }
 
-func verifyAllProperties<Algebraic: WithTwoBinaryOperations>(
+func verifyAllProperties<Algebraic: AlgebraicStructure>(
   ofStructure algebraicStructure: Algebraic.Type,
-  checking checks: [(name: String, property: (Algebraic.A, Algebraic.A, Algebraic.A, VerifyTwo<Algebraic>) -> Bool)],
-  onInstances instances: [(name: String, instance: Algebraic)],
+  onInstances instances: [(instance: String, value: Algebraic)],
   file: StaticString = #file,
   line: UInt = #line
-) where Algebraic.A: Equatable & Arbitrary {
-  property("\(algebraicStructure) instances respect some laws", file: file, line: line) <- forAll { (a: Algebraic.A, b: Algebraic.A, c: Algebraic.A) in
-    cartesian(instances, checks)
-      .map {
-        TestResult(
-          require: "\(algebraicStructure).\($0.name) \($1.name)",
-          check: $1.property(a, b, c, VerifyTwo($0.instance, equating: ==))
-        )
-      }
-      .reduce(TestResult.succeeded.property) { conjoin($0, $1) }
+) where Algebraic.A: Arbitrary & Equatable {
+  verifyAllProperties(
+    ofStructure: algebraicStructure,
+    onInstances: instances,
+    equating: ==,
+    file: file,
+    line: line
+  )
+}
+
+
+extension CheckerArguments {
+  static func seedDescription(_ replayString: String) -> CheckerArguments {
+    /// Expected format: "Replay with 711250669 9042 and size 7"
+    let arguments = replayString
+      .split(separator: " ")
+      .compactMap { Int($0) }
+
+    return CheckerArguments(replay: (StdGen(arguments[0], arguments[1]), arguments[2]))
+  }
+}
+
+extension FloatingPoint where Self.Stride: ExpressibleByFloatLiteral {
+  func isAlmostEqual(to other: Self, tolerance: Self.Stride = 0.000001) -> Bool {
+    if self == .infinity && other == .infinity {
+      return true
+    }
+
+    if self == -.infinity && other == -.infinity {
+      return true
+    }
+
+    guard self != 0 else {
+      return abs(other.distance(to: 0)) < tolerance
+    }
+
+    guard other != 0 else {
+      return abs(self.distance(to: 0)) < tolerance
+    }
+
+    return abs((self / other).distance(to: 1)) < tolerance
   }
 }
