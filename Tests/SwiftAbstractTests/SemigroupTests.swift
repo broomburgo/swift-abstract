@@ -13,7 +13,8 @@ final class SemigroupTests: XCTestCase {
         ("min", .min),
         ("product", .product),
         ("sum", .sum)
-      ]
+      ],
+      equating: ==
     )
 
     verifyAllProperties(
@@ -21,21 +22,24 @@ final class SemigroupTests: XCTestCase {
       onInstances: [
         ("and", .and),
         ("or", .or)
-      ]
+      ],
+      equating: ==
     )
 
     verifyAllProperties(
       ofStructure: Semigroup<String>.self,
       onInstances: [
         ("string", .string)
-      ]
+      ],
+      equating: ==
     )
 
     verifyAllProperties(
       ofStructure: Semigroup<Ordering>.self,
       onInstances: [
         ("ordering", .ordering)
-      ]
+      ],
+      equating: ==
     )
 
     verifyAllProperties(
@@ -43,14 +47,16 @@ final class SemigroupTests: XCTestCase {
       onInstances: [
         ("firstIfPossible", .firstIfPossible()),
         ("lastIfPossible", .lastIfPossible())
-      ]
+      ],
+      equating: ==
     )
 
     verifyAllProperties(
       ofStructure: Semigroup<[Int]>.self,
       onInstances: [
         ("array", .array())
-      ]
+      ],
+      equating: ==
     )
 
     verifyAllProperties(
@@ -58,7 +64,8 @@ final class SemigroupTests: XCTestCase {
       onInstances: [
         ("setIntersection", .setIntersection()),
         ("setUnion", .setUnion())
-      ]
+      ],
+      equating: ==
     )
 
     verifyFunctionInstancesProperties()
@@ -68,11 +75,11 @@ final class SemigroupTests: XCTestCase {
     let endo = Semigroup<(Int) -> Int>.endo()
 
     property("Semigroup.endo respects some laws", file: file, line: line) <- forAll { (a: ArrowOf<Int, Int>, b: ArrowOf<Int, Int>, c: ArrowOf<Int, Int>, value: Int) in
-      let verifyEndo = VerifyOne(endo) { $0(value) == $1(value) }
+      let verifyEndo = Verify(endo) { $0(value) == $1(value) }
 
       return TestResult(
         require: "Semigroup.endo is associative",
-        check: verifyEndo.associativity(a.getArrow, b.getArrow, c.getArrow)
+        check: verifyEndo.associativity.verify(a.getArrow, b.getArrow, c.getArrow)
       )
     }
 
@@ -95,11 +102,11 @@ final class SemigroupTests: XCTestCase {
 
     property("Semigroup.function respects some laws", file: file, line: line) <- forAll { (a: ArrowOf<String, Int>, b: ArrowOf<String, Int>, c: ArrowOf<String, Int>, semigroup: GeneratedSemigroup, value: String) in
       let function = Semigroup<(String) -> Int>.function(over: semigroup.get)
-      let verifyFunction = VerifyOne(function) { $0(value) == $1(value) }
+      let verifyFunction = Verify(function) { $0(value) == $1(value) }
 
       return TestResult(
         require: "Semigroup.function is associative",
-        check: verifyFunction.associativity(a.getArrow, b.getArrow, c.getArrow)
+        check: verifyFunction.associativity.verify(a.getArrow, b.getArrow, c.getArrow)
       )
     }
   }

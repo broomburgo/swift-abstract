@@ -12,6 +12,16 @@ struct IdempotentMonoid<A>: Associative, Idempotent, WithIdentity {
   init<MoreSpecific: Associative & Idempotent & WithIdentity>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply, empty: s.empty)
   }
+
+  func properties(equating: @escaping (A, A) -> Bool) -> [Verify<IdempotentMonoid<A>>.Property] {
+    Verify(self, equating: equating).properties {
+      [
+        $0.associativity,
+        $0.idempotency,
+        $0.identity
+      ]
+    }
+  }
 }
 
 // MARK: - Instances

@@ -11,12 +11,12 @@ struct Semigroup<A>: Associative {
     self.init(apply: s.apply)
   }
 
-  func verifyProperties(equating: @escaping (A, A) -> Bool) -> [(property: String, verify: (A, A, A) -> Bool)] {
-    let verify = VerifyOne(self, equating: equating)
-
-    return [
-      ("is associative", { a, b, c in verify.associativity(a, b, c) })
-    ]
+  func properties(equating: @escaping (A, A) -> Bool) -> [Verify<Semigroup<A>>.Property] {
+    Verify(self, equating: equating).properties {
+      [
+        $0.associativity
+      ]
+    }
   }
 }
 

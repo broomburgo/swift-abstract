@@ -14,6 +14,16 @@ struct Group<A>: Associative, WithIdentity, WithInverse {
   init<MoreSpecific: Associative & WithIdentity & WithInverse>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply, empty: s.empty, inverse: s.inverse)
   }
+
+  func properties(equating: @escaping (A, A) -> Bool) -> [Verify<Group<A>>.Property] {
+    Verify(self, equating: equating).properties {
+      [
+        $0.associativity,
+        $0.identity,
+        $0.inverse
+      ]
+    }
+  }
 }
 
 // MARK: - Instances

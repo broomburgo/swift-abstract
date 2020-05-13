@@ -12,6 +12,16 @@ struct CommutativeMonoid<A>: Associative, Commutative, WithIdentity {
   init<MoreSpecific: Associative & Commutative & WithIdentity>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply, empty: s.empty)
   }
+
+  func properties(equating: @escaping (A, A) -> Bool) -> [Verify<CommutativeMonoid<A>>.Property] {
+    Verify(self, equating: equating).properties {
+      [
+        $0.associativity,
+        $0.commutativity,
+        $0.identity
+      ]
+    }
+  }
 }
 
 // MARK: - Instances

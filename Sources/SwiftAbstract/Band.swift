@@ -10,6 +10,15 @@ struct Band<A>: Associative, Idempotent {
   init<MoreSpecific: Associative & Idempotent>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply)
   }
+
+  func properties(equating: @escaping (A, A) -> Bool) -> [Verify<Band<A>>.Property] {
+    Verify(self, equating: equating).properties {
+      [
+        $0.associativity,
+        $0.idempotency
+      ]
+    }
+  }
 }
 
 // MARK: - Instances

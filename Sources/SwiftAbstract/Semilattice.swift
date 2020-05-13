@@ -10,6 +10,16 @@ struct Semilattice<A>: Associative, Commutative, Idempotent {
   init<MoreSpecific: Associative & Commutative & Idempotent>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply)
   }
+
+  func properties(equating: @escaping (A, A) -> Bool) -> [Verify<Semilattice<A>>.Property] {
+    Verify(self, equating: equating).properties {
+      [
+        $0.associativity,
+        $0.commutativity,
+        $0.idempotency
+      ]
+    }
+  }
 }
 
 // MARK: - Instances

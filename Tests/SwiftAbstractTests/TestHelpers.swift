@@ -27,33 +27,17 @@ func verifyAllProperties<Algebraic: AlgebraicStructure>(
   property("\(algebraicStructure) instances respect some laws", file: file, line: line) <- forAll { (a: Algebraic.A, b: Algebraic.A, c: Algebraic.A) in
     instances
       .flatMap { instance, value in
-        value.verifyProperties(equating: equating).map { (instance, $0.property, $0.verify) }
+        value.properties(equating: equating).map { (instance, $0) }
       }
-      .map { instance, property, verify in
+      .map { instance, property in
         TestResult(
-          require: "\(algebraicStructure).\(instance) \(property)",
-          check: verify(a, b, c)
+          require: "\(algebraicStructure).\(instance) \(property.name)",
+          check: property.verify(a, b, c)
         )
       }
       .reduce(TestResult.succeeded.property) { conjoin($0, $1) }
   }
 }
-
-func verifyAllProperties<Algebraic: AlgebraicStructure>(
-  ofStructure algebraicStructure: Algebraic.Type,
-  onInstances instances: [(instance: String, value: Algebraic)],
-  file: StaticString = #file,
-  line: UInt = #line
-) where Algebraic.A: Arbitrary & Equatable {
-  verifyAllProperties(
-    ofStructure: algebraicStructure,
-    onInstances: instances,
-    equating: ==,
-    file: file,
-    line: line
-  )
-}
-
 
 extension CheckerArguments {
   static func seedDescription(_ replayString: String) -> CheckerArguments {
@@ -67,7 +51,7 @@ extension CheckerArguments {
 }
 
 extension FloatingPoint where Self.Stride: ExpressibleByFloatLiteral {
-  func isAlmostEqual(to other: Self, tolerance: Self.Stride = 0.000001) -> Bool {
+  func isAlmostEqual(to other: Self, tolerance: Self.Stride = 0.0001) -> Bool {
     if self == .infinity && other == .infinity {
       return true
     }

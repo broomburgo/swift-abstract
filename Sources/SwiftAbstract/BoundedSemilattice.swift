@@ -12,6 +12,17 @@ struct BoundedSemilattice<A>: Associative, Commutative, Idempotent, WithIdentity
   init<MoreSpecific: Associative & Commutative & Idempotent & WithIdentity>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply, empty: s.empty)
   }
+
+  func properties(equating: @escaping (A, A) -> Bool) -> [Verify<BoundedSemilattice<A>>.Property] {
+    Verify(self, equating: equating).properties {
+      [
+        $0.associativity,
+        $0.commutativity,
+        $0.idempotency,
+        $0.identity
+      ]
+    }
+  }
 }
 
 // MARK: - Instances

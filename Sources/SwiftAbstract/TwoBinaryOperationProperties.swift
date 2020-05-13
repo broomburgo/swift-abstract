@@ -2,30 +2,40 @@
 
 public protocol Absorption: WithTwoBinaryOperations {}
 
-extension VerifyTwo where TwoBO: Absorption {
-  public func absorbability(_ a: TwoBO.A, _ b: TwoBO.A) -> Bool {
-    equating(
-      runSecond(a, runFirst(a, b)),
-      a
-    ) && equating(
-      runFirst(a, runSecond(a, b)),
-      a
+extension Verify where Algebraic: Absorption {
+  public var absorbability: Property {
+    Property(
+      name: "has operations linked by absorption law",
+      verification: .fromTwo {
+        self.equating(
+          self.second.apply($0, self.first.apply($0, $1)),
+          $0
+        ) && self.equating(
+          self.first.apply($0, self.second.apply($0, $1)),
+          $0
+        )
+      }
     )
   }
 }
 
 // MARK: - Annihilation
 
-protocol WithAnnihilation: WithZero {}
+public protocol WithAnnihilation: WithZero {}
 
-extension VerifyTwo where TwoBO: WithAnnihilation {
-  func annihilability(_ a: TwoBO.A) -> Bool {
-    equating(
-      runSecond(a, operations.zero),
-      operations.zero
-    ) && equating(
-      runSecond(operations.zero, a),
-      operations.zero
+extension Verify where Algebraic: WithAnnihilation {
+  var annihilability: Property {
+    Property(
+      name: "has zero annihilating the second operation",
+      verification: .fromOne {
+        self.equating(
+          self.second.apply($0, self.zero),
+          self.zero
+          ) && self.equating(
+          self.second.apply(self.zero, $0),
+          self.zero
+        )
+      }
     )
   }
 }
@@ -36,27 +46,31 @@ public protocol AssociativeFirst: WithTwoBinaryOperations where FirstBinaryOpera
 public protocol AssociativeSecond: WithTwoBinaryOperations where SecondBinaryOperation: Associative {}
 public typealias AssociativeBoth = AssociativeFirst & AssociativeSecond
 
-extension VerifyTwo where TwoBO: AssociativeFirst {
-  public func associativityOfFirst(_ a: TwoBO.A, _ b: TwoBO.A, _ c: TwoBO.A) -> Bool {
-    equating(
-      runFirst(runFirst(a, b), c),
-      runFirst(a, runFirst(b, c))
+extension Verify where Algebraic: AssociativeFirst {
+  public var associativityOfFirst: Property {
+    Property(
+      name: "has first operation associative",
+      verification: .fromThree {
+        self.equating(
+          self.first.apply(self.first.apply($0, $1), $2),
+          self.first.apply($0, self.first.apply($1, $2))
+        )
+      }
     )
   }
 }
 
-extension VerifyTwo where TwoBO: AssociativeSecond {
-  public func associativityOfSecond(_ a: TwoBO.A, _ b: TwoBO.A, _ c: TwoBO.A) -> Bool {
-    equating(
-      runSecond(runSecond(a, b), c),
-      runSecond(a, runSecond(b, c))
+extension Verify where Algebraic: AssociativeSecond {
+  public var associativityOfSecond: Property {
+    Property(
+      name: "has second operation associative",
+      verification: .fromThree {
+        self.equating(
+          self.second.apply(self.second.apply($0, $1), $2),
+          self.second.apply($0, self.second.apply($1, $2))
+        )
+      }
     )
-  }
-}
-
-extension VerifyTwo where TwoBO: AssociativeBoth {
-  public func associativity(_ a: TwoBO.A, _ b: TwoBO.A, _ c: TwoBO.A) -> Bool {
-    associativityOfFirst(a, b, c) && associativityOfSecond(a, b, c)
   }
 }
 
@@ -66,27 +80,31 @@ public protocol CommutativeFirst: WithTwoBinaryOperations where FirstBinaryOpera
 public protocol CommutativeSecond: WithTwoBinaryOperations where SecondBinaryOperation: Commutative {}
 public typealias CommutativeBoth = CommutativeFirst & CommutativeSecond
 
-extension VerifyTwo where TwoBO: CommutativeFirst {
-  public func commutativityOfFirst(_ a: TwoBO.A, _ b: TwoBO.A) -> Bool {
-    equating(
-      runFirst(a, b),
-      runFirst(b, a)
+extension Verify where Algebraic: CommutativeFirst {
+  public var commutativityOfFirst: Property {
+    Property(
+      name: "has first operation commutative",
+      verification: .fromTwo {
+        self.equating(
+          self.first.apply($0, $1),
+          self.first.apply($1, $0)
+        )
+      }
     )
   }
 }
 
-extension VerifyTwo where TwoBO: CommutativeSecond {
-  public func commutativityOfSecond(_ a: TwoBO.A, _ b: TwoBO.A) -> Bool {
-    equating(
-      runSecond(a, b),
-      runSecond(b, a)
+extension Verify where Algebraic: CommutativeSecond {
+  public var commutativityOfSecond: Property {
+    Property(
+      name: "has second operation commutative",
+      verification: .fromTwo {
+        self.equating(
+          self.second.apply($0, $1),
+          self.second.apply($1, $0)
+        )
+      }
     )
-  }
-}
-
-extension VerifyTwo where TwoBO: CommutativeBoth {
-  public func commutativity(_ a: TwoBO.A, _ b: TwoBO.A) -> Bool {
-    commutativityOfFirst(a, b) && commutativityOfSecond(a, b)
   }
 }
 
@@ -96,27 +114,31 @@ public protocol DistributiveFirstOverSecond: WithTwoBinaryOperations {}
 public protocol DistributiveSecondOverFirst: WithTwoBinaryOperations {}
 public typealias Distributive = DistributiveFirstOverSecond & DistributiveSecondOverFirst
 
-extension VerifyTwo where TwoBO: DistributiveFirstOverSecond {
-  public func distributivityOfFirstOverSecond(_ a: TwoBO.A, _ b: TwoBO.A, _ c: TwoBO.A) -> Bool {
-    equating(
-      runFirst(a, runSecond(b, c)),
-      runSecond(runFirst(a, b), runFirst(a, c))
+extension Verify where Algebraic: DistributiveFirstOverSecond {
+  public var distributivityOfFirstOverSecond: Property {
+    Property(
+      name: "has first operation distributive over second",
+      verification: .fromThree {
+        self.equating(
+          self.first.apply($0, self.second.apply($1, $2)),
+          self.second.apply(self.first.apply($0, $1), self.first.apply($0, $2))
+        )
+      }
     )
   }
 }
 
-extension VerifyTwo where TwoBO: DistributiveSecondOverFirst {
-  public func distributivityOfSecondOverFirst(_ a: TwoBO.A, _ b: TwoBO.A, _ c: TwoBO.A) -> Bool {
-    equating(
-      runSecond(a, runFirst(b, c)),
-      runFirst(runSecond(a, b), runSecond(a, c))
+extension Verify where Algebraic: DistributiveSecondOverFirst {
+  public var distributivityOfSecondOverFirst: Property {
+    Property(
+      name: "has second operation distributive over first",
+      verification: .fromThree {
+        self.equating(
+          self.second.apply($0, self.first.apply($1, $2)),
+          self.first.apply(self.second.apply($0, $1), self.second.apply($0, $2))
+        )
+      }
     )
-  }
-}
-
-extension VerifyTwo where TwoBO: Distributive {
-  public func distributivity(_ a: TwoBO.A, _ b: TwoBO.A, _ c: TwoBO.A) -> Bool {
-    distributivityOfFirstOverSecond(a, b, c) && distributivityOfSecondOverFirst(a, b, c)
   }
 }
 
@@ -124,11 +146,16 @@ extension VerifyTwo where TwoBO: Distributive {
 
 public protocol ExcludedMiddle: WithImplies, WithZero {}
 
-extension VerifyTwo where TwoBO: ExcludedMiddle {
-  public func excludedMiddle(_ a: TwoBO.A) -> Bool {
-    equating(
-      runFirst(a, operations.implies(a, operations.zero)),
-      operations.one
+extension Verify where Algebraic: ExcludedMiddle {
+  public var excludedMiddle: Property {
+    Property(
+      name: "has operations respecting the law of excluded middle",
+      verification: .fromOne {
+        self.equating(
+          self.first.apply($0, self.implies($0, self.zero)),
+          self.one
+        )
+      }
     )
   }
 }
@@ -139,20 +166,25 @@ public protocol WithImplies: LatticeLike, WithOne {
   var implies: (A, A) -> A { get }
 }
 
-extension VerifyTwo where TwoBO: WithImplies {
-  public func implication(_ a: TwoBO.A, _ b: TwoBO.A, _ c: TwoBO.A) -> Bool {
-    equating(
-      operations.implies(a, a),
-      operations.one
-    ) && equating(
-      runSecond(a, operations.implies(a, b)),
-      runSecond(a, b)
-    ) && equating(
-      runSecond(b, operations.implies(a, b)),
-      b
-    ) && equating(
-      operations.implies(a, runSecond(b, c)),
-      runSecond(operations.implies(a, b), operations.implies(a, c))
+extension Verify where Algebraic: WithImplies {
+  public var implication: Property {
+    Property(
+      name: "has implication",
+      verification: .fromThree {
+        self.equating(
+          self.implies($0, $0),
+          self.one
+        ) && self.equating(
+          self.second.apply($0, self.implies($0, $1)),
+          self.second.apply($0, $1)
+        ) && self.equating(
+          self.second.apply($1, self.implies($0, $1)),
+          $1
+        ) && self.equating(
+          self.implies($0, self.second.apply($1, $2)),
+          self.second.apply(self.implies($0, $1), self.implies($0, $2))
+        )
+      }
     )
   }
 }
@@ -163,27 +195,31 @@ public protocol IdempotentFirst: WithTwoBinaryOperations where FirstBinaryOperat
 public protocol IdempotentSecond: WithTwoBinaryOperations where SecondBinaryOperation: Idempotent {}
 public typealias IdempotentBoth = IdempotentFirst & IdempotentSecond
 
-extension VerifyTwo where TwoBO: IdempotentFirst {
-  public func idempotencyOfFirst(_ a: TwoBO.A, _ b: TwoBO.A) -> Bool {
-    equating(
-      runFirst(runFirst(a, b), b),
-      runFirst(a, b)
+extension Verify where Algebraic: IdempotentFirst {
+  public var idempotencyOfFirst: Property {
+    Property(
+      name: "has first operation idempotent",
+      verification: .fromTwo {
+        self.equating(
+          self.first.apply(self.first.apply($0, $1), $1),
+          self.first.apply($0, $1)
+        )
+      }
     )
   }
 }
 
-extension VerifyTwo where TwoBO: IdempotentSecond {
-  public func idempotencyOfSecond(_ a: TwoBO.A, _ b: TwoBO.A) -> Bool {
-    equating(
-      runSecond(runSecond(a, b), b),
-      runSecond(a, b)
+extension Verify where Algebraic: IdempotentSecond {
+  public var idempotencyOfSecond: Property {
+    Property(
+      name: "has second operation idempotent",
+      verification: .fromTwo {
+        self.equating(
+          self.second.apply(self.second.apply($0, $1), $1),
+          self.second.apply($0, $1)
+        )
+      }
     )
-  }
-}
-
-extension VerifyTwo where TwoBO: IdempotentBoth {
-  public func idempotency(_ a: TwoBO.A, _ b: TwoBO.A) -> Bool {
-    idempotencyOfFirst(a, b) && idempotencyOfSecond(a, b)
   }
 }
 
@@ -197,14 +233,19 @@ extension WithNegate {
   }
 }
 
-extension VerifyTwo where TwoBO: WithNegate {
-  public func negation(_ a: TwoBO.A) -> Bool {
-    equating(
-      runFirst(a, operations.negate(a)),
-      operations.zero
-    ) && equating(
-      runFirst(operations.negate(a), a),
-      operations.zero
+extension Verify where Algebraic: WithNegate {
+  public var negation: Property {
+    Property(
+      name: "has negation",
+      verification: .fromOne {
+        self.equating(
+          self.first.apply($0, self.negate($0)),
+          self.zero
+        ) && self.equating(
+          self.first.apply(self.negate($0), $0),
+          self.zero
+        )
+      }
     )
   }
 }
@@ -219,14 +260,19 @@ extension WithOne {
   }
 }
 
-extension VerifyTwo where TwoBO: WithOne {
-  public func oneIdentity(_ a: TwoBO.A) -> Bool {
-    equating(
-      runSecond(a, operations.one),
-      a
-    ) && equating(
-      runSecond(operations.one, a),
-      a
+extension Verify where Algebraic: WithOne {
+  public var oneIdentity: Property {
+    Property(
+      name: "has identity of one",
+      verification: .fromOne {
+        self.equating(
+          self.second.apply($0, self.one),
+          $0
+        ) && self.equating(
+          self.second.apply(self.one, $0),
+          $0
+        )
+      }
     )
   }
 }
@@ -241,14 +287,19 @@ extension WithReciprocal {
   }
 }
 
-extension VerifyTwo where TwoBO: WithReciprocal {
-  public func reciprocity(_ a: TwoBO.A) -> Bool {
-    equating(
-      runSecond(a, operations.reciprocal(a)),
-      operations.one
-    ) && equating(
-      runSecond(operations.reciprocal(a), a),
-      operations.one
+extension Verify where Algebraic: WithReciprocal {
+  public var reciprocity: Property {
+    Property(
+      name: "has reciprocal",
+      verification: .fromOne {
+        self.equating(
+          self.second.apply($0, self.reciprocal($0)),
+          self.one
+        ) && self.equating(
+          self.second.apply(self.reciprocal($0), $0),
+          self.one
+        )
+      }
     )
   }
 }
@@ -263,14 +314,19 @@ extension WithZero {
   }
 }
 
-extension VerifyTwo where TwoBO: WithZero {
-  public func zeroIdentity(_ a: TwoBO.A) -> Bool {
-    equating(
-      runFirst(a, operations.zero),
-      a
-    ) && equating(
-      runFirst(operations.zero, a),
-      a
+extension Verify where Algebraic: WithZero {
+  public var zeroIdentity: Property {
+    Property(
+      name: "has identity of zero",
+      verification: .fromOne {
+        self.equating(
+          self.first.apply($0, self.zero),
+          $0
+        ) && self.equating(
+          self.first.apply(self.zero, $0),
+          $0
+        )
+      }
     )
   }
 }

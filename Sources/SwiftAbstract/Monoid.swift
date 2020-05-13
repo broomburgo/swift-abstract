@@ -12,6 +12,15 @@ struct Monoid<A>: Associative, WithIdentity {
   init<MoreSpecific: Associative & WithIdentity>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply, empty: s.empty)
   }
+
+  func properties(equating: @escaping (A, A) -> Bool) -> [Verify<Monoid<A>>.Property] {
+    Verify(self, equating: equating).properties {
+      [
+        $0.associativity,
+        $0.identity
+      ]
+    }
+  }
 }
 
 // MARK: - Instances
