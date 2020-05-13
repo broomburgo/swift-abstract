@@ -39,16 +39,6 @@ extension AbelianGroup where A: SignedNumeric {
   }
 }
 
-extension AbelianGroup where A: FloatingPoint & ExpressibleByIntegerLiteral {
-  static var product: Self {
-    AbelianGroup(
-      apply: { $0 * $1 },
-      empty: 1,
-      inverse: { 1 / $0 }
-    )
-  }
-}
-
 extension AbelianGroup /* where A == (Input) -> Output */ {
   static func function<Input, Output>(over output: AbelianGroup<Output>) -> Self where A == (Input) -> Output {
     AbelianGroup(

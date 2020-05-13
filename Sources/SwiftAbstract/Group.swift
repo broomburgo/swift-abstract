@@ -38,16 +38,6 @@ extension Group where A: SignedNumeric {
   }
 }
 
-extension Group where A: FloatingPoint & ExpressibleByIntegerLiteral {
-  static var product: Self {
-    Group(
-      apply: { $0 * $1 },
-      empty: 1,
-      inverse: { 1 / $0 }
-    )
-  }
-}
-
 extension Group /* where A == (Input) -> Output */ {
   static func function<Input, Output>(over output: Group<Output>) -> Self where A == (Input) -> Output {
     Group(
