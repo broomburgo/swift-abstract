@@ -17,14 +17,14 @@ func cartesian<AS: Sequence, BS: Sequence>(_ as: AS, _ bs: BS) -> [(AS.Element, 
   `as`.flatMap { a in bs.map { b in (a, b) } }
 }
 
-func verifyAllProperties<Algebraic: AlgebraicStructure>(
-  ofStructure algebraicStructure: Algebraic.Type,
-  onInstances instances: [(instance: String, value: Algebraic)],
-  equating: @escaping (Algebraic.A, Algebraic.A) -> Bool,
+func verifyAllProperties<Structure: AlgebraicStructure>(
+  ofStructure algebraicStructure: Structure.Type,
+  onInstances instances: [(instance: String, value: Structure)],
+  equating: @escaping (Structure.A, Structure.A) -> Bool,
   file: StaticString = #file,
   line: UInt = #line
-) where Algebraic.A: Arbitrary {
-  property("\(algebraicStructure) instances respect some laws", file: file, line: line) <- forAll { (a: Algebraic.A, b: Algebraic.A, c: Algebraic.A) in
+) where Structure.A: Arbitrary {
+  property("\(algebraicStructure) instances respect some laws", file: file, line: line) <- forAll { (a: Structure.A, b: Structure.A, c: Structure.A) in
     instances
       .flatMap { instance, value in
         value.properties(equating: equating).map { (instance, $0) }

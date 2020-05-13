@@ -7,12 +7,12 @@ public protocol AlgebraicStructure {
 }
 
 @dynamicMemberLookup
-public struct Verify<Algebraic: AlgebraicStructure> {
+public struct Verify<Structure: AlgebraicStructure> {
   public struct Property {
     public let name: String
     public let verification: Verification
 
-    public func verify(_ a: Algebraic.A, _ b: Algebraic.A, _ c: Algebraic.A) -> Bool {
+    public func verify(_ a: Structure.A, _ b: Structure.A, _ c: Structure.A) -> Bool {
       switch verification {
       case let .fromOne(f):
         return f(a)
@@ -24,27 +24,23 @@ public struct Verify<Algebraic: AlgebraicStructure> {
         return f(a, b, c)
       }
     }
-
-//    public func callAsFunction(_ a: Algebraic.A, _ b: Algebraic.A, _ c: Algebraic.A) -> Bool {
-//
-//    }
   }
 
   public enum Verification {
-    case fromOne((Algebraic.A) -> Bool)
-    case fromTwo((Algebraic.A, Algebraic.A) -> Bool)
-    case fromThree((Algebraic.A, Algebraic.A, Algebraic.A) -> Bool)
+    case fromOne((Structure.A) -> Bool)
+    case fromTwo((Structure.A, Structure.A) -> Bool)
+    case fromThree((Structure.A, Structure.A, Structure.A) -> Bool)
   }
 
-  public let operation: Algebraic
-  public let equating: (Algebraic.A, Algebraic.A) -> Bool
+  public let operation: Structure
+  public let equating: (Structure.A, Structure.A) -> Bool
 
-  public init(_ operation: Algebraic, equating: @escaping (Algebraic.A, Algebraic.A) -> Bool) {
+  public init(_ operation: Structure, equating: @escaping (Structure.A, Structure.A) -> Bool) {
     self.operation = operation
     self.equating = equating
   }
 
-  subscript<T>(dynamicMember kp: KeyPath<Algebraic, T>) -> T {
+  subscript<T>(dynamicMember kp: KeyPath<Structure, T>) -> T {
     operation[keyPath: kp]
   }
 
