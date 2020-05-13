@@ -67,26 +67,26 @@ final class SemigroupTests: XCTestCase {
       ],
       equating: ==
     )
-
-    verifyFunctionInstancesProperties()
   }
 
-  private func verifyFunctionInstancesProperties(file: StaticString = #file, line: UInt = #line) {
+  func testFunctionInstancesProperties() {
     let endo = Semigroup<(Int) -> Int>.endo()
 
-    property("Semigroup.endo respects some laws", file: file, line: line) <- forAll { (a: ArrowOf<Int, Int>, b: ArrowOf<Int, Int>, c: ArrowOf<Int, Int>, value: Int) in
-      let laws = LawsOf(endo) { $0(value) == $1(value) }
-
-      return TestResult(
-        require: "Semigroup.endo is associative",
-        check: laws.associativity.verify(a.getArrow, b.getArrow, c.getArrow)
-      )
+    property("Semigroup.endo respects some laws") <- forAll { (a: ArrowOf<Int, Int>, b: ArrowOf<Int, Int>, c: ArrowOf<Int, Int>, value: Int) in
+      endo.properties(equating: { $0(value) == $1(value) })
+        .map { property in
+          TestResult(
+            require: "Semigroup.endo \(property.name)",
+            check: property.verify(a.getArrow, b.getArrow, c.getArrow)
+          )
+        }
+        .reduce(TestResult.succeeded.property) { conjoin($0, $1) }
     }
 
-    struct GeneratedSemigroup: Arbitrary {
+    struct GeneratedStructure: Arbitrary {
       let get: Semigroup<Int>
 
-      static var arbitrary: Gen<GeneratedSemigroup> {
+      static var arbitrary: Gen<GeneratedStructure> {
         Gen<Semigroup<Int>>.fromElements(of: [
           .first,
           .last,
@@ -95,23 +95,33 @@ final class SemigroupTests: XCTestCase {
           .product,
           .sum
         ]).map {
-          GeneratedSemigroup(get: $0)
+          GeneratedStructure(get: $0)
         }
       }
     }
 
-    property("Semigroup.function respects some laws", file: file, line: line) <- forAll { (a: ArrowOf<String, Int>, b: ArrowOf<String, Int>, c: ArrowOf<String, Int>, semigroup: GeneratedSemigroup, value: String) in
-      let function = Semigroup<(String) -> Int>.function(over: semigroup.get)
-      let laws = LawsOf(function) { $0(value) == $1(value) }
-
-      return TestResult(
-        require: "Semigroup.function is associative",
-        check: laws.associativity.verify(a.getArrow, b.getArrow, c.getArrow)
-      )
+    property("Semigroup.function respects some laws") <- forAll {
+      (
+        a: ArrowOf<String, Int>,
+        b: ArrowOf<String, Int>,
+        c: ArrowOf<String, Int>,
+        structure: GeneratedStructure,
+        value: String
+      ) in
+      Semigroup<(String) -> Int>.function(over: structure.get)
+        .properties(equating: { $0(value) == $1(value) })
+        .map { property in
+          TestResult(
+            require: "Semigroup.function \(property.name)",
+            check: property.verify(a.getArrow, b.getArrow, c.getArrow)
+          )
+        }
+        .reduce(TestResult.succeeded.property) { conjoin($0, $1) }
     }
   }
 
   static var allTests = [
-    ("testProperties", testProperties)
+    ("testProperties", testProperties),
+    ("testFunctionInstancesProperties", testFunctionInstancesProperties)
   ]
 }

@@ -71,3 +71,28 @@ extension FloatingPoint where Self.Stride: ExpressibleByFloatLiteral {
     return abs((self / other).distance(to: 1)) < tolerance
   }
 }
+
+struct NonZero<RawValue: FloatingPoint>: RawRepresentable {
+  let rawValue: RawValue
+
+  init?(rawValue: RawValue) {
+    guard rawValue != 0 else {
+      return nil
+    }
+
+    self.rawValue = rawValue
+  }
+
+  init?(_ rawValue: RawValue) {
+    self.init(rawValue: rawValue)
+  }
+}
+
+extension NonZero: Arbitrary where RawValue: Arbitrary {
+  static var arbitrary: Gen<Self> {
+    RawValue.arbitrary
+      .map { NonZero($0) }
+      .suchThat { $0 != nil }
+      .map { $0! }
+  }
+}
