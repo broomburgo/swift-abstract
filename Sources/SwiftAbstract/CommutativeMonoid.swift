@@ -13,8 +13,8 @@ struct CommutativeMonoid<A>: Associative, Commutative, WithIdentity {
     self.init(apply: s.apply, empty: s.empty)
   }
 
-  func properties(equating: @escaping (A, A) -> Bool) -> [Verify<CommutativeMonoid<A>>.Property] {
-    Verify(self, equating: equating).properties {
+  func properties(equating: @escaping (A, A) -> Bool) -> [LawsOf<CommutativeMonoid<A>>.Property] {
+    LawsOf(self, equating: equating).properties {
       [
         $0.associativity,
         $0.commutativity,

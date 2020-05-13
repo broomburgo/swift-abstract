@@ -2,7 +2,7 @@
 
 public protocol Absorption: WithTwoBinaryOperations {}
 
-extension Verify where Structure: Absorption {
+extension LawsOf where Structure: Absorption {
   public var absorbability: Property {
     Property(
       name: "has operations linked by absorption law",
@@ -23,7 +23,7 @@ extension Verify where Structure: Absorption {
 
 public protocol WithAnnihilation: WithZero {}
 
-extension Verify where Structure: WithAnnihilation {
+extension LawsOf where Structure: WithAnnihilation {
   var annihilability: Property {
     Property(
       name: "has zero annihilating the second operation",
@@ -46,7 +46,7 @@ public protocol AssociativeFirst: WithTwoBinaryOperations where FirstBinaryOpera
 public protocol AssociativeSecond: WithTwoBinaryOperations where SecondBinaryOperation: Associative {}
 public typealias AssociativeBoth = AssociativeFirst & AssociativeSecond
 
-extension Verify where Structure: AssociativeFirst {
+extension LawsOf where Structure: AssociativeFirst {
   public var associativityOfFirst: Property {
     Property(
       name: "has first operation associative",
@@ -60,7 +60,7 @@ extension Verify where Structure: AssociativeFirst {
   }
 }
 
-extension Verify where Structure: AssociativeSecond {
+extension LawsOf where Structure: AssociativeSecond {
   public var associativityOfSecond: Property {
     Property(
       name: "has second operation associative",
@@ -80,7 +80,7 @@ public protocol CommutativeFirst: WithTwoBinaryOperations where FirstBinaryOpera
 public protocol CommutativeSecond: WithTwoBinaryOperations where SecondBinaryOperation: Commutative {}
 public typealias CommutativeBoth = CommutativeFirst & CommutativeSecond
 
-extension Verify where Structure: CommutativeFirst {
+extension LawsOf where Structure: CommutativeFirst {
   public var commutativityOfFirst: Property {
     Property(
       name: "has first operation commutative",
@@ -94,7 +94,7 @@ extension Verify where Structure: CommutativeFirst {
   }
 }
 
-extension Verify where Structure: CommutativeSecond {
+extension LawsOf where Structure: CommutativeSecond {
   public var commutativityOfSecond: Property {
     Property(
       name: "has second operation commutative",
@@ -114,7 +114,7 @@ public protocol DistributiveFirstOverSecond: WithTwoBinaryOperations {}
 public protocol DistributiveSecondOverFirst: WithTwoBinaryOperations {}
 public typealias Distributive = DistributiveFirstOverSecond & DistributiveSecondOverFirst
 
-extension Verify where Structure: DistributiveFirstOverSecond {
+extension LawsOf where Structure: DistributiveFirstOverSecond {
   public var distributivityOfFirstOverSecond: Property {
     Property(
       name: "has first operation distributive over second",
@@ -128,7 +128,7 @@ extension Verify where Structure: DistributiveFirstOverSecond {
   }
 }
 
-extension Verify where Structure: DistributiveSecondOverFirst {
+extension LawsOf where Structure: DistributiveSecondOverFirst {
   public var distributivityOfSecondOverFirst: Property {
     Property(
       name: "has second operation distributive over first",
@@ -146,7 +146,7 @@ extension Verify where Structure: DistributiveSecondOverFirst {
 
 public protocol ExcludedMiddle: WithImplies, WithZero {}
 
-extension Verify where Structure: ExcludedMiddle {
+extension LawsOf where Structure: ExcludedMiddle {
   public var excludedMiddle: Property {
     Property(
       name: "has operations respecting the law of excluded middle",
@@ -166,7 +166,7 @@ public protocol WithImplies: LatticeLike, WithOne {
   var implies: (A, A) -> A { get }
 }
 
-extension Verify where Structure: WithImplies {
+extension LawsOf where Structure: WithImplies {
   public var implication: Property {
     Property(
       name: "has implication",
@@ -195,7 +195,7 @@ public protocol IdempotentFirst: WithTwoBinaryOperations where FirstBinaryOperat
 public protocol IdempotentSecond: WithTwoBinaryOperations where SecondBinaryOperation: Idempotent {}
 public typealias IdempotentBoth = IdempotentFirst & IdempotentSecond
 
-extension Verify where Structure: IdempotentFirst {
+extension LawsOf where Structure: IdempotentFirst {
   public var idempotencyOfFirst: Property {
     Property(
       name: "has first operation idempotent",
@@ -209,7 +209,7 @@ extension Verify where Structure: IdempotentFirst {
   }
 }
 
-extension Verify where Structure: IdempotentSecond {
+extension LawsOf where Structure: IdempotentSecond {
   public var idempotencyOfSecond: Property {
     Property(
       name: "has second operation idempotent",
@@ -233,7 +233,7 @@ extension WithNegate {
   }
 }
 
-extension Verify where Structure: WithNegate {
+extension LawsOf where Structure: WithNegate {
   public var negation: Property {
     Property(
       name: "has negation",
@@ -260,7 +260,7 @@ extension WithOne {
   }
 }
 
-extension Verify where Structure: WithOne {
+extension LawsOf where Structure: WithOne {
   public var oneIdentity: Property {
     Property(
       name: "has identity of one",
@@ -287,7 +287,7 @@ extension WithReciprocal {
   }
 }
 
-extension Verify where Structure: WithReciprocal {
+extension LawsOf where Structure: WithReciprocal {
   public var reciprocity: Property {
     Property(
       name: "has reciprocal",
@@ -314,7 +314,7 @@ extension WithZero {
   }
 }
 
-extension Verify where Structure: WithZero {
+extension LawsOf where Structure: WithZero {
   public var zeroIdentity: Property {
     Property(
       name: "has identity of zero",

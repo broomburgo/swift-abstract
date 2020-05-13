@@ -4,8 +4,8 @@ struct Rng<A>: RingLike, WithNegate {
   let first: AbelianGroup<A>
   let second: Semigroup<A>
 
-  func properties(equating: @escaping (A, A) -> Bool) -> [Verify<Rng<A>>.Property] {
-    Verify(self, equating: equating).properties {
+  func properties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Rng<A>>.Property] {
+    LawsOf(self, equating: equating).properties {
       [
         $0.annihilability,
         $0.associativityOfFirst,

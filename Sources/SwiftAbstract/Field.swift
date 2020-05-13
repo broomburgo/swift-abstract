@@ -4,8 +4,8 @@ struct Field<A>: RingLike, WithOne, WithNegate, CommutativeSecond, WithReciproca
   let first: AbelianGroup<A>
   let second: AbelianGroup<A>
 
-  func properties(equating: @escaping (A, A) -> Bool) -> [Verify<Field<A>>.Property] {
-    Verify(self, equating: equating).properties {
+  func properties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Field<A>>.Property] {
+    LawsOf(self, equating: equating).properties {
       [
         $0.annihilability,
         $0.associativityOfFirst,

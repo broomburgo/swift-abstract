@@ -75,7 +75,7 @@ final class SemigroupTests: XCTestCase {
     let endo = Semigroup<(Int) -> Int>.endo()
 
     property("Semigroup.endo respects some laws", file: file, line: line) <- forAll { (a: ArrowOf<Int, Int>, b: ArrowOf<Int, Int>, c: ArrowOf<Int, Int>, value: Int) in
-      let verifyEndo = Verify(endo) { $0(value) == $1(value) }
+      let verifyEndo = LawsOf(endo) { $0(value) == $1(value) }
 
       return TestResult(
         require: "Semigroup.endo is associative",
@@ -102,7 +102,7 @@ final class SemigroupTests: XCTestCase {
 
     property("Semigroup.function respects some laws", file: file, line: line) <- forAll { (a: ArrowOf<String, Int>, b: ArrowOf<String, Int>, c: ArrowOf<String, Int>, semigroup: GeneratedSemigroup, value: String) in
       let function = Semigroup<(String) -> Int>.function(over: semigroup.get)
-      let verifyFunction = Verify(function) { $0(value) == $1(value) }
+      let verifyFunction = LawsOf(function) { $0(value) == $1(value) }
 
       return TestResult(
         require: "Semigroup.function is associative",

@@ -2,7 +2,7 @@
 
 public protocol Associative: WithOneBinaryOperation {}
 
-extension Verify where Structure: Associative {
+extension LawsOf where Structure: Associative {
   public var associativity: Property {
     Property(
       name: "is associative",
@@ -20,7 +20,7 @@ extension Verify where Structure: Associative {
 
 public protocol Commutative: WithOneBinaryOperation {}
 
-extension Verify where Structure: Commutative {
+extension LawsOf where Structure: Commutative {
   public var commutativity: Property {
     Property(
       name: "is commutative",
@@ -38,7 +38,7 @@ extension Verify where Structure: Commutative {
 
 public protocol Idempotent: WithOneBinaryOperation {}
 
-extension Verify where Structure: Idempotent {
+extension LawsOf where Structure: Idempotent {
   public var idempotency: Property {
     Property(
       name: "is idempotent",
@@ -58,7 +58,7 @@ public protocol WithIdentity: WithOneBinaryOperation {
   var empty: A { get }
 }
 
-extension Verify where Structure: WithIdentity {
+extension LawsOf where Structure: WithIdentity {
   public var identity: Property {
     Property(
       name: "has identity element",
@@ -81,7 +81,7 @@ public protocol WithInverse: WithIdentity {
   var inverse: (A) -> A { get }
 }
 
-extension Verify where Structure: WithInverse {
+extension LawsOf where Structure: WithInverse {
   public var inverse: Property {
     Property(
       name: "has inverse",

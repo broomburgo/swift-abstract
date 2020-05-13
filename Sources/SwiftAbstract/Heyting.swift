@@ -5,8 +5,8 @@ struct Heyting<A>: LatticeLike, Distributive, WithZero, WithOne, WithImplies {
   let second: BoundedSemilattice<A>
   let implies: (A, A) -> A
 
-  func properties(equating: @escaping (A, A) -> Bool) -> [Verify<Heyting<A>>.Property] {
-    Verify(self, equating: equating).properties {
+  func properties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Heyting<A>>.Property] {
+    LawsOf(self, equating: equating).properties {
       [
         $0.absorbability,
         $0.associativityOfFirst,

@@ -15,8 +15,8 @@ struct AbelianGroup<A>: Associative, Commutative, WithIdentity, WithInverse {
     self.init(apply: s.apply, empty: s.empty, inverse: s.inverse)
   }
 
-  func properties(equating: @escaping (A, A) -> Bool) -> [Verify<AbelianGroup<A>>.Property] {
-    Verify(self, equating: equating).properties {
+  func properties(equating: @escaping (A, A) -> Bool) -> [LawsOf<AbelianGroup<A>>.Property] {
+    LawsOf(self, equating: equating).properties {
       [
         $0.associativity,
         $0.commutativity,

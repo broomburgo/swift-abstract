@@ -5,8 +5,8 @@ struct Boolean<A>: LatticeLike, Distributive, WithZero, WithOne, WithImplies, Ex
   let second: BoundedSemilattice<A>
   let implies: (A, A) -> A
 
-  func properties(equating: @escaping (A, A) -> Bool) -> [Verify<Boolean<A>>.Property] {
-    Verify(self, equating: equating).properties {
+  func properties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Boolean<A>>.Property] {
+    LawsOf(self, equating: equating).properties {
       [
         $0.absorbability,
         $0.associativityOfFirst,

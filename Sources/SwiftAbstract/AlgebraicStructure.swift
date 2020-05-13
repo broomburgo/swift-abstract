@@ -3,11 +3,13 @@
 public protocol AlgebraicStructure {
   associatedtype A
 
-  func properties(equating: @escaping (A, A) -> Bool) -> [Verify<Self>.Property]
+  func properties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Self>.Property]
 }
 
+// MARK: - Laws
+
 @dynamicMemberLookup
-public struct Verify<Structure: AlgebraicStructure> {
+public struct LawsOf<Structure: AlgebraicStructure> {
   public struct Property {
     public let name: String
     public let verification: Verification

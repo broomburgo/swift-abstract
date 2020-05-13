@@ -4,8 +4,8 @@ struct BoundedDistributiveLattice<A>: LatticeLike, Distributive, WithZero, WithO
   let first: BoundedSemilattice<A>
   let second: BoundedSemilattice<A>
 
-  func properties(equating: @escaping (A, A) -> Bool) -> [Verify<BoundedDistributiveLattice<A>>.Property] {
-    Verify(self, equating: equating).properties {
+  func properties(equating: @escaping (A, A) -> Bool) -> [LawsOf<BoundedDistributiveLattice<A>>.Property] {
+    LawsOf(self, equating: equating).properties {
       [
         $0.absorbability,
         $0.associativityOfFirst,

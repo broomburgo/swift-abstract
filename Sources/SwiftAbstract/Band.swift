@@ -11,8 +11,8 @@ struct Band<A>: Associative, Idempotent {
     self.init(apply: s.apply)
   }
 
-  func properties(equating: @escaping (A, A) -> Bool) -> [Verify<Band<A>>.Property] {
-    Verify(self, equating: equating).properties {
+  func properties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Band<A>>.Property] {
+    LawsOf(self, equating: equating).properties {
       [
         $0.associativity,
         $0.idempotency

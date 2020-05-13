@@ -13,8 +13,8 @@ struct Monoid<A>: Associative, WithIdentity {
     self.init(apply: s.apply, empty: s.empty)
   }
 
-  func properties(equating: @escaping (A, A) -> Bool) -> [Verify<Monoid<A>>.Property] {
-    Verify(self, equating: equating).properties {
+  func properties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Monoid<A>>.Property] {
+    LawsOf(self, equating: equating).properties {
       [
         $0.associativity,
         $0.identity

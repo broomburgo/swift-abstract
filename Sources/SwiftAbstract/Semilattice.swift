@@ -11,8 +11,8 @@ struct Semilattice<A>: Associative, Commutative, Idempotent {
     self.init(apply: s.apply)
   }
 
-  func properties(equating: @escaping (A, A) -> Bool) -> [Verify<Semilattice<A>>.Property] {
-    Verify(self, equating: equating).properties {
+  func properties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Semilattice<A>>.Property] {
+    LawsOf(self, equating: equating).properties {
       [
         $0.associativity,
         $0.commutativity,
