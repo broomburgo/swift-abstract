@@ -1,3 +1,3 @@
 # swift-abstract
 
-A description of this package.
+Abstract algebra for Swift.
