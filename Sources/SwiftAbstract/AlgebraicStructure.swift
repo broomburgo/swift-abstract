@@ -37,8 +37,8 @@ public struct LawsOf<Structure: AlgebraicStructure> {
   public let structure: Structure
   public let equating: (Structure.A, Structure.A) -> Bool
 
-  public init(_ operation: Structure, equating: @escaping (Structure.A, Structure.A) -> Bool) {
-    self.structure = operation
+  public init(_ structure: Structure, equating: @escaping (Structure.A, Structure.A) -> Bool) {
+    self.structure = structure
     self.equating = equating
   }
 
