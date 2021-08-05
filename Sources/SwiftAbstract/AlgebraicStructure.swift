@@ -34,16 +34,16 @@ public struct LawsOf<Structure: AlgebraicStructure> {
     case fromThree((Structure.A, Structure.A, Structure.A) -> Bool)
   }
 
-  public let operation: Structure
+  public let structure: Structure
   public let equating: (Structure.A, Structure.A) -> Bool
 
   public init(_ operation: Structure, equating: @escaping (Structure.A, Structure.A) -> Bool) {
-    self.operation = operation
+    self.structure = operation
     self.equating = equating
   }
 
   subscript<T>(dynamicMember kp: KeyPath<Structure, T>) -> T {
-    operation[keyPath: kp]
+    structure[keyPath: kp]
   }
 
   public func properties(_ f: (Self) -> [Property]) -> [Property] {
