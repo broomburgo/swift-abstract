@@ -1,10 +1,10 @@
 // MARK: - Definition
 
-struct CommutativeRing<A>: RingLike, WithOne, WithNegate, CommutativeSecond {
+struct Field<A>: RingLike, WithOne, WithNegate, WithReciprocal {
   let first: AbelianGroup<A>
-  let second: CommutativeMonoid<A>
+  let second: AbelianGroup<A>
 
-  func properties(equating: @escaping (A, A) -> Bool) -> [LawsOf<CommutativeRing<A>>.Property] {
+  func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Field<A>>.Property] {
     LawsOf(self, equating: equating).properties {
       [
         $0.annihilability,
@@ -15,7 +15,8 @@ struct CommutativeRing<A>: RingLike, WithOne, WithNegate, CommutativeSecond {
         $0.distributivityOfSecondOverFirst,
         $0.negation,
         $0.oneIdentity,
-        $0.zeroIdentity
+        $0.reciprocity,
+        $0.zeroIdentity,
       ]
     }
   }

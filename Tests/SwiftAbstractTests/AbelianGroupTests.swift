@@ -27,7 +27,7 @@ final class AbelianGroupTests: XCTestCase {
         value: String
       ) in
       AbelianGroup<(String) -> Int>.function(over: structure.get)
-        .properties(equating: { $0(value) == $1(value) })
+        .getProperties(equating: { $0(value) == $1(value) })
         .map { property in
           TestResult(
             require: "AbelianGroup.function \(property.name)",

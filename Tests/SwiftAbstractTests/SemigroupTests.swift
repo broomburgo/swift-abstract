@@ -73,7 +73,7 @@ final class SemigroupTests: XCTestCase {
     let endo = Semigroup<(Int) -> Int>.endo()
 
     property("Semigroup.endo respects some laws") <- forAll { (a: ArrowOf<Int, Int>, b: ArrowOf<Int, Int>, c: ArrowOf<Int, Int>, value: Int) in
-      endo.properties(equating: { $0(value) == $1(value) })
+      endo.getProperties(equating: { $0(value) == $1(value) })
         .map { property in
           TestResult(
             require: "Semigroup.endo \(property.name)",
@@ -109,7 +109,7 @@ final class SemigroupTests: XCTestCase {
         value: String
       ) in
       Semigroup<(String) -> Int>.function(over: structure.get)
-        .properties(equating: { $0(value) == $1(value) })
+        .getProperties(equating: { $0(value) == $1(value) })
         .map { property in
           TestResult(
             require: "Semigroup.function \(property.name)",

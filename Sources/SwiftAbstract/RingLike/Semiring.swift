@@ -4,7 +4,7 @@ struct Semiring<A>: RingLike, WithOne {
   let first: CommutativeMonoid<A>
   let second: Monoid<A>
 
-  func properties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Semiring<A>>.Property] {
+  func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Semiring<A>>.Property] {
     LawsOf(self, equating: equating).properties {
       [
         $0.annihilability,

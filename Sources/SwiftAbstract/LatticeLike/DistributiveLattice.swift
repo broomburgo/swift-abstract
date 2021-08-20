@@ -1,11 +1,10 @@
 // MARK: - Definition
 
-struct Heyting<A>: LatticeLike, Distributive, WithZero, WithOne, WithImplies {
-  let first: BoundedSemilattice<A>
-  let second: BoundedSemilattice<A>
-  let implies: (A, A) -> A
+struct DistributiveLattice<A>: LatticeLike, Distributive {
+  let first: Semilattice<A>
+  let second: Semilattice<A>
 
-  func properties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Heyting<A>>.Property] {
+  func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<DistributiveLattice<A>>.Property] {
     LawsOf(self, equating: equating).properties {
       [
         $0.absorbability,
@@ -16,10 +15,7 @@ struct Heyting<A>: LatticeLike, Distributive, WithZero, WithOne, WithImplies {
         $0.distributivityOfFirstOverSecond,
         $0.distributivityOfSecondOverFirst,
         $0.idempotencyOfFirst,
-        $0.idempotencyOfSecond,
-        $0.implication,
-        $0.oneIdentity,
-        $0.zeroIdentity
+        $0.idempotencyOfSecond
       ]
     }
   }

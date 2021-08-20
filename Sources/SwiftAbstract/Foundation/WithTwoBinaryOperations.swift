@@ -1,3 +1,11 @@
+public protocol WithTwoBinaryOperations: AlgebraicStructure {
+    associatedtype FirstBinaryOperation: WithOneBinaryOperation where FirstBinaryOperation.A == A
+    associatedtype SecondBinaryOperation: WithOneBinaryOperation where SecondBinaryOperation.A == A
+
+    var first: FirstBinaryOperation { get }
+    var second: SecondBinaryOperation { get }
+}
+
 // MARK: - Absorption
 
 public protocol Absorption: WithTwoBinaryOperations {}
@@ -42,45 +50,59 @@ extension LawsOf where Structure: WithAnnihilation {
 
 // MARK: - Associativity
 
-public protocol AssociativeFirst: WithTwoBinaryOperations where FirstBinaryOperation: Associative {}
-public protocol AssociativeSecond: WithTwoBinaryOperations where SecondBinaryOperation: Associative {}
-public typealias AssociativeBoth = AssociativeFirst & AssociativeSecond
+extension Verification {
+    init<Structure>(from laws: LawsOf<Structure>, property kp: KeyPath<LawsOf<Structure>, LawsOf<Structure>.Property>) where Structure.A == A {
+        self = laws[keyPath: kp].verification
+    }
+}
 
-extension LawsOf where Structure: AssociativeFirst {
+extension LawsOf {
+    func derived<Substructure>(
+        from substructure: Substructure,
+        property kp: KeyPath<LawsOf<Substructure>, LawsOf<Substructure>.Property>
+    ) -> Verification<Structure.A> where Substructure.A == Structure.A {
+        LawsOf<Substructure>(substructure, equating: equating)[keyPath: kp].verification
+    }
+}
+
+extension LawsOf {
+    func der_ived<Substructure>(
+        from substructure: Substructure
+    ) -> LawsOf<Substructure> where Substructure.A == Structure.A {
+        LawsOf<Substructure>(substructure, equating: equating)
+    }
+}
+
+extension LawsOf {
+    func verifying<Substructure>(
+        that substructure: Substructure,
+        has property: KeyPath<LawsOf<Substructure>, LawsOf<Substructure>.Property>
+    ) -> Verification<Structure.A> where Substructure.A == Structure.A {
+        LawsOf<Substructure>(substructure, equating: equating)[keyPath: property].verification
+    }
+}
+
+extension LawsOf where Structure: WithTwoBinaryOperations, Structure.FirstBinaryOperation: Associative {
   public var associativityOfFirst: Property {
     Property(
       name: "has first operation associative",
-      verification: .fromThree {
-        self.equating(
-          self.first.apply(self.first.apply($0, $1), $2),
-          self.first.apply($0, self.first.apply($1, $2))
-        )
-      }
+        verification: verifying(that: self.first, has: \.associativity)
     )
   }
 }
 
-extension LawsOf where Structure: AssociativeSecond {
+extension LawsOf where Structure: WithTwoBinaryOperations, Structure.SecondBinaryOperation: Associative {
   public var associativityOfSecond: Property {
     Property(
       name: "has second operation associative",
-      verification: .fromThree {
-        self.equating(
-          self.second.apply(self.second.apply($0, $1), $2),
-          self.second.apply($0, self.second.apply($1, $2))
-        )
-      }
+        verification: verifying(that: self.second, has: \.associativity)
     )
   }
 }
 
 // MARK: - Commutativity
 
-public protocol CommutativeFirst: WithTwoBinaryOperations where FirstBinaryOperation: Commutative {}
-public protocol CommutativeSecond: WithTwoBinaryOperations where SecondBinaryOperation: Commutative {}
-public typealias CommutativeBoth = CommutativeFirst & CommutativeSecond
-
-extension LawsOf where Structure: CommutativeFirst {
+extension LawsOf where Structure: WithTwoBinaryOperations, Structure.FirstBinaryOperation: Commutative {
   public var commutativityOfFirst: Property {
     Property(
       name: "has first operation commutative",
@@ -94,7 +116,7 @@ extension LawsOf where Structure: CommutativeFirst {
   }
 }
 
-extension LawsOf where Structure: CommutativeSecond {
+extension LawsOf where Structure: WithTwoBinaryOperations, Structure.SecondBinaryOperation: Commutative {
   public var commutativityOfSecond: Property {
     Property(
       name: "has second operation commutative",

@@ -11,7 +11,7 @@ struct CommutativeSemigroup<A>: Associative, Commutative {
     self.init(apply: s.apply)
   }
 
-  func properties(equating: @escaping (A, A) -> Bool) -> [LawsOf<CommutativeSemigroup<A>>.Property] {
+  func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<CommutativeSemigroup<A>>.Property] {
     LawsOf(self, equating: equating).properties {
       [
         $0.associativity,

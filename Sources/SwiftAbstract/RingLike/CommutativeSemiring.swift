@@ -1,10 +1,10 @@
 // MARK: - Definition
 
-struct CommutativeSemiring<A>: RingLike, WithOne, CommutativeSecond {
+struct CommutativeSemiring<A>: RingLike, WithOne {
   let first: CommutativeMonoid<A>
   let second: CommutativeMonoid<A>
 
-  func properties(equating: @escaping (A, A) -> Bool) -> [LawsOf<CommutativeSemiring<A>>.Property] {
+  func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<CommutativeSemiring<A>>.Property] {
     LawsOf(self, equating: equating).properties {
       [
         $0.annihilability,

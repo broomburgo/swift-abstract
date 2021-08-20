@@ -1,6 +1,6 @@
 // MARK: - Definition
 
-struct AbelianGroup<A>: Associative, Commutative, WithIdentity, WithInverse {
+struct Group<A>: Associative, WithIdentity, WithInverse {
   let apply: (A, A) -> A
   let empty: A
   let inverse: (A) -> A
@@ -11,15 +11,14 @@ struct AbelianGroup<A>: Associative, Commutative, WithIdentity, WithInverse {
     self.inverse = inverse
   }
 
-  init<MoreSpecific: Associative & Commutative & WithIdentity & WithInverse>(from s: MoreSpecific) where MoreSpecific.A == A {
+  init<MoreSpecific: Associative & WithIdentity & WithInverse>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply, empty: s.empty, inverse: s.inverse)
   }
 
-  func properties(equating: @escaping (A, A) -> Bool) -> [LawsOf<AbelianGroup<A>>.Property] {
+  func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Group<A>>.Property] {
     LawsOf(self, equating: equating).properties {
       [
         $0.associativity,
-        $0.commutativity,
         $0.identity,
         $0.inverse
       ]
@@ -29,9 +28,9 @@ struct AbelianGroup<A>: Associative, Commutative, WithIdentity, WithInverse {
 
 // MARK: - Instances
 
-extension AbelianGroup where A: SignedNumeric {
+extension Group where A: SignedNumeric {
   static var sum: Self {
-    AbelianGroup(
+    Group(
       apply: { $0 + $1 },
       empty: .zero,
       inverse: { -$0 }
@@ -39,9 +38,9 @@ extension AbelianGroup where A: SignedNumeric {
   }
 }
 
-extension AbelianGroup /* where A == (Input) -> Output */ {
-  static func function<Input, Output>(over output: AbelianGroup<Output>) -> Self where A == (Input) -> Output {
-    AbelianGroup(
+extension Group /* where A == (Input) -> Output */ {
+  static func function<Input, Output>(over output: Group<Output>) -> Self where A == (Input) -> Output {
+    Group(
       apply: { f1, f2 in
         { output.apply(f1($0), f2($0)) }
       },

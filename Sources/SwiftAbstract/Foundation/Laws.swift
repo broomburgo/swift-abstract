@@ -1,6 +1,48 @@
-// MARK: - Associativity
 
-public protocol Associative: WithOneBinaryOperation {}
+@dynamicMemberLookup
+public struct LawsOf<Structure: AlgebraicStructure> {
+    public let structure: Structure
+    public let equating: (Structure.A, Structure.A) -> Bool
+
+    public init(_ structure: Structure, equating: @escaping (Structure.A, Structure.A) -> Bool) {
+        self.structure = structure
+        self.equating = equating
+    }
+
+    subscript<T>(dynamicMember kp: KeyPath<Structure, T>) -> T {
+        structure[keyPath: kp]
+    }
+
+    public func properties(_ f: (Self) -> [Property]) -> [Property] {
+        f(self)
+    }
+
+    public struct Property {
+        public let name: String
+        public let verification: Verification<Structure.A>
+
+        public func verify(_ a: Structure.A, _ b: Structure.A, _ c: Structure.A) -> Bool {
+            switch verification {
+            case let .fromOne(f):
+                return f(a)
+
+            case let .fromTwo(f):
+                return f(a, b)
+
+            case let .fromThree(f):
+                return f(a, b, c)
+            }
+        }
+    }
+}
+
+public enum Verification<A> {
+    case fromOne((A) -> Bool)
+    case fromTwo((A, A) -> Bool)
+    case fromThree((A, A, A) -> Bool)
+}
+
+// MARK: - Associativity
 
 extension LawsOf where Structure: Associative {
   public var associativity: Property {
@@ -18,8 +60,6 @@ extension LawsOf where Structure: Associative {
 
 // MARK: - Commutativity
 
-public protocol Commutative: WithOneBinaryOperation {}
-
 extension LawsOf where Structure: Commutative {
   public var commutativity: Property {
     Property(
@@ -36,7 +76,6 @@ extension LawsOf where Structure: Commutative {
 
 // MARK: - Idempotency
 
-public protocol Idempotent: WithOneBinaryOperation {}
 
 extension LawsOf where Structure: Idempotent {
   public var idempotency: Property {
@@ -53,10 +92,6 @@ extension LawsOf where Structure: Idempotent {
 }
 
 // MARK: - Identity
-
-public protocol WithIdentity: WithOneBinaryOperation {
-  var empty: A { get }
-}
 
 extension LawsOf where Structure: WithIdentity {
   public var identity: Property {
@@ -76,10 +111,6 @@ extension LawsOf where Structure: WithIdentity {
 }
 
 // MARK: - Invertibility
-
-public protocol WithInverse: WithIdentity {
-  var inverse: (A) -> A { get }
-}
 
 extension LawsOf where Structure: WithInverse {
   public var inverse: Property {
