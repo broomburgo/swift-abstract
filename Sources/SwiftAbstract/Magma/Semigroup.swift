@@ -11,13 +11,19 @@ struct Semigroup<A>: ConstructibleWithOneBinaryOperation, Associative {
     self.init(apply: s.apply)
   }
 
-  func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Semigroup<A>>.Property] {
-    LawsOf(self, equating: equating).properties {
-      [
-        $0.associativity
-      ]
+//  func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Semigroup<A>>.Property] {
+//    LawsOf(self, equating: equating).properties {
+//      [
+//        $0.associativity
+//      ]
+//    }
+//  }
+
+    static var _properties: [_Property<Self>] {
+        [
+            .associativity
+        ]
     }
-  }
 }
 
 // MARK: - Instances

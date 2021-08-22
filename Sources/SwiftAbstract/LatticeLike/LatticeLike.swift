@@ -1,6 +1,6 @@
-public protocol LatticeLike: IdempotentBoth, Absorption where
-    FirstBinaryOperation: Associative & Commutative,
-    SecondBinaryOperation: Associative & Commutative {}
+public protocol LatticeLike: Absorption where
+    FirstBinaryOperation: Associative & Commutative & Idempotent,
+    SecondBinaryOperation: Associative & Commutative & Idempotent {}
 
 extension WithTwoBinaryOperations where Self: LatticeLike {
     typealias Join = FirstBinaryOperation

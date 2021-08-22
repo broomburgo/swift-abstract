@@ -13,16 +13,25 @@ struct BoundedSemilattice<A>: Associative, Commutative, Idempotent, WithIdentity
     self.init(apply: s.apply, empty: s.empty)
   }
 
-  func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<BoundedSemilattice<A>>.Property] {
-    LawsOf(self, equating: equating).properties {
-      [
-        $0.associativity,
-        $0.commutativity,
-        $0.idempotency,
-        $0.identity
-      ]
+//  func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<BoundedSemilattice<A>>.Property] {
+//    LawsOf(self, equating: equating).properties {
+//      [
+//        $0.associativity,
+//        $0.commutativity,
+//        $0.idempotency,
+//        $0.identity
+//      ]
+//    }
+//  }
+
+    static var _properties: [_Property<Self>] {
+        [
+            .associativity,
+            .commutativity,
+            .idempotency,
+            .identity,
+        ]
     }
-  }
 }
 
 // MARK: - Instances

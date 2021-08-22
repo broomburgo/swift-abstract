@@ -11,15 +11,23 @@ struct Semilattice<A>: Associative, Commutative, Idempotent {
     self.init(apply: s.apply)
   }
 
-  func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Semilattice<A>>.Property] {
-    LawsOf(self, equating: equating).properties {
-      [
-        $0.associativity,
-        $0.commutativity,
-        $0.idempotency
-      ]
+//  func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Semilattice<A>>.Property] {
+//    LawsOf(self, equating: equating).properties {
+//      [
+//        $0.associativity,
+//        $0.commutativity,
+//        $0.idempotency
+//      ]
+//    }
+//  }
+
+    static var _properties: [_Property<Self>] {
+        [
+            .associativity,
+            .commutativity,
+            .idempotency,
+        ]
     }
-  }
 }
 
 // MARK: - Instances

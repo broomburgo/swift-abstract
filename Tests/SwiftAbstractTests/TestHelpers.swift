@@ -17,7 +17,29 @@ func cartesian<AS: Sequence, BS: Sequence>(_ as: AS, _ bs: BS) -> [(AS.Element, 
   `as`.flatMap { a in bs.map { b in (a, b) } }
 }
 
-func verifyAllProperties<Structure: AlgebraicStructure>(
+//func verifyAllProperties<Structure: AlgebraicStructure>(
+//  ofStructure algebraicStructure: Structure.Type,
+//  onInstances instances: [(instance: String, value: Structure)],
+//  equating: @escaping (Structure.A, Structure.A) -> Bool,
+//  file: StaticString = #file,
+//  line: UInt = #line
+//) where Structure.A: Arbitrary {
+//  property("\(algebraicStructure) instances respect some laws", file: file, line: line) <- forAll { (a: Structure.A, b: Structure.A, c: Structure.A) in
+//    instances
+//      .flatMap { instance, value in
+//        value.getProperties(equating: equating).map { (instance, $0) }
+//      }
+//      .map { instance, property in
+//        TestResult(
+//          require: "\(algebraicStructure).\(instance) \(property.name)",
+//          check: property.verify(a, b, c)
+//        )
+//      }
+//      .reduce(TestResult.succeeded.property) { conjoin($0, $1) }
+//  }
+//}
+
+func _verifyAllProperties<Structure: AlgebraicStructure>(
   ofStructure algebraicStructure: Structure.Type,
   onInstances instances: [(instance: String, value: Structure)],
   equating: @escaping (Structure.A, Structure.A) -> Bool,
@@ -27,17 +49,20 @@ func verifyAllProperties<Structure: AlgebraicStructure>(
   property("\(algebraicStructure) instances respect some laws", file: file, line: line) <- forAll { (a: Structure.A, b: Structure.A, c: Structure.A) in
     instances
       .flatMap { instance, value in
-        value.getProperties(equating: equating).map { (instance, $0) }
+          Structure._properties.map {
+              (instance, _Verify(structure: value, equating: equating, property: $0))
+          }
       }
-      .map { instance, property in
+      .map { instance, verify in
         TestResult(
-          require: "\(algebraicStructure).\(instance) \(property.name)",
-          check: property.verify(a, b, c)
+            require: "\(algebraicStructure).\(instance) \(verify.property.name)",
+          check: verify(a, b, c)
         )
       }
       .reduce(TestResult.succeeded.property) { conjoin($0, $1) }
   }
 }
+
 
 extension CheckerArguments {
   static func seedDescription(_ replayString: String) -> CheckerArguments {

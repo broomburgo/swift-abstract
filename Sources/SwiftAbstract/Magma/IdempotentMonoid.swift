@@ -13,15 +13,23 @@ struct IdempotentMonoid<A>: Associative, Idempotent, WithIdentity {
     self.init(apply: s.apply, empty: s.empty)
   }
 
-  func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<IdempotentMonoid<A>>.Property] {
-    LawsOf(self, equating: equating).properties {
-      [
-        $0.associativity,
-        $0.idempotency,
-        $0.identity
-      ]
+//  func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<IdempotentMonoid<A>>.Property] {
+//    LawsOf(self, equating: equating).properties {
+//      [
+//        $0.associativity,
+//        $0.idempotency,
+//        $0.identity
+//      ]
+//    }
+//  }
+
+    static var _properties: [_Property<Self>] {
+        [
+            .associativity,
+            .idempotency,
+            .idempotency,
+        ]
     }
-  }
 }
 
 // MARK: - Instances

@@ -3,14 +3,19 @@
 public protocol AlgebraicStructure {
     associatedtype A
 
-    func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Self>.Property]
+//    func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Self>.Property]
+    static var _properties: [_Property<Self>] { get }
 }
 
-extension AlgebraicStructure where A: Equatable {
-    var properties: [LawsOf<Self>.Property] {
-        getProperties(equating: ==)
-    }
-}
+//extension AlgebraicStructure {
+//    static var _properties: [_Property<Self>] { fatalError() }
+//}
+
+//extension AlgebraicStructure where A: Equatable {
+//    var properties: [LawsOf<Self>.Property] {
+//        getProperties(equating: ==)
+//    }
+//}
 
 // MARK: - WithOneBinaryOperation
 

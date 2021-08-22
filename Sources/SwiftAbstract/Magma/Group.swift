@@ -15,15 +15,23 @@ struct Group<A>: Associative, WithIdentity, WithInverse {
     self.init(apply: s.apply, empty: s.empty, inverse: s.inverse)
   }
 
-  func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Group<A>>.Property] {
-    LawsOf(self, equating: equating).properties {
-      [
-        $0.associativity,
-        $0.identity,
-        $0.inverse
-      ]
+//  func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Group<A>>.Property] {
+//    LawsOf(self, equating: equating).properties {
+//      [
+//        $0.associativity,
+//        $0.identity,
+//        $0.inverse
+//      ]
+//    }
+//  }
+
+    static var _properties: [_Property<Self>] {
+        [
+            .associativity,
+            .identity,
+            .invertibility,
+        ]
     }
-  }
 }
 
 // MARK: - Instances

@@ -11,14 +11,21 @@ struct CommutativeSemigroup<A>: Associative, Commutative {
     self.init(apply: s.apply)
   }
 
-  func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<CommutativeSemigroup<A>>.Property] {
-    LawsOf(self, equating: equating).properties {
-      [
-        $0.associativity,
-        $0.commutativity
-      ]
+//  func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<CommutativeSemigroup<A>>.Property] {
+//    LawsOf(self, equating: equating).properties {
+//      [
+//        $0.associativity,
+//        $0.commutativity
+//      ]
+//    }
+//  }
+
+    static var _properties: [_Property<Self>] {
+        [
+            .associativity,
+            .commutativity,
+        ]
     }
-  }
 }
 
 // MARK: - Instances

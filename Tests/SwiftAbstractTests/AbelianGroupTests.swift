@@ -18,28 +18,28 @@ final class AbelianGroupTests: XCTestCase {
       }
     }
 
-    property("AbelianGroup.function respects some laws") <- forAll {
-      (
-        a: ArrowOf<String, Int>,
-        b: ArrowOf<String, Int>,
-        c: ArrowOf<String, Int>,
-        structure: GeneratedStructure,
-        value: String
-      ) in
-      AbelianGroup<(String) -> Int>.function(over: structure.get)
-        .getProperties(equating: { $0(value) == $1(value) })
-        .map { property in
-          TestResult(
-            require: "AbelianGroup.function \(property.name)",
-            check: property.verify(a.getArrow, b.getArrow, c.getArrow)
-          )
-        }
-        .reduce(TestResult.succeeded.property) { conjoin($0, $1) }
-    }
+//    property("AbelianGroup.function respects some laws") <- forAll {
+//      (
+//        a: ArrowOf<String, Int>,
+//        b: ArrowOf<String, Int>,
+//        c: ArrowOf<String, Int>,
+//        structure: GeneratedStructure,
+//        value: String
+//      ) in
+//      AbelianGroup<(String) -> Int>.function(over: structure.get)
+//        .getProperties(equating: { $0(value) == $1(value) })
+//        .map { property in
+//          TestResult(
+//            require: "AbelianGroup.function \(property.name)",
+//            check: property.verify(a.getArrow, b.getArrow, c.getArrow)
+//          )
+//        }
+//        .reduce(TestResult.succeeded.property) { conjoin($0, $1) }
+//    }
   }
 
   static var allTests = [
     ("testProperties", testProperties),
-    ("testFunctionInstancesProperties", testFunctionInstancesProperties)
+//    ("testFunctionInstancesProperties", testFunctionInstancesProperties)
   ]
 }
