@@ -7,7 +7,7 @@ final class AbelianGroupTests: XCTestCase {
   func testProperties() {
       _verifyAllProperties(
         ofFunctionBasedStructure: AbelianGroup<(String) -> Int>.self,
-        onInstances: [("sum", AbelianGroup<Int>.sum)],
+        onInstances: [("sum", .sum)],
         constructedBy: { .function(over: $0) },
         equating: { input in { $0(input) == $1(input) } }
       )
