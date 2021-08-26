@@ -4,7 +4,7 @@ import XCTest
 
 final class BooleanTests: XCTestCase {
   func testProperties() {
-    _verifyAllProperties(
+    verifyAllLaws(
       ofStructure: Boolean<Bool>.self,
       onInstances: [
         ("bool", .bool)

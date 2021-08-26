@@ -3,7 +3,7 @@
 public protocol AlgebraicStructure {
     associatedtype A
 
-    static var properties: [Property<Self>] { get }
+    static var laws: [Law<Self>] { get }
 }
 
 // MARK: - WithOneBinaryOperation
@@ -19,11 +19,11 @@ public protocol Commutative: WithOneBinaryOperation {}
 public protocol Idempotent: WithOneBinaryOperation {}
 
 public protocol WithIdentity: WithOneBinaryOperation {
-  var empty: A { get }
+    var empty: A { get }
 }
 
 public protocol WithInverse: WithIdentity {
-  var inverse: (A) -> A { get }
+    var inverse: (A) -> A { get }
 }
 
 public protocol ConstructibleWithOneBinaryOperation: AlgebraicStructure {
@@ -86,3 +86,30 @@ public extension WithZero {
     }
 }
 
+// MARK: - Lattice-Like
+
+public protocol LatticeLike: Absorption where
+    FirstBinaryOperation: Associative & Commutative & Idempotent,
+    SecondBinaryOperation: Associative & Commutative & Idempotent {}
+
+extension WithTwoBinaryOperations where Self: LatticeLike {
+    typealias Join = FirstBinaryOperation
+    typealias Meet = SecondBinaryOperation
+
+    var join: (A, A) -> A { first.apply } /// ~ OR ; ~ MAX
+    var meet: (A, A) -> A { second.apply } /// ~ AND; ~ MIN
+}
+
+// MARK: - Ring-Like
+
+public protocol RingLike: DistributiveSecondOverFirst, WithAnnihilation where
+    FirstBinaryOperation: Associative & Commutative,
+    SecondBinaryOperation: Associative {}
+
+extension WithTwoBinaryOperations where Self: RingLike {
+    typealias Plus = FirstBinaryOperation
+    typealias Times = SecondBinaryOperation
+
+    var plus: (A, A) -> A { first.apply }
+    var times: (A, A) -> A { second.apply }
+}

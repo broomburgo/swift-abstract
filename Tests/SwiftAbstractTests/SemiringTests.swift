@@ -4,7 +4,7 @@ import XCTest
 
 final class SemiringTests: XCTestCase {
   func testProperties() {
-    _verifyAllProperties(
+    verifyAllLaws(
       ofStructure: Semiring<Float>.self,
       onInstances: [
         ("max tropical", .maxTropical),

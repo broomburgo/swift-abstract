@@ -1,6 +1,25 @@
 @testable import SwiftAbstract
 import SwiftCheck
 
+struct Verify<Structure: AlgebraicStructure> {
+    let law: Law<Structure>
+    let structure: Structure
+    let equating: (Structure.A, Structure.A) -> Bool
+
+    func callAsFunction(_ a: Structure.A, _ b: Structure.A, _ c: Structure.A) -> Bool {
+        switch law.getCheck(structure, equating) {
+        case let .fromOne(f):
+            return f(a)
+
+        case let .fromTwo(f):
+            return f(a, b)
+
+        case let .fromThree(f):
+            return f(a, b, c)
+        }
+    }
+}
+
 extension Ordering: Arbitrary {
   public static var arbitrary: Gen<Ordering> {
     Gen.fromElements(of: Ordering.allCases)
@@ -13,33 +32,7 @@ extension TestResult {
   }
 }
 
-func cartesian<AS: Sequence, BS: Sequence>(_ as: AS, _ bs: BS) -> [(AS.Element, BS.Element)] {
-  `as`.flatMap { a in bs.map { b in (a, b) } }
-}
-
-//func verifyAllProperties<Structure: AlgebraicStructure>(
-//  ofStructure algebraicStructure: Structure.Type,
-//  onInstances instances: [(instance: String, value: Structure)],
-//  equating: @escaping (Structure.A, Structure.A) -> Bool,
-//  file: StaticString = #file,
-//  line: UInt = #line
-//) where Structure.A: Arbitrary {
-//  property("\(algebraicStructure) instances respect some laws", file: file, line: line) <- forAll { (a: Structure.A, b: Structure.A, c: Structure.A) in
-//    instances
-//      .flatMap { instance, value in
-//        value.getProperties(equating: equating).map { (instance, $0) }
-//      }
-//      .map { instance, property in
-//        TestResult(
-//          require: "\(algebraicStructure).\(instance) \(property.name)",
-//          check: property.verify(a, b, c)
-//        )
-//      }
-//      .reduce(TestResult.succeeded.property) { conjoin($0, $1) }
-//  }
-//}
-
-func _verifyAllProperties<Structure: AlgebraicStructure>(
+func verifyAllLaws<Structure: AlgebraicStructure>(
   ofStructure algebraicStructure: Structure.Type,
   onInstances instances: [(instance: String, value: Structure)],
   equating: @escaping (Structure.A, Structure.A) -> Bool,
@@ -49,13 +42,13 @@ func _verifyAllProperties<Structure: AlgebraicStructure>(
   property("\(algebraicStructure) instances respect some laws", file: file, line: line) <- forAll { (a: Structure.A, b: Structure.A, c: Structure.A) in
     instances
       .flatMap { instance, value in
-          Structure.properties.map {
-              (instance, Verify(structure: value, equating: equating, property: $0))
+          Structure.laws.map {
+              (instance, Verify(law: $0, structure: value, equating: equating))
           }
       }
       .map { instance, verify in
         TestResult(
-            require: "\(algebraicStructure).\(instance) \(verify.property.name)",
+            require: "\(algebraicStructure).\(instance) \(verify.law.name)",
           check: verify(a, b, c)
         )
       }
@@ -63,6 +56,30 @@ func _verifyAllProperties<Structure: AlgebraicStructure>(
   }
 }
 
+func verifyAllLaws<Structure: AlgebraicStructure, OutputStructure: AlgebraicStructure, Input>(
+  ofFunctionBasedStructure algebraicStructure: Structure.Type,
+  onInstances instances: [(instance: String, value: OutputStructure)],
+  constructedBy getStructure: @escaping (OutputStructure) -> Structure,
+  equating: @escaping (Input) -> (Structure.A, Structure.A) -> Bool,
+  file: StaticString = #file,
+  line: UInt = #line
+) where Structure.A == (Input) -> OutputStructure.A, Input: Hashable & CoArbitrary & Arbitrary, OutputStructure.A: Arbitrary {
+    property("\(algebraicStructure) instances respect some laws", file: file, line: line) <- forAll { (a: ArrowOf<Input,  OutputStructure.A>, b: ArrowOf<Input,  OutputStructure.A>, c: ArrowOf<Input,  OutputStructure.A>, value: Input) in
+    instances
+      .flatMap { name, instance in
+          Structure.laws.map {
+              (name, Verify(law: $0, structure: getStructure(instance), equating: equating(value)))
+          }
+      }
+      .map { name, verify in
+        TestResult(
+            require: "\(algebraicStructure).\(name) \(verify.law.name)",
+            check: verify(a.getArrow, b.getArrow, c.getArrow)
+        )
+      }
+      .reduce(TestResult.succeeded.property) { conjoin($0, $1) }
+  }
+}
 
 extension CheckerArguments {
   static func seedDescription(_ replayString: String) -> CheckerArguments {

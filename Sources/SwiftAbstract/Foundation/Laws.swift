@@ -1,36 +1,17 @@
+public struct Law<Structure: AlgebraicStructure> {
+    public let name: String
+    public let getCheck: (Structure, @escaping (Structure.A, Structure.A) -> Bool) -> Check<Structure.A>
+}
+
 public enum Check<A> {
     case fromOne((A) -> Bool)
     case fromTwo((A, A) -> Bool)
     case fromThree((A, A, A) -> Bool)
 }
 
-public struct Property<Structure: AlgebraicStructure> {
-    public let name: String
-    public let getCheck: (Structure, @escaping (Structure.A, Structure.A) -> Bool) -> Check<Structure.A>
-}
-
-public struct Verify<Structure: AlgebraicStructure> {
-    public let structure: Structure
-    public let equating: (Structure.A, Structure.A) -> Bool
-    public let property: Property<Structure>
-
-    public func callAsFunction(_ a: Structure.A, _ b: Structure.A, _ c: Structure.A) -> Bool {
-        switch property.getCheck(structure, equating) {
-        case let .fromOne(f):
-            return f(a)
-
-        case let .fromTwo(f):
-            return f(a, b)
-
-        case let .fromThree(f):
-            return f(a, b, c)
-        }
-    }
-}
-
 // MARK: - Absorption
 
-extension Property where Structure: Absorption {
+extension Law where Structure: Absorption {
     static var absorbability: Self {
         .init(name: "has operations linked by absorption law") { structure, equating in
             .fromTwo {
@@ -48,7 +29,7 @@ extension Property where Structure: Absorption {
 
 // MARK: - Annihilability
 
-extension Property where Structure: WithAnnihilation {
+extension Law where Structure: WithAnnihilation {
     static var annihilability: Self {
         .init(name: "has zero annihilating the second operation") { structure, equating in
             .fromOne {
@@ -66,7 +47,7 @@ extension Property where Structure: WithAnnihilation {
 
 // MARK: - Associativity
 
-extension Property where Structure: Associative {
+extension Law where Structure: Associative {
     static var associativity: Self {
         .init(name: "is associative") { structure, equating in
             .fromThree {
@@ -79,25 +60,25 @@ extension Property where Structure: Associative {
     }
 }
 
-extension Property where Structure: WithTwoBinaryOperations, Structure.FirstBinaryOperation: Associative {
+extension Law where Structure: WithTwoBinaryOperations, Structure.FirstBinaryOperation: Associative {
     static var associativityOfFirst: Self {
         .init(name: "has first operation associative") { structure, equating in
-            Property<Structure.FirstBinaryOperation>.associativity.getCheck(structure.first, equating)
+            Law<Structure.FirstBinaryOperation>.associativity.getCheck(structure.first, equating)
         }
     }
 }
 
-extension Property where Structure: WithTwoBinaryOperations, Structure.SecondBinaryOperation: Associative {
+extension Law where Structure: WithTwoBinaryOperations, Structure.SecondBinaryOperation: Associative {
     static var associativityOfSecond: Self {
         .init(name: "has second operation associative") { structure, equating in
-            Property<Structure.SecondBinaryOperation>.associativity.getCheck(structure.second, equating)
+            Law<Structure.SecondBinaryOperation>.associativity.getCheck(structure.second, equating)
         }
     }
 }
 
 // MARK: - Commutativity
 
-extension Property where Structure: Commutative {
+extension Law where Structure: Commutative {
     static var commutativity: Self {
         .init(name: "is commutative") { structure, equating in
             .fromTwo {
@@ -110,25 +91,25 @@ extension Property where Structure: Commutative {
     }
 }
 
-extension Property where Structure: WithTwoBinaryOperations, Structure.FirstBinaryOperation: Commutative {
+extension Law where Structure: WithTwoBinaryOperations, Structure.FirstBinaryOperation: Commutative {
     static var commutativityOfFirst: Self {
         .init(name: "has first operation commutative") { structure, equating in
-            Property<Structure.FirstBinaryOperation>.commutativity.getCheck(structure.first, equating)
+            Law<Structure.FirstBinaryOperation>.commutativity.getCheck(structure.first, equating)
         }
     }
 }
 
-extension Property where Structure: WithTwoBinaryOperations, Structure.SecondBinaryOperation: Commutative {
+extension Law where Structure: WithTwoBinaryOperations, Structure.SecondBinaryOperation: Commutative {
     static var commutativityOfSecond: Self {
         .init(name: "has second operation commutative") { structure, equating in
-            Property<Structure.SecondBinaryOperation>.commutativity.getCheck(structure.second, equating)
+            Law<Structure.SecondBinaryOperation>.commutativity.getCheck(structure.second, equating)
         }
     }
 }
 
 // MARK: - Distributivity
 
-extension Property where Structure: DistributiveFirstOverSecond {
+extension Law where Structure: DistributiveFirstOverSecond {
     static var distributivityOfFirstOverSecond: Self {
         .init(name: "has first operation distributive over second") { structure, equating in
             .fromThree {
@@ -141,7 +122,7 @@ extension Property where Structure: DistributiveFirstOverSecond {
     }
 }
 
-extension Property where Structure: DistributiveSecondOverFirst {
+extension Law where Structure: DistributiveSecondOverFirst {
     static var distributivityOfSecondOverFirst: Self {
         .init(name: "has second operation distributive over first") { structure, equating in
             .fromThree {
@@ -156,7 +137,7 @@ extension Property where Structure: DistributiveSecondOverFirst {
 
 // MARK: - Excluded middle
 
-extension Property where Structure: ExcludedMiddle {
+extension Law where Structure: ExcludedMiddle {
     static var excludedMiddle: Self {
         .init(name: "has operations respecting the law of excluded middle") { structure, equating in
             .fromOne {
@@ -171,7 +152,7 @@ extension Property where Structure: ExcludedMiddle {
 
 // MARK: - Idempotency
 
-extension Property where Structure: Idempotent {
+extension Law where Structure: Idempotent {
     static var idempotency: Self {
         .init(name: "is idempotent") { structure, equating in
             .fromTwo {
@@ -184,25 +165,25 @@ extension Property where Structure: Idempotent {
     }
 }
 
-extension Property where Structure: WithTwoBinaryOperations, Structure.FirstBinaryOperation: Idempotent {
+extension Law where Structure: WithTwoBinaryOperations, Structure.FirstBinaryOperation: Idempotent {
     static var idempotencyOfFirst: Self {
         .init(name: "has first operation idempotent") { structure, equating in
-            Property<Structure.FirstBinaryOperation>.idempotency.getCheck(structure.first, equating)
+            Law<Structure.FirstBinaryOperation>.idempotency.getCheck(structure.first, equating)
         }
     }
 }
 
-extension Property where Structure: WithTwoBinaryOperations, Structure.SecondBinaryOperation: Idempotent {
+extension Law where Structure: WithTwoBinaryOperations, Structure.SecondBinaryOperation: Idempotent {
     static var idempotencyOfSecond: Self {
         .init(name: "has second operation idempotent") { structure, equating in
-            Property<Structure.SecondBinaryOperation>.idempotency.getCheck(structure.second, equating)
+            Law<Structure.SecondBinaryOperation>.idempotency.getCheck(structure.second, equating)
         }
     }
 }
 
 // MARK: - Identity
 
-extension Property where Structure: WithIdentity {
+extension Law where Structure: WithIdentity {
     static var identity: Self {
         .init(name: "has identity element") { structure, equating in
             .fromOne {
@@ -220,7 +201,7 @@ extension Property where Structure: WithIdentity {
 
 // MARK: - Implication
 
-extension Property where Structure: WithImplies {
+extension Law where Structure: WithImplies {
     static var implication: Self {
         .init(name: "has implication") { structure, equating in
             .fromThree {
@@ -244,7 +225,7 @@ extension Property where Structure: WithImplies {
 
 // MARK: - Invertibility
 
-extension Property where Structure: WithInverse {
+extension Law where Structure: WithInverse {
     static var invertibility: Self {
         .init(name: "has identity element") { structure, equating in
             .fromOne {
@@ -259,7 +240,7 @@ extension Property where Structure: WithInverse {
 
 // MARK: - Negation
 
-extension Property where Structure: WithNegate {
+extension Law where Structure: WithNegate {
     static var negation: Self {
         .init(name: "has negation") { structure, equating in
             .fromOne {
@@ -277,7 +258,7 @@ extension Property where Structure: WithNegate {
 
 // MARK: - One identity
 
-extension Property where Structure: WithOne {
+extension Law where Structure: WithOne {
     static var oneIdentity: Self {
         .init(name: "has identity of one") { structure, equating in
             .fromOne {
@@ -295,7 +276,7 @@ extension Property where Structure: WithOne {
 
 // MARK: - Reciprocity
 
-extension Property where Structure: WithReciprocal {
+extension Law where Structure: WithReciprocal {
     static var reciprocity: Self {
         .init(name: "has reciprocal") { structure, equating in
             .fromOne {
@@ -313,7 +294,7 @@ extension Property where Structure: WithReciprocal {
 
 // MARK: - Zero identity
 
-extension Property where Structure: WithZero {
+extension Law where Structure: WithZero {
     static var zeroIdentity: Self {
         .init(name: "has identity of zero") { structure, equating in
             .fromOne {

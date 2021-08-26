@@ -3,9 +3,8 @@ import SwiftCheck
 import XCTest
 
 final class SemigroupTests: XCTestCase {
-    
     func testPropertiesForSemigroupInstancesOfInt() {
-        _verifyAllProperties(
+        verifyAllLaws(
           ofStructure: Semigroup<Int>.self,
           onInstances: [
             ("first", .first),
@@ -20,7 +19,7 @@ final class SemigroupTests: XCTestCase {
     }
 
     func testPropertiesForSemigroupInstancesOfBool() {
-        _verifyAllProperties(
+        verifyAllLaws(
           ofStructure: Semigroup<Bool>.self,
           onInstances: [
             ("and", .and),
@@ -31,7 +30,7 @@ final class SemigroupTests: XCTestCase {
     }
 
     func testPropertiesForSemigroupInstancesOfString() {
-        _verifyAllProperties(
+        verifyAllLaws(
           ofStructure: Semigroup<String>.self,
           onInstances: [
             ("string", .string)
@@ -41,7 +40,7 @@ final class SemigroupTests: XCTestCase {
     }
 
     func testPropertiesForSemigroupInstancesOfOrdering() {
-        _verifyAllProperties(
+        verifyAllLaws(
           ofStructure: Semigroup<Ordering>.self,
           onInstances: [
             ("ordering", .ordering)
@@ -51,7 +50,7 @@ final class SemigroupTests: XCTestCase {
     }
 
     func testPropertiesForSemigroupInstancesOfOptional() {
-        _verifyAllProperties(
+        verifyAllLaws(
           ofStructure: Semigroup<Int?>.self,
           onInstances: [
             ("firstIfPossible", .firstIfPossible()),
@@ -62,7 +61,7 @@ final class SemigroupTests: XCTestCase {
     }
 
     func testPropertiesForSemigroupInstancesOfArray() {
-        _verifyAllProperties(
+        verifyAllLaws(
           ofStructure: Semigroup<[Int]>.self,
           onInstances: [
             ("array", .array())
@@ -72,7 +71,7 @@ final class SemigroupTests: XCTestCase {
     }
 
     func testPropertiesForSemigroupInstancesOfSet() {
-        _verifyAllProperties(
+        verifyAllLaws(
           ofStructure: Semigroup<Set<Int>>.self,
           onInstances: [
             ("setIntersection", .setIntersection()),
