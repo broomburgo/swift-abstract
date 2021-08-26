@@ -3,7 +3,7 @@ import SwiftCheck
 import XCTest
 
 final class SemigroupTests: XCTestCase {
-    func testPropertiesForSemigroupInstancesOfInt() {
+    func testLawsForSemigroupInstancesOfInt() {
         verifyAllLaws(
           ofStructure: Semigroup<Int>.self,
           onInstances: [
@@ -11,14 +11,14 @@ final class SemigroupTests: XCTestCase {
             ("last", .last),
             ("max", .max),
             ("min", .min),
-            ("product", .product),
-            ("sum", .sum)
+            ("multiplication", .multiplication),
+            ("addition", .addition)
           ],
           equating: ==
         )
     }
 
-    func testPropertiesForSemigroupInstancesOfBool() {
+    func testLawsForSemigroupInstancesOfBool() {
         verifyAllLaws(
           ofStructure: Semigroup<Bool>.self,
           onInstances: [
@@ -29,7 +29,7 @@ final class SemigroupTests: XCTestCase {
         )
     }
 
-    func testPropertiesForSemigroupInstancesOfString() {
+    func testLawsForSemigroupInstancesOfString() {
         verifyAllLaws(
           ofStructure: Semigroup<String>.self,
           onInstances: [
@@ -39,7 +39,7 @@ final class SemigroupTests: XCTestCase {
         )
     }
 
-    func testPropertiesForSemigroupInstancesOfOrdering() {
+    func testLawsForSemigroupInstancesOfOrdering() {
         verifyAllLaws(
           ofStructure: Semigroup<Ordering>.self,
           onInstances: [
@@ -49,7 +49,7 @@ final class SemigroupTests: XCTestCase {
         )
     }
 
-    func testPropertiesForSemigroupInstancesOfOptional() {
+    func testLawsForSemigroupInstancesOfOptional() {
         verifyAllLaws(
           ofStructure: Semigroup<Int?>.self,
           onInstances: [
@@ -60,7 +60,7 @@ final class SemigroupTests: XCTestCase {
         )
     }
 
-    func testPropertiesForSemigroupInstancesOfArray() {
+    func testLawsForSemigroupInstancesOfArray() {
         verifyAllLaws(
           ofStructure: Semigroup<[Int]>.self,
           onInstances: [
@@ -70,7 +70,7 @@ final class SemigroupTests: XCTestCase {
         )
     }
 
-    func testPropertiesForSemigroupInstancesOfSet() {
+    func testLawsForSemigroupInstancesOfSet() {
         verifyAllLaws(
           ofStructure: Semigroup<Set<Int>>.self,
           onInstances: [
@@ -81,11 +81,11 @@ final class SemigroupTests: XCTestCase {
         )
     }
 
-//  func testFunctionInstancesProperties() {
+//  func testFunctionInstancesLaws() {
 //    let endo = Semigroup<(Int) -> Int>.endo()
 //
 //    property("Semigroup.endo respects some laws") <- forAll { (a: ArrowOf<Int, Int>, b: ArrowOf<Int, Int>, c: ArrowOf<Int, Int>, value: Int) in
-//      endo.getProperties(equating: { $0(value) == $1(value) })
+//      endo.getLaws(equating: { $0(value) == $1(value) })
 //        .map { property in
 //          TestResult(
 //            require: "Semigroup.endo \(property.name)",
@@ -105,7 +105,7 @@ final class SemigroupTests: XCTestCase {
 //          .max,
 //          .min,
 //          .product,
-//          .sum
+//          .addition
 //        ]).map {
 //          GeneratedStructure(get: $0)
 //        }
@@ -121,7 +121,7 @@ final class SemigroupTests: XCTestCase {
 //        value: String
 //      ) in
 //      Semigroup<(String) -> Int>.function(over: structure.get)
-//        .getProperties(equating: { $0(value) == $1(value) })
+//        .getLaws(equating: { $0(value) == $1(value) })
 //        .map { property in
 //          TestResult(
 //            require: "Semigroup.function \(property.name)",
@@ -133,13 +133,13 @@ final class SemigroupTests: XCTestCase {
 //  }
 
   static var allTests = [
-    ("testPropertiesForSemigroupInstancesOfInt", testPropertiesForSemigroupInstancesOfInt),
-    ("testPropertiesForSemigroupInstancesOfBool", testPropertiesForSemigroupInstancesOfBool),
-    ("testPropertiesForSemigroupInstancesOfString", testPropertiesForSemigroupInstancesOfString),
-    ("testPropertiesForSemigroupInstancesOfOrdering", testPropertiesForSemigroupInstancesOfOrdering),
-    ("testPropertiesForSemigroupInstancesOfOptional", testPropertiesForSemigroupInstancesOfOptional),
-    ("testPropertiesForSemigroupInstancesOfArray", testPropertiesForSemigroupInstancesOfArray),
-    ("testPropertiesForSemigroupInstancesOfSet", testPropertiesForSemigroupInstancesOfSet),
-//    ("testFunctionInstancesProperties", testFunctionInstancesProperties),
+    ("testLawsForSemigroupInstancesOfInt", testLawsForSemigroupInstancesOfInt),
+    ("testLawsForSemigroupInstancesOfBool", testLawsForSemigroupInstancesOfBool),
+    ("testLawsForSemigroupInstancesOfString", testLawsForSemigroupInstancesOfString),
+    ("testLawsForSemigroupInstancesOfOrdering", testLawsForSemigroupInstancesOfOrdering),
+    ("testLawsForSemigroupInstancesOfOptional", testLawsForSemigroupInstancesOfOptional),
+    ("testLawsForSemigroupInstancesOfArray", testLawsForSemigroupInstancesOfArray),
+    ("testLawsForSemigroupInstancesOfSet", testLawsForSemigroupInstancesOfSet),
+//    ("testFunctionInstancesLaws", testFunctionInstancesLaws),
   ]
 }

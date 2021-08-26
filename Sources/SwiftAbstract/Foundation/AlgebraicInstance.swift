@@ -34,7 +34,7 @@ struct Sum: Wrapper {
 }
 
 extension Sum: AlgebraicInstance {
-    static let algebraicInstance = Monoid<Self>(wrapping: Monoid.sum)
+    static let algebraicInstance = Monoid<Self>(wrapping: Monoid.addition)
 }
 
 protocol RequiresApplyAndEmpty: AlgebraicStructure {

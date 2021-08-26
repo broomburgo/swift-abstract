@@ -21,7 +21,7 @@ extension Semiring where A: AdditiveArithmetic & Comparable & WithMaximum {
     static var minTropical: Self {
         Semiring(
             first: CommutativeMonoid.min,
-            second: Monoid.sum
+            second: Monoid.addition
         )
     }
 }
@@ -30,7 +30,7 @@ extension Semiring where A: AdditiveArithmetic & Comparable & WithMinimum {
     static var maxTropical: Self {
         Semiring(
             first: CommutativeMonoid.max,
-            second: Monoid.sum
+            second: Monoid.addition
         )
     }
 }

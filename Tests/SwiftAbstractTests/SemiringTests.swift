@@ -3,7 +3,7 @@ import SwiftCheck
 import XCTest
 
 final class SemiringTests: XCTestCase {
-  func testProperties() {
+  func testLaws() {
     verifyAllLaws(
       ofStructure: Semiring<Float>.self,
       onInstances: [
@@ -17,6 +17,6 @@ final class SemiringTests: XCTestCase {
   }
 
   static var allTests = [
-    ("testProperties", testProperties)
+    ("testLaws", testLaws)
   ]
 }

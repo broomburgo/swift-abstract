@@ -2,12 +2,12 @@
 import SwiftCheck
 import XCTest
 
-final class BooleanTests: XCTestCase {
+final class FieldTests: XCTestCase {
   func testLaws() {
     verifyAllLaws(
-      ofStructure: Boolean<Bool>.self,
+      ofStructure: Field<Double>.self,
       onInstances: [
-        ("bool", .bool)
+        ("real", .real)
       ],
       equating: ==
     )
@@ -17,3 +17,4 @@ final class BooleanTests: XCTestCase {
     ("testLaws", testLaws)
   ]
 }
+

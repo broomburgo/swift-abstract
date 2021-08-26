@@ -41,7 +41,7 @@ extension CommutativeMonoid where A: Comparable & WithMaximum {
 }
 
 extension CommutativeMonoid where A: AdditiveArithmetic {
-    static var sum: Self {
+    static var addition: Self {
         CommutativeMonoid(
             apply: { $0 + $1 },
             empty: .zero
@@ -49,8 +49,8 @@ extension CommutativeMonoid where A: AdditiveArithmetic {
     }
 }
 
-extension CommutativeMonoid where A: Numeric & ExpressibleByIntegerLiteral {
-    static var product: Self {
+extension CommutativeMonoid where A: Numeric {
+    static var multiplication: Self {
         CommutativeMonoid(
             apply: { $0 * $1 },
             empty: 1

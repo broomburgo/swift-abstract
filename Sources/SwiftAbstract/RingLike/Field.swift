@@ -17,3 +17,12 @@ struct Field<A>: RingLike, WithOne, WithNegate, WithReciprocal {
         .zeroIdentity,
     ] }
 }
+
+extension Field where A: FloatingPoint {
+    static var real: Self {
+        .init(
+            first: .addition,
+            second: .multiplication
+        )
+    }
+}

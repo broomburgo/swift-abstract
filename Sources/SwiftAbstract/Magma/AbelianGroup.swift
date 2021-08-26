@@ -26,11 +26,21 @@ struct AbelianGroup<A>: Associative, Commutative, WithIdentity, WithInverse {
 // MARK: - Instances
 
 extension AbelianGroup where A: SignedNumeric {
-    static var sum: Self {
+    static var addition: Self {
         AbelianGroup(
             apply: { $0 + $1 },
             empty: .zero,
             inverse: { -$0 }
+        )
+    }
+}
+
+extension AbelianGroup where A: FloatingPoint {
+    static var multiplication: Self {
+        AbelianGroup(
+            apply: { $0 * $1 },
+            empty: 1,
+            inverse: { 1 / $0 }
         )
     }
 }

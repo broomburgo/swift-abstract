@@ -40,7 +40,7 @@ extension Monoid where A: Comparable & WithMaximum {
 }
 
 extension Monoid where A: AdditiveArithmetic {
-    static var sum: Self {
+    static var addition: Self {
         Monoid(
             apply: { $0 + $1 },
             empty: .zero
@@ -49,7 +49,7 @@ extension Monoid where A: AdditiveArithmetic {
 }
 
 extension Monoid where A: Numeric & ExpressibleByIntegerLiteral {
-    static var product: Self {
+    static var multiplication: Self {
         Monoid(
             apply: { $0 * $1 },
             empty: 1

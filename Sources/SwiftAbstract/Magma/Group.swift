@@ -25,7 +25,7 @@ struct Group<A>: Associative, WithIdentity, WithInverse {
 // MARK: - Instances
 
 extension Group where A: SignedNumeric {
-    static var sum: Self {
+    static var addition: Self {
         Group(
             apply: { $0 + $1 },
             empty: .zero,

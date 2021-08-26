@@ -47,7 +47,7 @@ extension Semigroup where A: Comparable {
 }
 
 extension Semigroup where A: AdditiveArithmetic {
-    static var sum: Self {
+    static var addition: Self {
         Semigroup(
             apply: { $0 + $1 }
         )
@@ -55,7 +55,7 @@ extension Semigroup where A: AdditiveArithmetic {
 }
 
 extension Semigroup where A: Numeric {
-    static var product: Self {
+    static var multiplication: Self {
         Semigroup(
             apply: { $0 * $1 }
         )

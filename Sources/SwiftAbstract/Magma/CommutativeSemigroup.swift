@@ -34,7 +34,7 @@ extension CommutativeSemigroup where A: Comparable {
 }
 
 extension CommutativeSemigroup where A: AdditiveArithmetic {
-    static var sum: Self {
+    static var addition: Self {
         CommutativeSemigroup(
             apply: { $0 + $1 }
         )
@@ -42,7 +42,7 @@ extension CommutativeSemigroup where A: AdditiveArithmetic {
 }
 
 extension CommutativeSemigroup where A: Numeric {
-    static var product: Self {
+    static var multiplication: Self {
         CommutativeSemigroup(
             apply: { $0 * $1 }
         )
