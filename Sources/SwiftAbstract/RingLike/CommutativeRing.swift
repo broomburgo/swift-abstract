@@ -20,7 +20,7 @@ struct CommutativeRing<A>: RingLike, WithOne, WithNegate {
 //    }
 //  }
 
-    static var _properties: [_Property<Self>] {
+    static var properties: [Property<Self>] {
         [
             .annihilability,
             .associativityOfFirst,

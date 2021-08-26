@@ -20,7 +20,7 @@ struct BoundedLattice<A>: LatticeLike, WithZero, WithOne {
 //    }
 //  }
 
-    static var _properties: [_Property<Self>] {
+    static var properties: [Property<Self>] {
         [
             .absorbability,
             .associativityOfFirst,

@@ -3,19 +3,8 @@
 public protocol AlgebraicStructure {
     associatedtype A
 
-//    func getProperties(equating: @escaping (A, A) -> Bool) -> [LawsOf<Self>.Property]
-    static var _properties: [_Property<Self>] { get }
+    static var properties: [Property<Self>] { get }
 }
-
-//extension AlgebraicStructure {
-//    static var _properties: [_Property<Self>] { fatalError() }
-//}
-
-//extension AlgebraicStructure where A: Equatable {
-//    var properties: [LawsOf<Self>.Property] {
-//        getProperties(equating: ==)
-//    }
-//}
 
 // MARK: - WithOneBinaryOperation
 
@@ -41,5 +30,59 @@ public protocol ConstructibleWithOneBinaryOperation: AlgebraicStructure {
     init(apply: @escaping (A, A) -> A)
 }
 
-// MARK: - Laws
+// MARK: - WithTwoBinaryOperations
+
+public protocol WithTwoBinaryOperations: AlgebraicStructure {
+    associatedtype FirstBinaryOperation: WithOneBinaryOperation where FirstBinaryOperation.A == A
+    associatedtype SecondBinaryOperation: WithOneBinaryOperation where SecondBinaryOperation.A == A
+
+    var first: FirstBinaryOperation { get }
+    var second: SecondBinaryOperation { get }
+}
+
+public protocol Absorption: WithTwoBinaryOperations {}
+
+public protocol WithAnnihilation: WithZero {}
+
+public protocol DistributiveFirstOverSecond: WithTwoBinaryOperations {}
+public protocol DistributiveSecondOverFirst: WithTwoBinaryOperations {}
+public typealias Distributive = DistributiveFirstOverSecond & DistributiveSecondOverFirst
+
+public protocol ExcludedMiddle: WithImplies, WithZero {}
+
+public protocol WithImplies: LatticeLike, WithOne {
+    var implies: (A, A) -> A { get }
+}
+
+public protocol WithNegate: WithZero where FirstBinaryOperation: WithInverse {}
+
+public extension WithNegate {
+    var negate: (A) -> A {
+        first.inverse
+    }
+}
+
+public protocol WithOne: WithTwoBinaryOperations where SecondBinaryOperation: WithIdentity {}
+
+public extension WithOne {
+    var one: A {
+        second.empty
+    }
+}
+
+public protocol WithReciprocal: WithOne where SecondBinaryOperation: WithInverse {}
+
+public extension WithReciprocal {
+    var reciprocal: (A) -> A {
+        second.inverse
+    }
+}
+
+public protocol WithZero: WithTwoBinaryOperations where FirstBinaryOperation: WithIdentity {}
+
+public extension WithZero {
+    var zero: A {
+        first.empty
+    }
+}
 

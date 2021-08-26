@@ -22,7 +22,7 @@ struct BoundedDistributiveLattice<A>: LatticeLike, Distributive, WithZero, WithO
 //    }
 //  }
 
-    static var _properties: [_Property<Self>] {
+    static var properties: [Property<Self>] {
         [
             .absorbability,
             .associativityOfFirst,

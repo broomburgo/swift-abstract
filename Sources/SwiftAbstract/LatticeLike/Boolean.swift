@@ -25,7 +25,7 @@ struct Boolean<A>: LatticeLike, Distributive, WithZero, WithOne, WithImplies, Ex
 //    }
 //  }
 
-    static var _properties: [_Property<Self>] {
+    static var properties: [Property<Self>] {
         [
             .absorbability,
             .associativityOfFirst,

@@ -1,7 +1,6 @@
 @testable import SwiftAbstract
 import SwiftCheck
 import XCTest
-//import TSCUtility
 
 final class AbelianGroupTests: XCTestCase {
   func testProperties() {
@@ -29,8 +28,8 @@ func _verifyAllProperties<Structure: AlgebraicStructure, OutputStructure: Algebr
     property("\(algebraicStructure) instances respect some laws", file: file, line: line) <- forAll { (a: ArrowOf<Input,  OutputStructure.A>, b: ArrowOf<Input,  OutputStructure.A>, c: ArrowOf<Input,  OutputStructure.A>, value: Input) in
     instances
       .flatMap { name, instance in
-          Structure._properties.map {
-              (name, _Verify(structure: getStructure(instance), equating: equating(value), property: $0))
+          Structure.properties.map {
+              (name, Verify(structure: getStructure(instance), equating: equating(value), property: $0))
           }
       }
       .map { name, verify in

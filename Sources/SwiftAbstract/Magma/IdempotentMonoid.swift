@@ -23,7 +23,7 @@ struct IdempotentMonoid<A>: Associative, Idempotent, WithIdentity {
 //    }
 //  }
 
-    static var _properties: [_Property<Self>] {
+    static var properties: [Property<Self>] {
         [
             .associativity,
             .idempotency,

@@ -49,8 +49,8 @@ func _verifyAllProperties<Structure: AlgebraicStructure>(
   property("\(algebraicStructure) instances respect some laws", file: file, line: line) <- forAll { (a: Structure.A, b: Structure.A, c: Structure.A) in
     instances
       .flatMap { instance, value in
-          Structure._properties.map {
-              (instance, _Verify(structure: value, equating: equating, property: $0))
+          Structure.properties.map {
+              (instance, Verify(structure: value, equating: equating, property: $0))
           }
       }
       .map { instance, verify in

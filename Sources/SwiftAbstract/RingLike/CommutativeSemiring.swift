@@ -19,7 +19,7 @@ struct CommutativeSemiring<A>: RingLike, WithOne {
 //    }
 //  }
 
-    static var _properties: [_Property<Self>] {
+    static var properties: [Property<Self>] {
         [
             .annihilability,
             .associativityOfFirst,

@@ -21,7 +21,7 @@ struct Field<A>: RingLike, WithOne, WithNegate, WithReciprocal {
 //    }
 //  }
 
-    static var _properties: [_Property<Self>] {
+    static var properties: [Property<Self>] {
         [
             .annihilability,
             .associativityOfFirst,
