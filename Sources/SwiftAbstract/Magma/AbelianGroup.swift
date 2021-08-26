@@ -38,7 +38,13 @@ extension AbelianGroup where A: SignedNumeric {
 extension AbelianGroup where A: FloatingPoint {
     static var multiplication: Self {
         AbelianGroup(
-            apply: { $0 * $1 },
+            apply: {
+                if ($0 == .infinity && $1 == .zero) || ($0 == .zero && $1 == .infinity) {
+                    return 1
+                }
+
+                return $0 * $1
+            },
             empty: 1,
             inverse: { 1 / $0 }
         )

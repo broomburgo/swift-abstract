@@ -36,10 +36,11 @@ func verifyAllLaws<Structure: AlgebraicStructure>(
     ofStructure algebraicStructure: Structure.Type,
     onInstances instances: [(instance: String, value: Structure)],
     equating: @escaping (Structure.A, Structure.A) -> Bool,
+    arguments : CheckerArguments? = nil,
     file: StaticString = #file,
     line: UInt = #line
 ) where Structure.A: Arbitrary {
-    property("\(algebraicStructure) instances respect some laws", file: file, line: line) <- forAll { (a: Structure.A, b: Structure.A, c: Structure.A) in
+    property("\(algebraicStructure) instances respect some laws", arguments: arguments, file: file, line: line) <- forAll { (a: Structure.A, b: Structure.A, c: Structure.A) in
         instances
             .flatMap { instance, value in
                 Structure.laws.map {

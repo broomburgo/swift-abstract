@@ -227,7 +227,7 @@ extension Law where Structure: WithImplies {
 
 extension Law where Structure: WithInverse {
     static var invertibility: Self {
-        .init(name: "has identity element") { structure, equating in
+        .init(name: "is invertible") { structure, equating in
             .fromOne {
                 equating(
                     structure.apply($0, structure.inverse($0)),
@@ -238,20 +238,29 @@ extension Law where Structure: WithInverse {
     }
 }
 
+//extension Law where Structure: WithInverse, Structure.A: FloatingPoint {
+//    static var invertibility: Self {
+//        .init(name: "is invertible") { structure, equating in
+//            .fromOne {
+//                guard $0 != .zero else {
+//                    return true
+//                }
+//
+//                return equating(
+//                    structure.apply($0, structure.inverse($0)),
+//                    structure.empty
+//                )
+//            }
+//        }
+//    }
+//}
+
 // MARK: - Negation
 
 extension Law where Structure: WithNegate {
     static var negation: Self {
         .init(name: "has negation") { structure, equating in
-            .fromOne {
-                equating(
-                    structure.first.apply($0, structure.negate($0)),
-                    structure.zero
-                ) && equating(
-                    structure.first.apply(structure.negate($0), $0),
-                    structure.zero
-                )
-            }
+            Law<Structure.FirstBinaryOperation>.invertibility.getCheck(structure.first, equating)
         }
     }
 }
@@ -279,15 +288,7 @@ extension Law where Structure: WithOne {
 extension Law where Structure: WithReciprocal {
     static var reciprocity: Self {
         .init(name: "has reciprocal") { structure, equating in
-            .fromOne {
-                equating(
-                    structure.second.apply($0, structure.reciprocal($0)),
-                    structure.one
-                ) && equating(
-                    structure.second.apply(structure.reciprocal($0), $0),
-                    structure.one
-                )
-            }
+            Law<Structure.SecondBinaryOperation>.invertibility.getCheck(structure.second, equating)
         }
     }
 }

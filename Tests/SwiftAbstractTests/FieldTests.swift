@@ -9,7 +9,7 @@ final class FieldTests: XCTestCase {
       onInstances: [
         ("real", .real)
       ],
-      equating: ==
+      equating: { $0.isAlmostEqual(to: $1) }
     )
   }
 
