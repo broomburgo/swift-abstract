@@ -18,12 +18,12 @@ public protocol Commutative: WithOneBinaryOperation {}
 
 public protocol Idempotent: WithOneBinaryOperation {}
 
-public protocol Invertible: WithIdentity {
-    var inverse: (A) -> A { get }
+public protocol Identity: WithOneBinaryOperation {
+    var empty: A { get }
 }
 
-public protocol WithIdentity: WithOneBinaryOperation {
-    var empty: A { get }
+public protocol Invertible: Identity {
+    var inverse: (A) -> A { get }
 }
 
 public protocol ConstructibleWithOneBinaryOperation: AlgebraicStructure {
@@ -62,7 +62,7 @@ public extension WithNegate {
     }
 }
 
-public protocol WithOne: WithTwoBinaryOperations where SecondBinaryOperation: WithIdentity {}
+public protocol WithOne: WithTwoBinaryOperations where SecondBinaryOperation: Identity {}
 
 public extension WithOne {
     var one: A {
@@ -78,7 +78,7 @@ public extension WithReciprocal {
     }
 }
 
-public protocol WithZero: WithTwoBinaryOperations where FirstBinaryOperation: WithIdentity {}
+public protocol WithZero: WithTwoBinaryOperations where FirstBinaryOperation: Identity {}
 
 public extension WithZero {
     var zero: A {

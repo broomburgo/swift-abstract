@@ -1,6 +1,6 @@
 // MARK: - Definition
 
-struct BoundedSemilattice<A>: Associative, Commutative, Idempotent, WithIdentity {
+struct BoundedSemilattice<A>: Associative, Commutative, Idempotent, Identity {
     let apply: (A, A) -> A
     let empty: A
 
@@ -9,7 +9,7 @@ struct BoundedSemilattice<A>: Associative, Commutative, Idempotent, WithIdentity
         self.empty = empty
     }
 
-    init<MoreSpecific: Associative & Commutative & Idempotent & WithIdentity>(from s: MoreSpecific) where MoreSpecific.A == A {
+    init<MoreSpecific: Associative & Commutative & Idempotent & Identity>(from s: MoreSpecific) where MoreSpecific.A == A {
         self.init(apply: s.apply, empty: s.empty)
     }
 

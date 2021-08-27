@@ -1,6 +1,6 @@
 // MARK: - Definition
 
-struct CommutativeMonoid<A>: Associative, Commutative, WithIdentity {
+struct CommutativeMonoid<A>: Associative, Commutative, Identity {
     let apply: (A, A) -> A
     let empty: A
 
@@ -9,7 +9,7 @@ struct CommutativeMonoid<A>: Associative, Commutative, WithIdentity {
         self.empty = empty
     }
 
-    init<MoreSpecific: Associative & Commutative & WithIdentity>(from s: MoreSpecific) where MoreSpecific.A == A {
+    init<MoreSpecific: Associative & Commutative & Identity>(from s: MoreSpecific) where MoreSpecific.A == A {
         self.init(apply: s.apply, empty: s.empty)
     }
 

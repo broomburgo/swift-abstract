@@ -1,6 +1,6 @@
 // MARK: - Definition
 
-struct Monoid<A>: Associative, WithIdentity {
+struct Monoid<A>: Associative, Identity {
     let apply: (A, A) -> A
     let empty: A
 
@@ -9,7 +9,7 @@ struct Monoid<A>: Associative, WithIdentity {
         self.empty = empty
     }
 
-    init<MoreSpecific: Associative & WithIdentity>(from s: MoreSpecific) where MoreSpecific.A == A {
+    init<MoreSpecific: Associative & Identity>(from s: MoreSpecific) where MoreSpecific.A == A {
         self.init(apply: s.apply, empty: s.empty)
     }
 

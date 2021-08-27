@@ -1,6 +1,6 @@
 // MARK: - Definition
 
-struct IdempotentMonoid<A>: Associative, Idempotent, WithIdentity {
+struct IdempotentMonoid<A>: Associative, Idempotent, Identity {
     let apply: (A, A) -> A
     let empty: A
 
@@ -9,7 +9,7 @@ struct IdempotentMonoid<A>: Associative, Idempotent, WithIdentity {
         self.empty = empty
     }
 
-    init<MoreSpecific: Associative & Idempotent & WithIdentity>(from s: MoreSpecific) where MoreSpecific.A == A {
+    init<MoreSpecific: Associative & Idempotent & Identity>(from s: MoreSpecific) where MoreSpecific.A == A {
         self.init(apply: s.apply, empty: s.empty)
     }
 

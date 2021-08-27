@@ -183,7 +183,7 @@ extension Law where Structure: WithTwoBinaryOperations, Structure.SecondBinaryOp
 
 // MARK: - Identity
 
-extension Law where Structure: WithIdentity {
+extension Law where Structure: Identity {
     static var identity: Self {
         .init(name: "has identity element") { structure, equating in
             .fromOne {

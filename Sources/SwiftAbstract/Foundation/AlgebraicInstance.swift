@@ -9,7 +9,7 @@ extension AlgebraicInstance where Structure: WithOneBinaryOperation {
     }
 }
 
-extension Sequence where Element: AlgebraicInstance, Element.Structure: WithIdentity {
+extension Sequence where Element: AlgebraicInstance, Element.Structure: Identity {
     func reduce() -> Element {
         reduce(Element.algebraicInstance.empty, Element.algebraicInstance.apply)
     }
@@ -47,7 +47,7 @@ extension RequiresApplyAndEmpty {
     init<WrappedInstance>(
         wrapping wrappedInstance: WrappedInstance
     ) where
-        WrappedInstance: WithIdentity,
+        WrappedInstance: Identity,
         A: Wrapper,
         A.RawValue == WrappedInstance.A
     {

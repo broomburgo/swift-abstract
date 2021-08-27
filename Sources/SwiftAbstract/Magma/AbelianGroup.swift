@@ -1,6 +1,6 @@
 // MARK: - Definition
 
-struct AbelianGroup<A>: Associative, Commutative, WithIdentity, Invertible {
+struct AbelianGroup<A>: Associative, Commutative, Identity, Invertible {
     let apply: (A, A) -> A
     let empty: A
     let inverse: (A) -> A
@@ -11,7 +11,7 @@ struct AbelianGroup<A>: Associative, Commutative, WithIdentity, Invertible {
         self.inverse = inverse
     }
 
-    init<MoreSpecific: Associative & Commutative & WithIdentity & Invertible>(from s: MoreSpecific) where MoreSpecific.A == A {
+    init<MoreSpecific: Associative & Commutative & Identity & Invertible>(from s: MoreSpecific) where MoreSpecific.A == A {
         self.init(apply: s.apply, empty: s.empty, inverse: s.inverse)
     }
 
