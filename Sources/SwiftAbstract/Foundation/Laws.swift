@@ -225,7 +225,7 @@ extension Law where Structure: WithImplies {
 
 // MARK: - Invertibility
 
-extension Law where Structure: WithInverse {
+extension Law where Structure: Invertible {
     static var invertibility: Self {
         .init(name: "is invertible") { structure, equating in
             .fromOne {
@@ -237,23 +237,6 @@ extension Law where Structure: WithInverse {
         }
     }
 }
-
-//extension Law where Structure: WithInverse, Structure.A: FloatingPoint {
-//    static var invertibility: Self {
-//        .init(name: "is invertible") { structure, equating in
-//            .fromOne {
-//                guard $0 != .zero else {
-//                    return true
-//                }
-//
-//                return equating(
-//                    structure.apply($0, structure.inverse($0)),
-//                    structure.empty
-//                )
-//            }
-//        }
-//    }
-//}
 
 // MARK: - Negation
 

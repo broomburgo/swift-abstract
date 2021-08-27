@@ -1,6 +1,6 @@
 // MARK: - Definition
 
-struct Group<A>: Associative, WithIdentity, WithInverse {
+struct Group<A>: Associative, WithIdentity, Invertible {
     let apply: (A, A) -> A
     let empty: A
     let inverse: (A) -> A
@@ -11,7 +11,7 @@ struct Group<A>: Associative, WithIdentity, WithInverse {
         self.inverse = inverse
     }
 
-    init<MoreSpecific: Associative & WithIdentity & WithInverse>(from s: MoreSpecific) where MoreSpecific.A == A {
+    init<MoreSpecific: Associative & WithIdentity & Invertible>(from s: MoreSpecific) where MoreSpecific.A == A {
         self.init(apply: s.apply, empty: s.empty, inverse: s.inverse)
     }
 
