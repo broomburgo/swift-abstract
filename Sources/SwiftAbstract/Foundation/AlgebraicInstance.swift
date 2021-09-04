@@ -15,18 +15,18 @@ extension Wrapper where Wrapped == Self {
 }
 
 protocol AlgebraicInstance: Wrapper {
-  associatedtype Structure: AlgebraicStructure where Structure.A == Wrapped
-  static var algebraicPrimitive: Structure { get }
+  associatedtype ReferenceStructure: AlgebraicStructure where ReferenceStructure.A == Wrapped
+  static var referenceInstance: ReferenceStructure { get }
 }
 
 extension String: AlgebraicInstance {
   typealias Wrapped = Self
-  static let algebraicPrimitive = Monoid.string
+  static let referenceInstance = Monoid.string
 }
 
 extension Array: AlgebraicInstance {
   typealias Wrapped = Self
-  static var algebraicPrimitive: Monoid<Self> {
+  static var referenceInstance: Monoid<Self> {
     .array()
   }
 }
@@ -39,16 +39,16 @@ struct Sum<Wrapped>: Wrapper where Wrapped: AdditiveArithmetic {
 }
 
 extension Sum: AlgebraicInstance {
-  static var algebraicPrimitive: Monoid<Wrapped> {
+  static var referenceInstance: Monoid<Wrapped> {
     .addition
   }
 }
 
-protocol _Monoid: AlgebraicInstance where Structure == Monoid<Wrapped> {}
+protocol MonoidInstance: AlgebraicInstance where ReferenceStructure == Monoid<Wrapped> {}
 
-extension Sequence where Element: _Monoid {
+extension Sequence where Element: MonoidInstance {
   func concat() -> Element {
-    let instance = Element.algebraicPrimitive
+    let instance = Element.referenceInstance
     return reduce(.init(instance.empty)) {
       .init(instance.apply($0.wrapped, $1.wrapped))
     }
