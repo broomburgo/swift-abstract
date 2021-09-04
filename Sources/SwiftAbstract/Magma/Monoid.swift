@@ -9,14 +9,27 @@ struct Monoid<A>: Associative, Identity {
         self.empty = empty
     }
 
-    init<MoreSpecific: Associative & Identity>(from s: MoreSpecific) where MoreSpecific.A == A {
-        self.init(apply: s.apply, empty: s.empty)
-    }
-
     static var laws: [Law<Self>] { [
         .associativity,
         .identity,
     ] }
+}
+
+extension Monoid {
+  init<MoreSpecific: Associative & Identity>(from s: MoreSpecific) where MoreSpecific.A == A {
+      self.init(apply: s.apply, empty: s.empty)
+  }
+}
+
+extension Monoid where A: Wrapper {
+  init(wrapping original: Monoid<A.Wrapped>) {
+    self.init(
+      apply: {
+        .init(original.apply($0.wrapped, $1.wrapped))
+      },
+      empty: .init(original.empty)
+    )
+  }
 }
 
 // MARK: - Instances
