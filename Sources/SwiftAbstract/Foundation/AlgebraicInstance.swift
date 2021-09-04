@@ -1,5 +1,5 @@
-struct Algebraic<Structure> where Structure: AlgebraicStructure {
-  var instance: Structure
+struct Abstract<Structure> where Structure: AlgebraicStructure {
+  private var instance: Structure
   init(_ instance: Structure) {
     self.instance = instance
   }
@@ -7,17 +7,29 @@ struct Algebraic<Structure> where Structure: AlgebraicStructure {
 
 protocol AlgebraicInstance {
   associatedtype ReferenceStructure: AlgebraicStructure where ReferenceStructure.A == Self
-  static var algebraic: Algebraic<ReferenceStructure> { get }
+  static var abstract: Abstract<ReferenceStructure> { get }
 }
 
-extension Algebraic where Structure: Associative {
+extension Abstract where Structure: Associative {
   var semigroup: Semigroup<Structure.A> {
     .init(from: instance)
   }
 }
 
-extension Algebraic where Structure: Associative & Identity {
+extension Abstract where Structure: Associative & Identity {
   var monoid: Monoid<Structure.A> {
+    .init(from: instance)
+  }
+}
+
+extension Abstract where Structure: Associative & Identity & Invertible {
+  var group: Group<Structure.A> {
+    .init(from: instance)
+  }
+}
+
+extension Abstract where Structure: Associative & Commutative & Identity & Invertible {
+  var abelianGroup: AbelianGroup<Structure.A> {
     .init(from: instance)
   }
 }
@@ -34,12 +46,12 @@ extension Sequence where
   Element.ReferenceStructure: Identity
 {
   func concat() -> Element {
-    let instance = Element.algebraic.monoid
+    let instance = Element.abstract.monoid
     return reduce(instance.empty, instance.apply)
   }
 }
 
-struct Sum<Wrapped>: Wrapper where Wrapped: AdditiveArithmetic {
+struct Sum<Wrapped>: Wrapper where Wrapped: SignedNumeric {
   var wrapped: Wrapped
 
   init(_ wrapped: Wrapped) {
@@ -48,7 +60,7 @@ struct Sum<Wrapped>: Wrapper where Wrapped: AdditiveArithmetic {
 }
 
 extension Sum: AlgebraicInstance {
-  static var algebraic: Algebraic<Monoid<Self>> { .init(.init(wrapping: .addition)) }
+  static var abstract: Abstract<AbelianGroup<Self>> { .init(.init(wrapping: .addition)) }
 }
 
 struct Max<Wrapped>: Wrapper where Wrapped: Comparable {
@@ -60,5 +72,7 @@ struct Max<Wrapped>: Wrapper where Wrapped: Comparable {
 }
 
 extension Max: AlgebraicInstance {
-  static var algebraic: Algebraic<Semigroup<Self>> { .init(.init(wrapping: .max)) }
+  static var abstract: Abstract<Semigroup<Self>> { .init(.init(wrapping: .max)) }
 }
+
+

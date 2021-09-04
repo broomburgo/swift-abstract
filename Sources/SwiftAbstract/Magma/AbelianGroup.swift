@@ -11,16 +11,30 @@ struct AbelianGroup<A>: Associative, Commutative, Identity, Invertible {
         self.inverse = inverse
     }
 
-    init<MoreSpecific: Associative & Commutative & Identity & Invertible>(from s: MoreSpecific) where MoreSpecific.A == A {
-        self.init(apply: s.apply, empty: s.empty, inverse: s.inverse)
-    }
-
     static var laws: [Law<Self>] { [
         .associativity,
         .commutativity,
         .identity,
         .invertibility,
     ] }
+}
+
+extension AbelianGroup {
+  init<MoreSpecific: Associative & Commutative & Identity & Invertible>(from s: MoreSpecific) where MoreSpecific.A == A {
+      self.init(apply: s.apply, empty: s.empty, inverse: s.inverse)
+  }
+}
+
+extension AbelianGroup where A: Wrapper {
+  init(wrapping original: AbelianGroup<A.Wrapped>) {
+    self.init(
+      apply: {
+        .init(original.apply($0.wrapped, $1.wrapped))
+      },
+      empty: .init(original.empty),
+      inverse: { .init(original.inverse($0.wrapped)) }
+    )
+  }
 }
 
 // MARK: - Instances
