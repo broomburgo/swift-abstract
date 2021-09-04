@@ -75,4 +75,6 @@ extension Max: AlgebraicInstance {
   static var abstract: Abstract<Semigroup<Self>> { .init(.init(wrapping: .max)) }
 }
 
-
+extension String: AlgebraicInstance {
+  static let abstract = Abstract(Monoid.string)
+}
