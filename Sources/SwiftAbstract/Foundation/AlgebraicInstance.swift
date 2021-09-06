@@ -7,7 +7,13 @@ struct Abstract<Structure> where Structure: AlgebraicStructure {
 
 protocol AlgebraicInstance {
   associatedtype ReferenceStructure: AlgebraicStructure where ReferenceStructure.A == Self
-  static var abstract: Abstract<ReferenceStructure> { get }
+  static var referenceInstance: ReferenceStructure { get }
+}
+
+extension AlgebraicInstance {
+  static var abstract: Abstract<ReferenceStructure> {
+    .init(referenceInstance)
+  }
 }
 
 extension Abstract where Structure: Associative {
@@ -60,7 +66,7 @@ struct Sum<Wrapped>: Wrapper where Wrapped: SignedNumeric {
 }
 
 extension Sum: AlgebraicInstance {
-  static var abstract: Abstract<AbelianGroup<Self>> { .init(.init(wrapping: .addition)) }
+  static var referenceInstance: AbelianGroup<Self> { .init(wrapping: .addition) }
 }
 
 struct Max<Wrapped>: Wrapper where Wrapped: Comparable {
@@ -72,9 +78,9 @@ struct Max<Wrapped>: Wrapper where Wrapped: Comparable {
 }
 
 extension Max: AlgebraicInstance {
-  static var abstract: Abstract<Semigroup<Self>> { .init(.init(wrapping: .max)) }
+  static var referenceInstance: Semigroup<Self> { .init(wrapping: .max) }
 }
 
 extension String: AlgebraicInstance {
-  static let abstract = Abstract(Monoid.string)
+  static let referenceInstance = Monoid.string
 }
