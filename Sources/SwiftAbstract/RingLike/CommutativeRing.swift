@@ -1,18 +1,29 @@
-// MARK: - Definition
-
 struct CommutativeRing<A>: RingLike, WithOne, WithNegate {
-    let first: AbelianGroup<A>
-    let second: CommutativeMonoid<A>
+  let first: AbelianGroup<A>
+  let second: CommutativeMonoid<A>
 
-    static var laws: [Law<Self>] { [
-        .annihilability,
-        .associativityOfFirst,
-        .associativityOfSecond,
-        .commutativityOfFirst,
-        .commutativityOfSecond,
-        .distributivityOfSecondOverFirst,
-        .negation,
-        .oneIdentity,
-        .zeroIdentity,
-    ] }
+  static var laws: [Law<Self>] { [
+    .annihilability,
+    .associativityOfFirst,
+    .associativityOfSecond,
+    .commutativityOfFirst,
+    .commutativityOfSecond,
+    .distributivityOfSecondOverFirst,
+    .negation,
+    .oneIdentity,
+    .zeroIdentity,
+  ] }
+}
+
+extension CommutativeRing {
+  init<MoreSpecific>(from s: MoreSpecific) where
+    MoreSpecific: RingLike & WithOne & WithNegate,
+    MoreSpecific.SecondBinaryOperation: Commutative,
+    MoreSpecific.A == A
+  {
+    self.init(
+      first: .init(from: s.first),
+      second: .init(from: s.second)
+    )
+  }
 }

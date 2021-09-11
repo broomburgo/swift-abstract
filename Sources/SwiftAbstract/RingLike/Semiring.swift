@@ -15,6 +15,18 @@ struct Semiring<A>: RingLike, WithOne {
     ] }
 }
 
+extension Semiring {
+  init<MoreSpecific>(from s: MoreSpecific) where
+    MoreSpecific: RingLike & WithOne,
+    MoreSpecific.A == A
+  {
+    self.init(
+      first: .init(from: s.first),
+      second: .init(from: s.second)
+    )
+  }
+}
+
 // MARK: - Instances
 
 extension Semiring where A: AdditiveArithmetic & Comparable & WithMaximum {

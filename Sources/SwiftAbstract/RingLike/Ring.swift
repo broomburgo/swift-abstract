@@ -15,3 +15,15 @@ struct Ring<A>: RingLike, WithOne, WithNegate {
         .zeroIdentity,
     ] }
 }
+
+extension Ring {
+  init<MoreSpecific>(from s: MoreSpecific) where
+    MoreSpecific: RingLike & WithOne & WithNegate,
+    MoreSpecific.A == A
+  {
+    self.init(
+      first: .init(from: s.first),
+      second: .init(from: s.second)
+    )
+  }
+}
