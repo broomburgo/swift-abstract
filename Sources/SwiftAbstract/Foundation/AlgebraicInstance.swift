@@ -16,6 +16,14 @@ extension AlgebraicInstance {
   }
 }
 
+// MARK: - Wrapper
+
+protocol Wrapper {
+  associatedtype Wrapped
+  init(_ wrapped: Wrapped)
+  var wrapped: Wrapped { get }
+}
+
 // MARK: - Magma
 
 extension Abstract where
@@ -201,13 +209,7 @@ extension Abstract where
   }
 }
 
-// MARK: - Wrapper
-
-protocol Wrapper {
-  associatedtype Wrapped
-  init(_ wrapped: Wrapped)
-  var wrapped: Wrapped { get }
-}
+// MARK: - Instances
 
 extension Sequence where
   Element: AlgebraicInstance,
