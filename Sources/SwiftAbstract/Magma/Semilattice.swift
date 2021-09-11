@@ -35,6 +35,20 @@ extension Semilattice where A: Wrapper {
 
 // MARK: - Instances
 
+extension Semilattice {
+  static var first: Self {
+    Semilattice(
+      apply: { a, _ in a }
+    )
+  }
+
+  static var last: Self {
+    Semilattice(
+      apply: { _, b in b }
+    )
+  }
+}
+
 extension Semilattice where A: Comparable {
   static var max: Self {
     Semilattice(
@@ -49,25 +63,18 @@ extension Semilattice where A: Comparable {
   }
 }
 
-extension Semilattice where A == Bool {
-  static var and: Self {
-    Semilattice(
-      apply: { $0 && $1 }
-    )
-  }
-
-  static var or: Self {
-    Semilattice(
-      apply: { $0 || $1 }
-    )
-  }
-}
-
 extension Semilattice /* where A == Set */ {
   /// While this can be useful as the free bounded semilattice, to truly express the algebraic properties of sets, and define a boolean algebra based on them, we actually need `PredicateSet`.
   static func setUnion<Element>() -> Self where A == Set<Element> {
     Semilattice(
       apply: { $0.union($1) }
+    )
+  }
+
+  /// This cannot be suitable for `WithEmpty` types, because there not such thing as the "universe" set, but it could be done with `PredicateSet`.
+  static func setIntersection<Element>() -> Self where A == Set<Element> {
+    Semilattice(
+      apply: { $0.intersection($1) }
     )
   }
 }

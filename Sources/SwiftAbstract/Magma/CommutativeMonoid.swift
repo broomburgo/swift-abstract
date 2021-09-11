@@ -38,24 +38,6 @@ extension CommutativeMonoid where A: Wrapper {
 
 // MARK: - Instances
 
-extension CommutativeMonoid where A: Comparable & WithMinimum {
-  static var max: Self {
-    CommutativeMonoid(
-      apply: { Swift.max($0, $1) },
-      empty: .minimum
-    )
-  }
-}
-
-extension CommutativeMonoid where A: Comparable & WithMaximum {
-  static var min: Self {
-    CommutativeMonoid(
-      apply: { Swift.min($0, $1) },
-      empty: .maximum
-    )
-  }
-}
-
 extension CommutativeMonoid where A: AdditiveArithmetic {
   static var addition: Self {
     CommutativeMonoid(
@@ -70,32 +52,6 @@ extension CommutativeMonoid where A: Numeric {
     CommutativeMonoid(
       apply: { $0 * $1 },
       empty: 1
-    )
-  }
-}
-
-extension CommutativeMonoid where A == Bool {
-  static var and: Self {
-    CommutativeMonoid(
-      apply: { $0 && $1 },
-      empty: true
-    )
-  }
-
-  static var or: Self {
-    CommutativeMonoid(
-      apply: { $0 || $1 },
-      empty: false
-    )
-  }
-}
-
-extension CommutativeMonoid /* where A == Set */ {
-  /// While this can be useful as the free bounded semilattice, to truly express the algebraic properties of sets, and define a boolean algebra based on them, we actually need `PredicateSet`.
-  static func setUnion<Element>() -> Self where A == Set<Element> {
-    CommutativeMonoid(
-      apply: { $0.union($1) },
-      empty: []
     )
   }
 }

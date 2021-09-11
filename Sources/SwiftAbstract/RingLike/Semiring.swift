@@ -43,8 +43,8 @@ extension Semiring where A: Wrapper {
 extension Semiring where A: AdditiveArithmetic & Comparable & WithMaximum {
     static var minTropical: Self {
         Semiring(
-            first: CommutativeMonoid.min,
-            second: Monoid.addition
+          first: .init(from: BoundedSemilattice.min),
+          second: .init(from: CommutativeMonoid.addition)
         )
     }
 }
@@ -52,8 +52,8 @@ extension Semiring where A: AdditiveArithmetic & Comparable & WithMaximum {
 extension Semiring where A: AdditiveArithmetic & Comparable & WithMinimum {
     static var maxTropical: Self {
         Semiring(
-            first: CommutativeMonoid.max,
-            second: Monoid.addition
+          first: .init(from: BoundedSemilattice.max),
+          second: .init(from: CommutativeMonoid.addition)
         )
     }
 }

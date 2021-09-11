@@ -41,16 +41,6 @@ extension Group where A: Wrapper {
 
 // MARK: - Instances
 
-extension Group where A: SignedNumeric {
-  static var addition: Self {
-    Group(
-      apply: { $0 + $1 },
-      empty: .zero,
-      inverse: { -$0 }
-    )
-  }
-}
-
 extension Group /* where A == (Input) -> Output */ {
   static func function<Input, Output>(over output: Group<Output>) -> Self where A == (Input) -> Output {
     Group(

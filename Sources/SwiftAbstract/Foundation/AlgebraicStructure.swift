@@ -26,10 +26,6 @@ public protocol Invertible: Identity {
     var inverse: (A) -> A { get }
 }
 
-public protocol ConstructibleWithOneBinaryOperation: AlgebraicStructure {
-    init(apply: @escaping (A, A) -> A)
-}
-
 // MARK: - WithTwoBinaryOperations
 
 public protocol WithTwoBinaryOperations: AlgebraicStructure {

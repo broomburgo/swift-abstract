@@ -242,7 +242,7 @@ struct Max<Wrapped>: Wrapper where Wrapped: Comparable {
 }
 
 extension Max: AlgebraicInstance {
-  static var referenceInstance: Semigroup<Self> { .init(wrapping: .max) }
+  static var referenceInstance: Semigroup<Self> { .init(from: Semilattice(wrapping: .max)) }
 }
 
 extension String: AlgebraicInstance {
