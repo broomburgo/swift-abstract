@@ -10,6 +10,8 @@ struct Semigroup<A>: ConstructibleWithOneBinaryOperation, Associative {
   ] }
 }
 
+// MARK: - Initializers
+
 extension Semigroup {
   init<MoreSpecific: Associative>(from s: MoreSpecific) where MoreSpecific.A == A {
     self.init(apply: s.apply)
