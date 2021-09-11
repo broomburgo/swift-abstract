@@ -153,6 +153,54 @@ extension Abstract where
 
 // MARK: - Lattice-like
 
+extension Abstract where
+  Structure: LatticeLike & Distributive & WithZero & WithOne & WithImplies & ExcludedMiddle
+{
+  var boolean: Boolean<Structure.A> {
+    .init(from: instance)
+  }
+}
+
+extension Abstract where
+  Structure: LatticeLike & Distributive & WithZero & WithOne
+{
+  var boundedDistributiveLattice: BoundedDistributiveLattice<Structure.A> {
+    .init(from: instance)
+  }
+}
+
+extension Abstract where
+  Structure: LatticeLike & WithZero & WithOne
+{
+  var boundedLattice: BoundedLattice<Structure.A> {
+    .init(from: instance)
+  }
+}
+
+extension Abstract where
+  Structure: LatticeLike & Distributive
+{
+  var distributiveLattice: DistributiveLattice<Structure.A> {
+    .init(from: instance)
+  }
+}
+
+extension Abstract where
+  Structure: LatticeLike & Distributive & WithZero & WithOne & WithImplies
+{
+  var heyting: Heyting<Structure.A> {
+    .init(from: instance)
+  }
+}
+
+extension Abstract where
+  Structure: LatticeLike
+{
+  var lattice: Lattice<Structure.A> {
+    .init(from: instance)
+  }
+}
+
 // MARK: - Wrapper
 
 protocol Wrapper {
