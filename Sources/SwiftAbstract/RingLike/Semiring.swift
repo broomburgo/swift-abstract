@@ -15,6 +15,8 @@ struct Semiring<A>: RingLike, WithOne {
     ] }
 }
 
+// MARK: - Initializers
+
 extension Semiring {
   init<MoreSpecific>(from s: MoreSpecific) where
     MoreSpecific: RingLike & WithOne,
@@ -23,6 +25,15 @@ extension Semiring {
     self.init(
       first: .init(from: s.first),
       second: .init(from: s.second)
+    )
+  }
+}
+
+extension Semiring where A: Wrapper {
+  init(wrapping original: Semiring<A.Wrapped>) {
+    self.init(
+      first: .init(wrapping: original.first),
+      second: .init(wrapping: original.second)
     )
   }
 }

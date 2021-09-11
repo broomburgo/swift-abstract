@@ -16,6 +16,8 @@ struct Ring<A>: RingLike, WithOne, WithNegate {
     ] }
 }
 
+// MARK: - Initializers
+
 extension Ring {
   init<MoreSpecific>(from s: MoreSpecific) where
     MoreSpecific: RingLike & WithOne & WithNegate,
@@ -24,6 +26,15 @@ extension Ring {
     self.init(
       first: .init(from: s.first),
       second: .init(from: s.second)
+    )
+  }
+}
+
+extension Ring where A: Wrapper {
+  init(wrapping original: Ring<A.Wrapped>) {
+    self.init(
+      first: .init(wrapping: original.first),
+      second: .init(wrapping: original.second)
     )
   }
 }

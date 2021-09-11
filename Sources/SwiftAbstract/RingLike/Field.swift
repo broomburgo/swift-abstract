@@ -18,6 +18,8 @@ struct Field<A>: RingLike, WithOne, WithNegate, WithReciprocal {
     ] }
 }
 
+// MARK: - Initializers
+
 extension Field {
   init<MoreSpecific>(from s: MoreSpecific) where
     MoreSpecific: RingLike & WithOne & WithNegate & WithReciprocal,
@@ -30,6 +32,17 @@ extension Field {
     )
   }
 }
+
+extension Field where A: Wrapper {
+  init(wrapping original: Field<A.Wrapped>) {
+    self.init(
+      first: .init(wrapping: original.first),
+      second: .init(wrapping: original.second)
+    )
+  }
+}
+
+// MARK: - Instances
 
 extension Field where A: FloatingPoint {
     static var real: Self {

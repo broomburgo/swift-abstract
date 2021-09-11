@@ -14,6 +14,8 @@ struct CommutativeSemiring<A>: RingLike, WithOne {
   ] }
 }
 
+// MARK: - Initializers
+
 extension CommutativeSemiring {
   init<MoreSpecific>(from s: MoreSpecific) where
     MoreSpecific: RingLike & WithOne,
@@ -23,6 +25,15 @@ extension CommutativeSemiring {
     self.init(
       first: .init(from: s.first),
       second: .init(from: s.second)
+    )
+  }
+}
+
+extension CommutativeSemiring where A: Wrapper {
+  init(wrapping original: CommutativeSemiring<A.Wrapped>) {
+    self.init(
+      first: .init(wrapping: original.first),
+      second: .init(wrapping: original.second)
     )
   }
 }
