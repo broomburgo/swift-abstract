@@ -34,20 +34,6 @@ extension CommutativeSemigroup where A: Wrapper {
 
 // MARK: - Instances
 
-extension CommutativeSemigroup where A: Comparable {
-  static var max: Self {
-    CommutativeSemigroup(
-      apply: { Swift.max($0, $1) }
-    )
-  }
-
-  static var min: Self {
-    CommutativeSemigroup(
-      apply: { Swift.min($0, $1) }
-    )
-  }
-}
-
 extension CommutativeSemigroup /* where A == (Input) -> Output */ {
   static func function<Input, Output>(over output: CommutativeSemigroup<Output>) -> Self where A == (Input) -> Output {
     CommutativeSemigroup(

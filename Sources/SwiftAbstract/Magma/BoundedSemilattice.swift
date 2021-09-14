@@ -80,9 +80,7 @@ extension BoundedSemilattice /* where A == Optional */ {
       empty: nil
     )
   }
-}
 
-extension BoundedSemilattice /* where A == Optional */ {
   static func lastIfPossible<Wrapped>() -> Self where A == Wrapped? {
     BoundedSemilattice(
       apply: { $1 ?? $0 },

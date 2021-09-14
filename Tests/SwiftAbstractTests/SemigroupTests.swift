@@ -7,7 +7,7 @@ final class SemigroupTests: XCTestCase {
         verifyAllLaws(
           ofStructure: Semigroup<Int>.self,
           onInstances: [
-            ("first", .first),
+            ("first", .init(from: Semilattice.first)),
             ("last", .last),
             ("max", .max),
             ("min", .min),
