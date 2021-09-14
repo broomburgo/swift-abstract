@@ -6,19 +6,19 @@ public protocol AlgebraicStructure {
     static var laws: [Law<Self>] { get }
 }
 
-// MARK: - WithOneBinaryOperation
+// MARK: - Magma
 
-public protocol WithOneBinaryOperation: AlgebraicStructure {
+public protocol Magma: AlgebraicStructure {
     var apply: (A, A) -> A { get }
 }
 
-public protocol Associative: WithOneBinaryOperation {}
+public protocol Associative: Magma {}
 
-public protocol Commutative: WithOneBinaryOperation {}
+public protocol Commutative: Magma {}
 
-public protocol Idempotent: WithOneBinaryOperation {}
+public protocol Idempotent: Magma {}
 
-public protocol Identity: WithOneBinaryOperation {
+public protocol Identity: Magma {
     var empty: A { get }
 }
 
@@ -26,22 +26,22 @@ public protocol Invertible: Identity {
     var inverse: (A) -> A { get }
 }
 
-// MARK: - WithTwoBinaryOperations
+// MARK: - Bimagma
 
-public protocol WithTwoBinaryOperations: AlgebraicStructure {
-    associatedtype FirstBinaryOperation: WithOneBinaryOperation where FirstBinaryOperation.A == A
-    associatedtype SecondBinaryOperation: WithOneBinaryOperation where SecondBinaryOperation.A == A
+public protocol Bimagma: AlgebraicStructure {
+    associatedtype First: Magma where First.A == A
+    associatedtype Second: Magma where Second.A == A
 
-    var first: FirstBinaryOperation { get }
-    var second: SecondBinaryOperation { get }
+    var first: First { get }
+    var second: Second { get }
 }
 
-public protocol Absorption: WithTwoBinaryOperations {}
+public protocol Absorption: Bimagma {}
 
 public protocol WithAnnihilation: WithZero {}
 
-public protocol DistributiveFirstOverSecond: WithTwoBinaryOperations {}
-public protocol DistributiveSecondOverFirst: WithTwoBinaryOperations {}
+public protocol DistributiveFirstOverSecond: Bimagma {}
+public protocol DistributiveSecondOverFirst: Bimagma {}
 public typealias Distributive = DistributiveFirstOverSecond & DistributiveSecondOverFirst
 
 public protocol ExcludedMiddle: WithImplies, WithZero {}
@@ -50,7 +50,7 @@ public protocol WithImplies: LatticeLike, WithOne {
     var implies: (A, A) -> A { get }
 }
 
-public protocol WithNegate: WithZero where FirstBinaryOperation: Invertible {}
+public protocol WithNegate: WithZero where First: Invertible {}
 
 public extension WithNegate {
     var negate: (A) -> A {
@@ -58,7 +58,7 @@ public extension WithNegate {
     }
 }
 
-public protocol WithOne: WithTwoBinaryOperations where SecondBinaryOperation: Identity {}
+public protocol WithOne: Bimagma where Second: Identity {}
 
 public extension WithOne {
     var one: A {
@@ -66,7 +66,7 @@ public extension WithOne {
     }
 }
 
-public protocol WithReciprocal: WithOne where SecondBinaryOperation: Invertible {}
+public protocol WithReciprocal: WithOne where Second: Invertible {}
 
 public extension WithReciprocal {
     var reciprocal: (A) -> A {
@@ -74,7 +74,7 @@ public extension WithReciprocal {
     }
 }
 
-public protocol WithZero: WithTwoBinaryOperations where FirstBinaryOperation: Identity {}
+public protocol WithZero: Bimagma where First: Identity {}
 
 public extension WithZero {
     var zero: A {
@@ -82,30 +82,30 @@ public extension WithZero {
     }
 }
 
-// MARK: - Lattice-Like
-
-public protocol LatticeLike: Absorption where
-    FirstBinaryOperation: Associative & Commutative & Idempotent,
-    SecondBinaryOperation: Associative & Commutative & Idempotent {}
-
-extension WithTwoBinaryOperations where Self: LatticeLike {
-    typealias Join = FirstBinaryOperation
-    typealias Meet = SecondBinaryOperation
-
-    var join: (A, A) -> A { first.apply } /// ~ OR ; ~ MAX
-    var meet: (A, A) -> A { second.apply } /// ~ AND; ~ MIN
-}
-
 // MARK: - Ring-Like
 
 public protocol RingLike: DistributiveSecondOverFirst, WithAnnihilation where
-    FirstBinaryOperation: Associative & Commutative,
-    SecondBinaryOperation: Associative {}
+    First: Associative & Commutative,
+    Second: Associative {}
 
-extension WithTwoBinaryOperations where Self: RingLike {
-    typealias Plus = FirstBinaryOperation
-    typealias Times = SecondBinaryOperation
+extension Bimagma where Self: RingLike {
+    typealias Plus = First
+    typealias Times = Second
 
     var plus: (A, A) -> A { first.apply }
     var times: (A, A) -> A { second.apply }
+}
+
+// MARK: - Lattice-Like
+
+public protocol LatticeLike: Absorption where
+    First: Associative & Commutative & Idempotent,
+    Second: Associative & Commutative & Idempotent {}
+
+extension Bimagma where Self: LatticeLike {
+    typealias Join = First
+    typealias Meet = Second
+
+    var join: (A, A) -> A { first.apply } /// ~ OR ; ~ MAX
+    var meet: (A, A) -> A { second.apply } /// ~ AND; ~ MIN
 }

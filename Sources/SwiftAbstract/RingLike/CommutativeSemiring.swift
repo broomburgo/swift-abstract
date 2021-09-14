@@ -19,7 +19,7 @@ struct CommutativeSemiring<A>: RingLike, WithOne {
 extension CommutativeSemiring {
   init<MoreSpecific>(from s: MoreSpecific) where
     MoreSpecific: RingLike & WithOne,
-    MoreSpecific.SecondBinaryOperation: Commutative,
+    MoreSpecific.Second: Commutative,
     MoreSpecific.A == A
   {
     self.init(

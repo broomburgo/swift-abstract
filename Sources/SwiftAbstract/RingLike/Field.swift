@@ -23,7 +23,7 @@ struct Field<A>: RingLike, WithOne, WithNegate, WithReciprocal {
 extension Field {
   init<MoreSpecific>(from s: MoreSpecific) where
     MoreSpecific: RingLike & WithOne & WithNegate & WithReciprocal,
-    MoreSpecific.SecondBinaryOperation: Commutative,
+    MoreSpecific.Second: Commutative,
     MoreSpecific.A == A
   {
     self.init(

@@ -20,7 +20,7 @@ struct CommutativeRing<A>: RingLike, WithOne, WithNegate {
 extension CommutativeRing {
   init<MoreSpecific>(from s: MoreSpecific) where
     MoreSpecific: RingLike & WithOne & WithNegate,
-    MoreSpecific.SecondBinaryOperation: Commutative,
+    MoreSpecific.Second: Commutative,
     MoreSpecific.A == A
   {
     self.init(

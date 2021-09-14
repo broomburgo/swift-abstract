@@ -60,18 +60,18 @@ extension Law where Structure: Associative {
     }
 }
 
-extension Law where Structure: WithTwoBinaryOperations, Structure.FirstBinaryOperation: Associative {
+extension Law where Structure: Bimagma, Structure.First: Associative {
     static var associativityOfFirst: Self {
         .init(name: "has first operation associative") { structure, equating in
-            Law<Structure.FirstBinaryOperation>.associativity.getCheck(structure.first, equating)
+            Law<Structure.First>.associativity.getCheck(structure.first, equating)
         }
     }
 }
 
-extension Law where Structure: WithTwoBinaryOperations, Structure.SecondBinaryOperation: Associative {
+extension Law where Structure: Bimagma, Structure.Second: Associative {
     static var associativityOfSecond: Self {
         .init(name: "has second operation associative") { structure, equating in
-            Law<Structure.SecondBinaryOperation>.associativity.getCheck(structure.second, equating)
+            Law<Structure.Second>.associativity.getCheck(structure.second, equating)
         }
     }
 }
@@ -91,18 +91,18 @@ extension Law where Structure: Commutative {
     }
 }
 
-extension Law where Structure: WithTwoBinaryOperations, Structure.FirstBinaryOperation: Commutative {
+extension Law where Structure: Bimagma, Structure.First: Commutative {
     static var commutativityOfFirst: Self {
         .init(name: "has first operation commutative") { structure, equating in
-            Law<Structure.FirstBinaryOperation>.commutativity.getCheck(structure.first, equating)
+            Law<Structure.First>.commutativity.getCheck(structure.first, equating)
         }
     }
 }
 
-extension Law where Structure: WithTwoBinaryOperations, Structure.SecondBinaryOperation: Commutative {
+extension Law where Structure: Bimagma, Structure.Second: Commutative {
     static var commutativityOfSecond: Self {
         .init(name: "has second operation commutative") { structure, equating in
-            Law<Structure.SecondBinaryOperation>.commutativity.getCheck(structure.second, equating)
+            Law<Structure.Second>.commutativity.getCheck(structure.second, equating)
         }
     }
 }
@@ -165,18 +165,18 @@ extension Law where Structure: Idempotent {
     }
 }
 
-extension Law where Structure: WithTwoBinaryOperations, Structure.FirstBinaryOperation: Idempotent {
+extension Law where Structure: Bimagma, Structure.First: Idempotent {
     static var idempotencyOfFirst: Self {
         .init(name: "has first operation idempotent") { structure, equating in
-            Law<Structure.FirstBinaryOperation>.idempotency.getCheck(structure.first, equating)
+            Law<Structure.First>.idempotency.getCheck(structure.first, equating)
         }
     }
 }
 
-extension Law where Structure: WithTwoBinaryOperations, Structure.SecondBinaryOperation: Idempotent {
+extension Law where Structure: Bimagma, Structure.Second: Idempotent {
     static var idempotencyOfSecond: Self {
         .init(name: "has second operation idempotent") { structure, equating in
-            Law<Structure.SecondBinaryOperation>.idempotency.getCheck(structure.second, equating)
+            Law<Structure.Second>.idempotency.getCheck(structure.second, equating)
         }
     }
 }
@@ -243,7 +243,7 @@ extension Law where Structure: Invertible {
 extension Law where Structure: WithNegate {
     static var negation: Self {
         .init(name: "has negation") { structure, equating in
-            Law<Structure.FirstBinaryOperation>.invertibility.getCheck(structure.first, equating)
+            Law<Structure.First>.invertibility.getCheck(structure.first, equating)
         }
     }
 }
@@ -271,7 +271,7 @@ extension Law where Structure: WithOne {
 extension Law where Structure: WithReciprocal {
     static var reciprocity: Self {
         .init(name: "has reciprocal") { structure, equating in
-            Law<Structure.SecondBinaryOperation>.invertibility.getCheck(structure.second, equating)
+            Law<Structure.Second>.invertibility.getCheck(structure.second, equating)
         }
     }
 }

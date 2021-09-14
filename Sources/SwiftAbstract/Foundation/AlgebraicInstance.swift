@@ -110,7 +110,7 @@ extension Abstract where
 
 extension Abstract where
   Structure: RingLike & WithOne & WithNegate,
-  Structure.SecondBinaryOperation: Commutative
+  Structure.Second: Commutative
 {
   var commutativeRing: CommutativeRing<Structure.A> {
     .init(from: instance)
@@ -119,7 +119,7 @@ extension Abstract where
 
 extension Abstract where
   Structure: RingLike & WithOne,
-  Structure.SecondBinaryOperation: Commutative
+  Structure.Second: Commutative
 {
   var commutativeSemiring: CommutativeSemiring<Structure.A> {
     .init(from: instance)
@@ -128,7 +128,7 @@ extension Abstract where
 
 extension Abstract where
   Structure: RingLike & WithOne & WithNegate & WithReciprocal,
-  Structure.SecondBinaryOperation: Commutative
+  Structure.Second: Commutative
 {
   var field: Field<Structure.A> {
     .init(from: instance)
