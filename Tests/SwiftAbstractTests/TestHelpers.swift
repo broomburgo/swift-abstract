@@ -32,31 +32,6 @@ extension TestResult {
   }
 }
 
-func verifyAllLaws<Structure: AlgebraicStructure>(
-  ofStructure algebraicStructure: Structure.Type,
-  onInstances instances: [(instance: String, value: Structure)],
-  equating: @escaping (Structure.A, Structure.A) -> Bool,
-  arguments: CheckerArguments? = nil,
-  file: StaticString = #file,
-  line: UInt = #line
-) where Structure.A: Arbitrary {
-  property("\(algebraicStructure) instances respect some laws", arguments: arguments, file: file, line: line) <- forAll { (a: Structure.A, b: Structure.A, c: Structure.A) in
-    instances
-      .flatMap { instance, value in
-        Structure.laws.map {
-          (instance, Verify(law: $0, structure: value, equating: equating))
-        }
-      }
-      .map { instance, verify in
-        TestResult(
-          require: "\(algebraicStructure).\(instance) \(verify.law.name)",
-          check: verify(a, b, c)
-        )
-      }
-      .reduce(TestResult.succeeded.property) { conjoin($0, $1) }
-  }
-}
-
 func verifyAllLaws<Structure: AlgebraicStructure, Generated: Arbitrary, Extra: Arbitrary>(
   ofStructure algebraicStructure: Structure.Type,
   onInstances instances: [(instance: String, value: Structure)],
@@ -83,29 +58,43 @@ func verifyAllLaws<Structure: AlgebraicStructure, Generated: Arbitrary, Extra: A
   }
 }
 
+func verifyAllLaws<Structure: AlgebraicStructure>(
+  ofStructure algebraicStructure: Structure.Type,
+  onInstances instances: [(instance: String, value: Structure)],
+  equating: @escaping (Structure.A, Structure.A) -> Bool,
+  arguments: CheckerArguments? = nil,
+  file: StaticString = #file,
+  line: UInt = #line
+) where Structure.A: Arbitrary {
+  verifyAllLaws(
+    ofStructure: algebraicStructure,
+    onInstances: instances,
+    equating: { (_: ArbitraryVoid) in equating },
+    generating: { $0 },
+    arguments: arguments,
+    file: file,
+    line: line
+  )
+}
+
 func verifyAllLaws<Structure: AlgebraicStructure, OutputStructure: AlgebraicStructure, Input>(
   ofFunctionBasedStructure algebraicStructure: Structure.Type,
   onInstances instances: [(instance: String, value: OutputStructure)],
   constructedBy getStructure: @escaping (OutputStructure) -> Structure,
   equating: @escaping (Input) -> (Structure.A, Structure.A) -> Bool,
+  arguments: CheckerArguments? = nil,
   file: StaticString = #file,
   line: UInt = #line
 ) where Structure.A == (Input) -> OutputStructure.A, Input: Hashable & CoArbitrary & Arbitrary, OutputStructure.A: Arbitrary {
-  property("\(algebraicStructure) instances respect some laws", file: file, line: line) <- forAll { (a: ArrowOf<Input, OutputStructure.A>, b: ArrowOf<Input, OutputStructure.A>, c: ArrowOf<Input, OutputStructure.A>, value: Input) in
-    instances
-      .flatMap { name, instance in
-        Structure.laws.map {
-          (name, Verify(law: $0, structure: getStructure(instance), equating: equating(value)))
-        }
-      }
-      .map { name, verify in
-        TestResult(
-          require: "\(algebraicStructure).\(name) \(verify.law.name)",
-          check: verify(a.getArrow, b.getArrow, c.getArrow)
-        )
-      }
-      .reduce(TestResult.succeeded.property) { conjoin($0, $1) }
-  }
+  verifyAllLaws(
+    ofStructure: algebraicStructure,
+    onInstances: instances.map { ($0, getStructure($1)) },
+    equating: equating,
+    generating: { (generated: ArrowOf<Input, OutputStructure.A>) in generated.getArrow },
+    arguments: arguments,
+    file: file,
+    line: line
+  )
 }
 
 extension CheckerArguments {
@@ -139,4 +128,8 @@ extension FloatingPoint where Self.Stride: ExpressibleByFloatLiteral {
 
     return abs((self / other).distance(to: 1)) < tolerance
   }
+}
+
+private struct ArbitraryVoid: Arbitrary {
+  static let arbitrary = Gen.pure(ArbitraryVoid())
 }
