@@ -34,6 +34,20 @@ extension Band where A: Wrapper {
 
 // MARK: - Instances
 
+extension Band {
+  static var first: Self {
+    Band(
+      apply: { a, _ in a }
+    )
+  }
+
+  static var last: Self {
+    Band(
+      apply: { _, b in b }
+    )
+  }
+}
+
 extension Band /* where A == (Input) -> Output */ {
   static func function<Input, Output>(over output: Band<Output>) -> Self where A == (Input) -> Output {
     Band(

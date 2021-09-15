@@ -36,6 +36,8 @@ extension IdempotentMonoid where A: Wrapper {
   }
 }
 
+// MARK: - Instances
+
 extension IdempotentMonoid /* where A == (Input) -> Output */ {
   static func function<Input, Output>(over output: IdempotentMonoid<Output>) -> Self where A == (Input) -> Output {
     IdempotentMonoid(

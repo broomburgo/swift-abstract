@@ -35,20 +35,6 @@ extension Semilattice where A: Wrapper {
 
 // MARK: - Instances
 
-extension Semilattice {
-  static var first: Self {
-    Semilattice(
-      apply: { a, _ in a }
-    )
-  }
-
-  static var last: Self {
-    Semilattice(
-      apply: { _, b in b }
-    )
-  }
-}
-
 extension Semilattice where A: Comparable {
   static var max: Self {
     Semilattice(
