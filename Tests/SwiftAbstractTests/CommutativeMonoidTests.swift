@@ -2,27 +2,27 @@
 import SwiftCheck
 import XCTest
 
-final class AbelianGroupTests: XCTestCase {
+final class CommutativeMonoidTests: XCTestCase {
   func testLawsOfRegularStructure() {
     verifyAllLaws(
-      ofStructure: AbelianGroup<Double>.self,
+      ofStructure: CommutativeMonoid<Int>.self,
       onInstances: [
         ("addition", .addition),
         ("multiplication", .multiplication)
       ],
-      equating: { $0.isAlmostEqual(to: $1) }
+      equating: ==
     )
   }
 
   func testLawsOfFunctionBasedStructure() {
       verifyAllLaws(
-        ofFunctionBasedStructure: AbelianGroup<(String) -> Double>.self,
+        ofFunctionBasedStructure: CommutativeMonoid<(String) -> Int>.self,
         onInstances: [
           ("addition", .addition),
           ("multiplication", .multiplication)
         ],
         constructedBy: { .function(over: $0) },
-        equating: { input in { $0(input).isAlmostEqual(to: $1(input)) } }
+        equating: { input in { $0(input) == $1(input) } }
       )
   }
 
