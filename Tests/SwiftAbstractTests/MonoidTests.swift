@@ -23,7 +23,7 @@ final class MonoidTests: XCTestCase {
     verifyAllLaws(
       ofStructure: Monoid<(Int) -> Int>.self,
       onInstances: [
-        ("", .endo())
+        ("endo", .endo())
       ],
       equating: { (input: Int) in { $0(input) == $1(input) } },
       generating: { (generated: ArrowOf<Int, Int>) in generated.getArrow }
