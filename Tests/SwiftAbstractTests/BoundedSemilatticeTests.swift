@@ -21,6 +21,14 @@ final class BoundedSemilatticeTests: XCTestCase {
       ],
       equating: ==
     )
+
+    verifyAllLaws(
+      ofStructure: BoundedSemilattice<Set<Int>>.self,
+      onInstances: [
+        ("setUnion", .setUnion()),
+      ],
+      equating: ==
+    )
   }
 
   func testLawsOfFunctionBasedStructure() {
@@ -39,6 +47,15 @@ final class BoundedSemilatticeTests: XCTestCase {
       onInstances: [
         ("and", .and),
         ("or", .or),
+      ],
+      constructedBy: { .function(over: $0) },
+      equating: { input in { $0(input) == $1(input) } }
+    )
+
+    verifyAllLaws(
+      ofFunctionBasedStructure: BoundedSemilattice<(String) -> Set<Int>>.self,
+      onInstances: [
+        ("setUnion", .setUnion()),
       ],
       constructedBy: { .function(over: $0) },
       equating: { input in { $0(input) == $1(input) } }
