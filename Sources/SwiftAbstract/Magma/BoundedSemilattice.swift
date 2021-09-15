@@ -73,31 +73,6 @@ extension BoundedSemilattice where A == Bool {
   }
 }
 
-extension BoundedSemilattice /* where A == Optional */ {
-  static func firstIfPossible<Wrapped>() -> Self where A == Wrapped? {
-    BoundedSemilattice(
-      apply: { $0 ?? $1 },
-      empty: nil
-    )
-  }
-
-  static func lastIfPossible<Wrapped>() -> Self where A == Wrapped? {
-    BoundedSemilattice(
-      apply: { $1 ?? $0 },
-      empty: nil
-    )
-  }
-}
-
-extension BoundedSemilattice where A == Ordering {
-  static var ordering: Self {
-    BoundedSemilattice(
-      apply: { A.merge($0, $1) },
-      empty: .equalTo
-    )
-  }
-}
-
 extension BoundedSemilattice /* where A == Set */ {
   /// While this can be useful as the free bounded semilattice, to truly express the algebraic properties of sets, and define a boolean algebra based on them, we actually need `PredicateSet`.
   static func setUnion<Element>() -> Self where A == Set<Element> {

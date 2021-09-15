@@ -38,6 +38,31 @@ extension IdempotentMonoid where A: Wrapper {
 
 // MARK: - Instances
 
+extension IdempotentMonoid /*where<Wrapped> A == Optional<Wrapped>*/ {
+  static func firstIfPossible<Wrapped>() -> Self where A == Wrapped? {
+    IdempotentMonoid(
+      apply: { $0 ?? $1 },
+      empty: nil
+    )
+  }
+
+  static func lastIfPossible<Wrapped>() -> Self where A == Wrapped? {
+    IdempotentMonoid(
+      apply: { $1 ?? $0 },
+      empty: nil
+    )
+  }
+}
+
+extension IdempotentMonoid where A == Ordering {
+  static var ordering: Self {
+    IdempotentMonoid(
+      apply: { A.merge($0, $1) },
+      empty: .equalTo
+    )
+  }
+}
+
 extension IdempotentMonoid /* where A == (Input) -> Output */ {
   static func function<Input, Output>(over output: IdempotentMonoid<Output>) -> Self where A == (Input) -> Output {
     IdempotentMonoid(
