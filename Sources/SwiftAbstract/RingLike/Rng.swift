@@ -1,36 +1,36 @@
-// MARK: - Definition
+public struct Rng<Value>: RingLike, WithNegate {
+  public var first: AbelianGroup<Value>
+  public var second: Semigroup<Value>
 
-struct Rng<A>: RingLike, WithNegate {
-    let first: AbelianGroup<A>
-    let second: Semigroup<A>
+  public init(first: AbelianGroup<Value>, second: Semigroup<Value>) {
+    self.first = first
+    self.second = second
+  }
 
-    static var laws: [Law<Self>] { [
-        .annihilability,
-        .associativityOfFirst,
-        .associativityOfSecond,
-        .commutativityOfFirst,
-        .distributivityOfSecondOverFirst,
-        .negation,
-        .zeroIdentity,
-    ] }
+  public static var laws: [Law<Self>] { [
+    .annihilability,
+    .associativityOfFirst,
+    .associativityOfSecond,
+    .commutativityOfFirst,
+    .distributivityOfSecondOverFirst,
+    .negation,
+    .zeroIdentity,
+  ] }
 }
 
 // MARK: - Initializers
 
 extension Rng {
-  init<MoreSpecific>(from s: MoreSpecific) where
-    MoreSpecific: RingLike & WithNegate,
-    MoreSpecific.A == A
-  {
+  public init(from root: some AlgebraicStructure<Value> & RingLike & WithNegate) {
     self.init(
-      first: .init(from: s.first),
-      second: .init(from: s.second)
+      first: .init(from: root.first),
+      second: .init(from: root.second)
     )
   }
 }
 
-extension Rng where A: Wrapper {
-  init(wrapping original: Rng<A.Wrapped>) {
+extension Rng where Value: Wrapper {
+  public init(wrapping original: Rng<Value.Wrapped>) {
     self.init(
       first: .init(wrapping: original.first),
       second: .init(wrapping: original.second)

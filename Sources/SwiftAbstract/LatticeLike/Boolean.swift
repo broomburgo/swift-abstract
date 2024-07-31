@@ -1,9 +1,15 @@
-struct Boolean<A>: LatticeLike, Distributive, WithZero, WithOne, WithImplies, ExcludedMiddle {
-  let first: BoundedSemilattice<A>
-  let second: BoundedSemilattice<A>
-  let implies: (A, A) -> A
+public struct Boolean<Value>: LatticeLike, Distributive, WithZero, WithOne, WithImplies, ExcludedMiddle {
+  public var first: BoundedSemilattice<Value>
+  public var second: BoundedSemilattice<Value>
+  public var implies: (Value, Value) -> Value
 
-  static var laws: [Law<Self>] { [
+  public init(first: BoundedSemilattice<Value>, second: BoundedSemilattice<Value>, implies: @escaping (Value, Value) -> Value) {
+    self.first = first
+    self.second = second
+    self.implies = implies
+  }
+
+  public static var laws: [Law<Self>] { [
     .absorbability,
     .associativityOfFirst,
     .associativityOfSecond,
@@ -23,20 +29,17 @@ struct Boolean<A>: LatticeLike, Distributive, WithZero, WithOne, WithImplies, Ex
 // MARK: - Initializers
 
 extension Boolean {
-  init<MoreSpecific>(from s: MoreSpecific) where
-    MoreSpecific: LatticeLike & Distributive & WithZero & WithOne & WithImplies & ExcludedMiddle,
-    MoreSpecific.A == A
-  {
+  public init(from root: some AlgebraicStructure<Value> & LatticeLike & Distributive & WithZero & WithOne & WithImplies & ExcludedMiddle) {
     self.init(
-      first: .init(from: s.first),
-      second: .init(from: s.second),
-      implies: s.implies
+      first: .init(from: root.first),
+      second: .init(from: root.second),
+      implies: root.implies
     )
   }
 }
 
-extension Boolean where A: Wrapper {
-  init(wrapping original: Boolean<A.Wrapped>) {
+extension Boolean where Value: Wrapper {
+  public init(wrapping original: Boolean<Value.Wrapped>) {
     self.init(
       first: .init(wrapping: original.first),
       second: .init(wrapping: original.second),
@@ -47,8 +50,8 @@ extension Boolean where A: Wrapper {
 
 // MARK: - Instances
 
-extension Boolean where A == Bool {
-  static var bool: Self {
+extension Boolean<Bool> {
+  public static var bool: Self {
     Boolean(
       first: .or,
       second: .and,

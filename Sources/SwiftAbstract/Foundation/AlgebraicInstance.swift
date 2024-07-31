@@ -1,24 +1,25 @@
-protocol AlgebraicInstance {
-  associatedtype ReferenceStructure: AlgebraicStructure where ReferenceStructure.A == Self
+public protocol AlgebraicInstance {
+  associatedtype ReferenceStructure: AlgebraicStructure<Self>
   static var referenceInstance: ReferenceStructure { get }
 }
 
-struct Abstract<Structure> where Structure: AlgebraicStructure {
-  private var instance: Structure
-  init(_ instance: Structure) {
+public struct Abstract<Structure: AlgebraicStructure> {
+  public var instance: Structure
+
+  public init(_ instance: Structure) {
     self.instance = instance
   }
 }
 
 extension AlgebraicInstance {
-  static var abstract: Abstract<ReferenceStructure> {
+  public static var abstract: Abstract<ReferenceStructure> {
     .init(referenceInstance)
   }
 }
 
 // MARK: - Wrapper
 
-protocol Wrapper {
+public protocol Wrapper<Wrapped> {
   associatedtype Wrapped
   init(_ wrapped: Wrapped)
   var wrapped: Wrapped { get }
@@ -26,225 +27,175 @@ protocol Wrapper {
 
 // MARK: - Magma
 
-extension Abstract where
-  Structure: Associative & Commutative & Identity & Invertible
-{
-  var abelianGroup: AbelianGroup<Structure.A> {
+extension Abstract where Structure: Associative & Commutative & Identity & Invertible {
+  public var abelianGroup: AbelianGroup<Structure.Value> {
     .init(from: instance)
   }
 }
 
-extension Abstract where
-  Structure: Associative & Idempotent
-{
-  var band: Band<Structure.A> {
+extension Abstract where Structure: Associative & Idempotent {
+  public var band: Band<Structure.Value> {
     .init(from: instance)
   }
 }
 
-extension Abstract where
-  Structure: Associative & Commutative & Idempotent & Identity
-{
-  var boundedSemilattice: BoundedSemilattice<Structure.A> {
+extension Abstract where Structure: Associative & Commutative & Idempotent & Identity {
+  public var boundedSemilattice: BoundedSemilattice<Structure.Value> {
     .init(from: instance)
   }
 }
 
-extension Abstract where
-  Structure: Associative & Commutative & Identity
-{
-  var commutativeMonoid: CommutativeMonoid<Structure.A> {
+extension Abstract where Structure: Associative & Commutative & Identity {
+  public var commutativeMonoid: CommutativeMonoid<Structure.Value> {
     .init(from: instance)
   }
 }
 
-extension Abstract where
-  Structure: Associative & Commutative
-{
-  var commutativeSemigroup: CommutativeSemigroup<Structure.A> {
+extension Abstract where Structure: Associative & Commutative {
+  public var commutativeSemigroup: CommutativeSemigroup<Structure.Value> {
     .init(from: instance)
   }
 }
 
-extension Abstract where
-  Structure: Associative & Identity & Invertible
-{
-  var group: Group<Structure.A> {
+extension Abstract where Structure: Associative & Identity & Invertible {
+  public var group: Group<Structure.Value> {
     .init(from: instance)
   }
 }
 
-extension Abstract where
-  Structure: Associative & Idempotent & Identity
-{
-  var idempotentMonoid: IdempotentMonoid<Structure.A> {
+extension Abstract where Structure: Associative & Idempotent & Identity {
+  public var idempotentMonoid: IdempotentMonoid<Structure.Value> {
     .init(from: instance)
   }
 }
 
-extension Abstract where
-  Structure: Associative & Identity
-{
-  var monoid: Monoid<Structure.A> {
+extension Abstract where Structure: Associative & Identity {
+  public var monoid: Monoid<Structure.Value> {
     .init(from: instance)
   }
 }
 
-extension Abstract where
-  Structure: Associative
-{
-  var semigroup: Semigroup<Structure.A> {
+extension Abstract where Structure: Associative {
+  public var semigroup: Semigroup<Structure.Value> {
     .init(from: instance)
   }
 }
 
-extension Abstract where
-  Structure: Associative & Commutative & Idempotent
-{
-  var semilattice: Semilattice<Structure.A> {
+extension Abstract where Structure: Associative & Commutative & Idempotent {
+  public var semilattice: Semilattice<Structure.Value> {
     .init(from: instance)
   }
 }
 
 // MARK: - Ring-like
 
-extension Abstract where
-  Structure: RingLike & WithOne & WithNegate,
-  Structure.Second: Commutative
-{
-  var commutativeRing: CommutativeRing<Structure.A> {
+extension Abstract where Structure: RingLike & WithOne & WithNegate, Structure.Second: Commutative {
+  public var commutativeRing: CommutativeRing<Structure.Value> {
     .init(from: instance)
   }
 }
 
-extension Abstract where
-  Structure: RingLike & WithOne,
-  Structure.Second: Commutative
-{
-  var commutativeSemiring: CommutativeSemiring<Structure.A> {
+extension Abstract where Structure: RingLike & WithOne, Structure.Second: Commutative {
+  public var commutativeSemiring: CommutativeSemiring<Structure.Value> {
     .init(from: instance)
   }
 }
 
-extension Abstract where
-  Structure: RingLike & WithOne & WithNegate & WithReciprocal,
-  Structure.Second: Commutative
-{
-  var field: Field<Structure.A> {
+extension Abstract where Structure: RingLike & WithOne & WithNegate & WithReciprocal, Structure.Second: Commutative {
+  public var field: Field<Structure.Value> {
     .init(from: instance)
   }
 }
 
-extension Abstract where
-  Structure: RingLike & WithOne & WithNegate
-{
-  var ring: Ring<Structure.A> {
+extension Abstract where Structure: RingLike & WithOne & WithNegate {
+  public var ring: Ring<Structure.Value> {
     .init(from: instance)
   }
 }
 
-extension Abstract where
-  Structure: RingLike & WithNegate
-{
-  var rng: Rng<Structure.A> {
+extension Abstract where Structure: RingLike & WithNegate {
+  public var rng: Rng<Structure.Value> {
     .init(from: instance)
   }
 }
 
-extension Abstract where
-  Structure: RingLike & WithOne
-{
-  var semiring: Semiring<Structure.A> {
+extension Abstract where Structure: RingLike & WithOne {
+  public var semiring: Semiring<Structure.Value> {
     .init(from: instance)
   }
 }
 
 // MARK: - Lattice-like
 
-extension Abstract where
-  Structure: LatticeLike & Distributive & WithZero & WithOne & WithImplies & ExcludedMiddle
-{
-  var boolean: Boolean<Structure.A> {
+extension Abstract where Structure: LatticeLike & Distributive & WithZero & WithOne & WithImplies & ExcludedMiddle {
+  public var boolean: Boolean<Structure.Value> {
     .init(from: instance)
   }
 }
 
-extension Abstract where
-  Structure: LatticeLike & Distributive & WithZero & WithOne
-{
-  var boundedDistributiveLattice: BoundedDistributiveLattice<Structure.A> {
+extension Abstract where Structure: LatticeLike & Distributive & WithZero & WithOne {
+  public var boundedDistributiveLattice: BoundedDistributiveLattice<Structure.Value> {
     .init(from: instance)
   }
 }
 
-extension Abstract where
-  Structure: LatticeLike & WithZero & WithOne
-{
-  var boundedLattice: BoundedLattice<Structure.A> {
+extension Abstract where Structure: LatticeLike & WithZero & WithOne {
+  public var boundedLattice: BoundedLattice<Structure.Value> {
     .init(from: instance)
   }
 }
 
-extension Abstract where
-  Structure: LatticeLike & Distributive
-{
-  var distributiveLattice: DistributiveLattice<Structure.A> {
+extension Abstract where Structure: LatticeLike & Distributive {
+  public var distributiveLattice: DistributiveLattice<Structure.Value> {
     .init(from: instance)
   }
 }
 
-extension Abstract where
-  Structure: LatticeLike & Distributive & WithZero & WithOne & WithImplies
-{
-  var heyting: Heyting<Structure.A> {
+extension Abstract where Structure: LatticeLike & Distributive & WithZero & WithOne & WithImplies {
+  public var heyting: Heyting<Structure.Value> {
     .init(from: instance)
   }
 }
 
-extension Abstract where
-  Structure: LatticeLike
-{
-  var lattice: Lattice<Structure.A> {
+extension Abstract where Structure: LatticeLike {
+  public var lattice: Lattice<Structure.Value> {
     .init(from: instance)
   }
 }
 
 // MARK: - Instances
 
-extension Sequence where
-  Element: AlgebraicInstance,
-  Element.ReferenceStructure: Associative & Identity
-{
-  func concat() -> Element {
+extension Sequence where Element: AlgebraicInstance, Element.ReferenceStructure: Associative & Identity {
+  public func concat() -> Element {
     let instance = Element.abstract.monoid
     return reduce(instance.empty, instance.apply)
   }
 }
 
-struct Sum<Wrapped>: Wrapper where Wrapped: SignedNumeric {
-  var wrapped: Wrapped
+public struct Sum<Wrapped: SignedNumeric>: Wrapper {
+  public var wrapped: Wrapped
 
-  init(_ wrapped: Wrapped) {
+  public init(_ wrapped: Wrapped) {
     self.wrapped = wrapped
   }
 }
 
 extension Sum: AlgebraicInstance {
-  static var referenceInstance: AbelianGroup<Self> { .init(wrapping: .addition) }
+  public static var referenceInstance: AbelianGroup<Self> { .init(wrapping: .addition) }
 }
 
-struct Max<Wrapped>: Wrapper where Wrapped: Comparable {
-  var wrapped: Wrapped
+public struct Max<Wrapped: Comparable>: Wrapper {
+  public var wrapped: Wrapped
 
-  init(_ wrapped: Wrapped) {
+  public init(_ wrapped: Wrapped) {
     self.wrapped = wrapped
   }
 }
 
 extension Max: AlgebraicInstance {
-  static var referenceInstance: Semigroup<Self> { .init(from: Semilattice(wrapping: .max)) }
+  public static var referenceInstance: Semigroup<Self> { .init(from: Semilattice(wrapping: .max)) }
 }
 
 extension String: AlgebraicInstance {
-  static let referenceInstance = Monoid.string
+  public static let referenceInstance = Monoid.string
 }

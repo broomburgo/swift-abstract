@@ -1,13 +1,13 @@
-struct CommutativeMonoid<A>: Associative, Commutative, Identity {
-  let apply: (A, A) -> A
-  let empty: A
+public struct CommutativeMonoid<Value>: Associative, Commutative, Identity {
+  public var apply: (Value, Value) -> Value
+  public var empty: Value
 
-  init(apply: @escaping (A, A) -> A, empty: A) {
+  public init(apply: @escaping (Value, Value) -> Value, empty: Value) {
     self.apply = apply
     self.empty = empty
   }
 
-  static var laws: [Law<Self>] { [
+  public static var laws: [Law<Self>] { [
     .associativity,
     .commutativity,
     .identity,
@@ -17,16 +17,13 @@ struct CommutativeMonoid<A>: Associative, Commutative, Identity {
 // MARK: - Initializers
 
 extension CommutativeMonoid {
-  init<MoreSpecific>(from s: MoreSpecific) where
-    MoreSpecific: Associative & Commutative & Identity,
-    MoreSpecific.A == A
-  {
-    self.init(apply: s.apply, empty: s.empty)
+  public init(from root: some AlgebraicStructure<Value> & Associative & Commutative & Identity) {
+    self.init(apply: root.apply, empty: root.empty)
   }
 }
 
-extension CommutativeMonoid where A: Wrapper {
-  init(wrapping original: CommutativeMonoid<A.Wrapped>) {
+extension CommutativeMonoid where Value: Wrapper {
+  public init(wrapping original: CommutativeMonoid<Value.Wrapped>) {
     self.init(
       apply: {
         .init(original.apply($0.wrapped, $1.wrapped))
@@ -38,8 +35,8 @@ extension CommutativeMonoid where A: Wrapper {
 
 // MARK: - Instances
 
-extension CommutativeMonoid where A: AdditiveArithmetic {
-  static var addition: Self {
+extension CommutativeMonoid where Value: AdditiveArithmetic {
+  public static var addition: Self {
     CommutativeMonoid(
       apply: { $0 + $1 },
       empty: .zero
@@ -47,8 +44,8 @@ extension CommutativeMonoid where A: AdditiveArithmetic {
   }
 }
 
-extension CommutativeMonoid where A: Numeric {
-  static var multiplication: Self {
+extension CommutativeMonoid where Value: Numeric {
+  public static var multiplication: Self {
     CommutativeMonoid(
       apply: { $0 * $1 },
       empty: 1
@@ -57,7 +54,7 @@ extension CommutativeMonoid where A: Numeric {
 }
 
 extension CommutativeMonoid /* where A == (Input) -> Output */ {
-  static func function<Input, Output>(over output: CommutativeMonoid<Output>) -> Self where A == (Input) -> Output {
+  public static func function<Input, Output>(over output: CommutativeMonoid<Output>) -> Self where Value == (Input) -> Output {
     CommutativeMonoid(
       apply: { f1, f2 in
         { output.apply(f1($0), f2($0)) }

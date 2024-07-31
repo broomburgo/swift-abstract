@@ -1,8 +1,16 @@
-struct CommutativeRing<A>: RingLike, WithOne, WithNegate {
-  let first: AbelianGroup<A>
-  let second: CommutativeMonoid<A>
+public struct CommutativeRing<Value>: RingLike, WithOne, WithNegate {
+  public var first: AbelianGroup<Value>
+  public var second: CommutativeMonoid<Value>
 
-  static var laws: [Law<Self>] { [
+  public init(
+    first: AbelianGroup<Value>,
+    second: CommutativeMonoid<Value>
+  ) {
+    self.first = first
+    self.second = second
+  }
+
+  public static var laws: [Law<Self>] { [
     .annihilability,
     .associativityOfFirst,
     .associativityOfSecond,
@@ -18,20 +26,16 @@ struct CommutativeRing<A>: RingLike, WithOne, WithNegate {
 // MARK: - Initializers
 
 extension CommutativeRing {
-  init<MoreSpecific>(from s: MoreSpecific) where
-    MoreSpecific: RingLike & WithOne & WithNegate,
-    MoreSpecific.Second: Commutative,
-    MoreSpecific.A == A
-  {
+  public init<MoreSpecific: AlgebraicStructure<Value> & RingLike & WithOne & WithNegate>(from root: MoreSpecific) where MoreSpecific.Second: Commutative {
     self.init(
-      first: .init(from: s.first),
-      second: .init(from: s.second)
+      first: .init(from: root.first),
+      second: .init(from: root.second)
     )
   }
 }
 
-extension CommutativeRing where A: Wrapper {
-  init(wrapping original: CommutativeRing<A.Wrapped>) {
+extension CommutativeRing where Value: Wrapper {
+  public init(wrapping original: CommutativeRing<Value.Wrapped>) {
     self.init(
       first: .init(wrapping: original.first),
       second: .init(wrapping: original.second)

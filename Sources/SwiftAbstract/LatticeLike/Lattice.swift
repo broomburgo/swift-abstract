@@ -1,8 +1,13 @@
-struct Lattice<A>: LatticeLike {
-  let first: Semilattice<A>
-  let second: Semilattice<A>
+public struct Lattice<Value>: LatticeLike {
+  public var first: Semilattice<Value>
+  public var second: Semilattice<Value>
 
-  static var laws: [Law<Self>] { [
+  public init(first: Semilattice<Value>, second: Semilattice<Value>) {
+    self.first = first
+    self.second = second
+  }
+
+  public static var laws: [Law<Self>] { [
     .absorbability,
     .associativityOfFirst,
     .associativityOfSecond,
@@ -16,19 +21,16 @@ struct Lattice<A>: LatticeLike {
 // MARK: - Initializers
 
 extension Lattice {
-  init<MoreSpecific>(from s: MoreSpecific) where
-    MoreSpecific: LatticeLike,
-    MoreSpecific.A == A
-  {
+  public init(from root: some LatticeLike<Value>) {
     self.init(
-      first: .init(from: s.first),
-      second: .init(from: s.second)
+      first: .init(from: root.first),
+      second: .init(from: root.second)
     )
   }
 }
 
-extension Lattice where A: Wrapper {
-  init(wrapping original: Lattice<A.Wrapped>) {
+extension Lattice where Value: Wrapper {
+  public init(wrapping original: Lattice<Value.Wrapped>) {
     self.init(
       first: .init(wrapping: original.first),
       second: .init(wrapping: original.second)

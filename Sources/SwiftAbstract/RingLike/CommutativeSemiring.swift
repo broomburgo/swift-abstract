@@ -1,8 +1,13 @@
-struct CommutativeSemiring<A>: RingLike, WithOne {
-  let first: CommutativeMonoid<A>
-  let second: CommutativeMonoid<A>
+public struct CommutativeSemiring<Value>: RingLike, WithOne {
+  public var first: CommutativeMonoid<Value>
+  public var second: CommutativeMonoid<Value>
 
-  static var laws: [Law<Self>] { [
+  public init(first: CommutativeMonoid<Value>, second: CommutativeMonoid<Value>) {
+    self.first = first
+    self.second = second
+  }
+
+  public static var laws: [Law<Self>] { [
     .annihilability,
     .associativityOfFirst,
     .associativityOfSecond,
@@ -17,20 +22,16 @@ struct CommutativeSemiring<A>: RingLike, WithOne {
 // MARK: - Initializers
 
 extension CommutativeSemiring {
-  init<MoreSpecific>(from s: MoreSpecific) where
-    MoreSpecific: RingLike & WithOne,
-    MoreSpecific.Second: Commutative,
-    MoreSpecific.A == A
-  {
+  public init<MoreSpecific: AlgebraicStructure<Value> & RingLike & WithOne>(from root: MoreSpecific) where MoreSpecific.Second: Commutative {
     self.init(
-      first: .init(from: s.first),
-      second: .init(from: s.second)
+      first: .init(from: root.first),
+      second: .init(from: root.second)
     )
   }
 }
 
-extension CommutativeSemiring where A: Wrapper {
-  init(wrapping original: CommutativeSemiring<A.Wrapped>) {
+extension CommutativeSemiring where Value: Wrapper {
+  public init(wrapping original: CommutativeSemiring<Value.Wrapped>) {
     self.init(
       first: .init(wrapping: original.first),
       second: .init(wrapping: original.second)

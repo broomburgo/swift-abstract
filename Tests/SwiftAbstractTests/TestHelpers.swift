@@ -4,9 +4,9 @@ import SwiftCheck
 struct Verify<Structure: AlgebraicStructure> {
   let law: Law<Structure>
   let structure: Structure
-  let equating: (Structure.A, Structure.A) -> Bool
+  let equating: (Structure.Value, Structure.Value) -> Bool
 
-  func callAsFunction(_ a: Structure.A, _ b: Structure.A, _ c: Structure.A) -> Bool {
+  func callAsFunction(_ a: Structure.Value, _ b: Structure.Value, _ c: Structure.Value) -> Bool {
     switch law.getCheck(structure, equating) {
     case .fromOne(let f):
       return f(a)
@@ -35,8 +35,8 @@ extension TestResult {
 func verifyAllLaws<Structure: AlgebraicStructure, Generated: Arbitrary, Extra: Arbitrary>(
   ofStructure algebraicStructure: Structure.Type,
   onInstances instances: [(instance: String, value: Structure)],
-  equating: @escaping (Extra) -> (Structure.A, Structure.A) -> Bool,
-  generating: @escaping (Generated) -> Structure.A,
+  equating: @escaping (Extra) -> (Structure.Value, Structure.Value) -> Bool,
+  generating: @escaping (Generated) -> Structure.Value,
   arguments: CheckerArguments? = nil,
   file: StaticString = #file,
   line: UInt = #line
@@ -61,11 +61,11 @@ func verifyAllLaws<Structure: AlgebraicStructure, Generated: Arbitrary, Extra: A
 func verifyAllLaws<Structure: AlgebraicStructure>(
   ofStructure algebraicStructure: Structure.Type,
   onInstances instances: [(instance: String, value: Structure)],
-  equating: @escaping (Structure.A, Structure.A) -> Bool,
+  equating: @escaping (Structure.Value, Structure.Value) -> Bool,
   arguments: CheckerArguments? = nil,
   file: StaticString = #file,
   line: UInt = #line
-) where Structure.A: Arbitrary {
+) where Structure.Value: Arbitrary {
   verifyAllLaws(
     ofStructure: algebraicStructure,
     onInstances: instances,
@@ -81,16 +81,16 @@ func verifyAllLaws<Structure: AlgebraicStructure, OutputStructure: AlgebraicStru
   ofFunctionBasedStructure algebraicStructure: Structure.Type,
   onInstances instances: [(instance: String, value: OutputStructure)],
   constructedBy getStructure: @escaping (OutputStructure) -> Structure,
-  equating: @escaping (Input) -> (Structure.A, Structure.A) -> Bool,
+  equating: @escaping (Input) -> (Structure.Value, Structure.Value) -> Bool,
   arguments: CheckerArguments? = nil,
   file: StaticString = #file,
   line: UInt = #line
-) where Structure.A == (Input) -> OutputStructure.A, Input: Hashable & CoArbitrary & Arbitrary, OutputStructure.A: Arbitrary {
+) where Structure.Value == (Input) -> OutputStructure.Value, Input: Hashable & CoArbitrary & Arbitrary, OutputStructure.Value: Arbitrary {
   verifyAllLaws(
     ofStructure: algebraicStructure,
     onInstances: instances.map { ($0, getStructure($1)) },
     equating: equating,
-    generating: { (generated: ArrowOf<Input, OutputStructure.A>) in generated.getArrow },
+    generating: { (generated: ArrowOf<Input, OutputStructure.Value>) in generated.getArrow },
     arguments: arguments,
     file: file,
     line: line

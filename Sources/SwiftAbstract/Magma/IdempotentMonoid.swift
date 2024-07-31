@@ -1,13 +1,13 @@
-struct IdempotentMonoid<A>: Associative, Idempotent, Identity {
-  let apply: (A, A) -> A
-  let empty: A
+public struct IdempotentMonoid<Value>: Associative, Idempotent, Identity {
+  public var apply: (Value, Value) -> Value
+  public var empty: Value
 
-  init(apply: @escaping (A, A) -> A, empty: A) {
+  public init(apply: @escaping (Value, Value) -> Value, empty: Value) {
     self.apply = apply
     self.empty = empty
   }
 
-  static var laws: [Law<Self>] { [
+  public static var laws: [Law<Self>] { [
     .associativity,
     .idempotency,
     .idempotency,
@@ -17,16 +17,13 @@ struct IdempotentMonoid<A>: Associative, Idempotent, Identity {
 // MARK: - Initializers
 
 extension IdempotentMonoid {
-  init<MoreSpecific>(from s: MoreSpecific) where
-    MoreSpecific: Associative & Idempotent & Identity,
-    MoreSpecific.A == A
-  {
-    self.init(apply: s.apply, empty: s.empty)
+  public init(from root: some AlgebraicStructure<Value> & Associative & Idempotent & Identity) {
+    self.init(apply: root.apply, empty: root.empty)
   }
 }
 
-extension IdempotentMonoid where A: Wrapper {
-  init(wrapping original: IdempotentMonoid<A.Wrapped>) {
+extension IdempotentMonoid where Value: Wrapper {
+  public init(wrapping original: IdempotentMonoid<Value.Wrapped>) {
     self.init(
       apply: {
         .init(original.apply($0.wrapped, $1.wrapped))
@@ -38,24 +35,24 @@ extension IdempotentMonoid where A: Wrapper {
 
 // MARK: - Instances
 
-extension IdempotentMonoid where A == Ordering {
-  static var ordering: Self {
+extension IdempotentMonoid<Ordering> {
+  public static var ordering: Self {
     IdempotentMonoid(
-      apply: { A.merge($0, $1) },
+      apply: { Value.merge($0, $1) },
       empty: .equalTo
     )
   }
 }
 
-extension IdempotentMonoid /*where<Wrapped> A == Optional<Wrapped>*/ {
-  static func firstIfPossible<Wrapped>() -> Self where A == Wrapped? {
+extension IdempotentMonoid /* where<Wrapped> A == Optional<Wrapped> */ {
+  public static func firstIfPossible<Wrapped>() -> Self where Value == Wrapped? {
     IdempotentMonoid(
       apply: { $0 ?? $1 },
       empty: nil
     )
   }
 
-  static func lastIfPossible<Wrapped>() -> Self where A == Wrapped? {
+  public static func lastIfPossible<Wrapped>() -> Self where Value == Wrapped? {
     IdempotentMonoid(
       apply: { $1 ?? $0 },
       empty: nil
@@ -64,7 +61,7 @@ extension IdempotentMonoid /*where<Wrapped> A == Optional<Wrapped>*/ {
 }
 
 extension IdempotentMonoid /* where A == (Input) -> Output */ {
-  static func function<Input, Output>(over output: IdempotentMonoid<Output>) -> Self where A == (Input) -> Output {
+  public static func function<Input, Output>(over output: IdempotentMonoid<Output>) -> Self where Value == (Input) -> Output {
     IdempotentMonoid(
       apply: { f1, f2 in
         { output.apply(f1($0), f2($0)) }

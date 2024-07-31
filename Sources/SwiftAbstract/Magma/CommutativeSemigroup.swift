@@ -1,11 +1,11 @@
-struct CommutativeSemigroup<A>: Associative, Commutative {
-  let apply: (A, A) -> A
+public struct CommutativeSemigroup<Value>: Associative, Commutative {
+  public var apply: (Value, Value) -> Value
 
-  init(apply: @escaping (A, A) -> A) {
+  public init(apply: @escaping (Value, Value) -> Value) {
     self.apply = apply
   }
 
-  static var laws: [Law<Self>] { [
+  public static var laws: [Law<Self>] { [
     .associativity,
     .commutativity,
   ] }
@@ -14,16 +14,13 @@ struct CommutativeSemigroup<A>: Associative, Commutative {
 // MARK: - Initializers
 
 extension CommutativeSemigroup {
-  init<MoreSpecific>(from s: MoreSpecific) where
-    MoreSpecific: Associative & Commutative,
-    MoreSpecific.A == A
-  {
-    self.init(apply: s.apply)
+  public init(from root: some AlgebraicStructure<Value> & Associative & Commutative) {
+    self.init(apply: root.apply)
   }
 }
 
-extension CommutativeSemigroup where A: Wrapper {
-  init(wrapping original: CommutativeSemigroup<A.Wrapped>) {
+extension CommutativeSemigroup where Value: Wrapper {
+  public init(wrapping original: CommutativeSemigroup<Value.Wrapped>) {
     self.init(
       apply: {
         .init(original.apply($0.wrapped, $1.wrapped))
@@ -35,7 +32,7 @@ extension CommutativeSemigroup where A: Wrapper {
 // MARK: - Instances
 
 extension CommutativeSemigroup /* where A == (Input) -> Output */ {
-  static func function<Input, Output>(over output: CommutativeSemigroup<Output>) -> Self where A == (Input) -> Output {
+  public static func function<Input, Output>(over output: CommutativeSemigroup<Output>) -> Self where Value == (Input) -> Output {
     CommutativeSemigroup(
       apply: { f1, f2 in
         { input in

@@ -1,30 +1,31 @@
-// MARK: - Definition
+public struct Field<Value>: RingLike, WithOne, WithNegate, WithReciprocal {
+  public var first: AbelianGroup<Value>
+  public var second: AbelianGroup<Value>
 
-struct Field<A>: RingLike, WithOne, WithNegate, WithReciprocal {
-    let first: AbelianGroup<A>
-    let second: AbelianGroup<A>
+  public init(first: AbelianGroup<Value>, second: AbelianGroup<Value>) {
+    self.first = first
+    self.second = second
+  }
 
-    static var laws: [Law<Self>] { [
-        .annihilability,
-        .associativityOfFirst,
-        .associativityOfSecond,
-        .commutativityOfFirst,
-        .commutativityOfSecond,
-        .distributivityOfSecondOverFirst,
-        .negation,
-        .oneIdentity,
-        .reciprocity,
-        .zeroIdentity,
-    ] }
+  public static var laws: [Law<Self>] { [
+    .annihilability,
+    .associativityOfFirst,
+    .associativityOfSecond,
+    .commutativityOfFirst,
+    .commutativityOfSecond,
+    .distributivityOfSecondOverFirst,
+    .negation,
+    .oneIdentity,
+    .reciprocity,
+    .zeroIdentity,
+  ] }
 }
 
 // MARK: - Initializers
 
 extension Field {
-  init<MoreSpecific>(from s: MoreSpecific) where
-    MoreSpecific: RingLike & WithOne & WithNegate & WithReciprocal,
-    MoreSpecific.Second: Commutative,
-    MoreSpecific.A == A
+  public init<MoreSpecific: AlgebraicStructure<Value> & RingLike & WithOne & WithNegate & WithReciprocal>(from s: MoreSpecific)
+    where MoreSpecific.Second: Commutative
   {
     self.init(
       first: .init(from: s.first),
@@ -33,8 +34,8 @@ extension Field {
   }
 }
 
-extension Field where A: Wrapper {
-  init(wrapping original: Field<A.Wrapped>) {
+extension Field where Value: Wrapper {
+  public init(wrapping original: Field<Value.Wrapped>) {
     self.init(
       first: .init(wrapping: original.first),
       second: .init(wrapping: original.second)
@@ -44,11 +45,11 @@ extension Field where A: Wrapper {
 
 // MARK: - Instances
 
-extension Field where A: FloatingPoint {
-    static var real: Self {
-        .init(
-            first: .addition,
-            second: .multiplication
-        )
-    }
+extension Field where Value: FloatingPoint {
+  public static var real: Self {
+    .init(
+      first: .addition,
+      second: .multiplication
+    )
+  }
 }

@@ -1,15 +1,15 @@
-struct AbelianGroup<A>: Associative, Commutative, Identity, Invertible {
-  let apply: (A, A) -> A
-  let empty: A
-  let inverse: (A) -> A
+public struct AbelianGroup<Value>: Associative, Commutative, Identity, Invertible {
+  public var apply: (Value, Value) -> Value
+  public var empty: Value
+  public var inverse: (Value) -> Value
 
-  init(apply: @escaping (A, A) -> A, empty: A, inverse: @escaping (A) -> A) {
+  public init(apply: @escaping (Value, Value) -> Value, empty: Value, inverse: @escaping (Value) -> Value) {
     self.apply = apply
     self.empty = empty
     self.inverse = inverse
   }
 
-  static var laws: [Law<Self>] { [
+  public static var laws: [Law<Self>] { [
     .associativity,
     .commutativity,
     .identity,
@@ -20,16 +20,13 @@ struct AbelianGroup<A>: Associative, Commutative, Identity, Invertible {
 // MARK: - Initializers
 
 extension AbelianGroup {
-  init<MoreSpecific>(from s: MoreSpecific) where
-    MoreSpecific: Associative & Commutative & Identity & Invertible,
-    MoreSpecific.A == A
-  {
-    self.init(apply: s.apply, empty: s.empty, inverse: s.inverse)
+  public init(from root: some AlgebraicStructure<Value> & Associative & Commutative & Identity & Invertible) {
+    self.init(apply: root.apply, empty: root.empty, inverse: root.inverse)
   }
 }
 
-extension AbelianGroup where A: Wrapper {
-  init(wrapping original: AbelianGroup<A.Wrapped>) {
+extension AbelianGroup where Value: Wrapper {
+  public init(wrapping original: AbelianGroup<Value.Wrapped>) {
     self.init(
       apply: {
         .init(original.apply($0.wrapped, $1.wrapped))
@@ -42,8 +39,8 @@ extension AbelianGroup where A: Wrapper {
 
 // MARK: - Instances
 
-extension AbelianGroup where A: SignedNumeric {
-  static var addition: Self {
+extension AbelianGroup where Value: SignedNumeric {
+  public static var addition: Self {
     AbelianGroup(
       apply: { $0 + $1 },
       empty: .zero,
@@ -52,8 +49,8 @@ extension AbelianGroup where A: SignedNumeric {
   }
 }
 
-extension AbelianGroup where A: FloatingPoint {
-  static var multiplication: Self {
+extension AbelianGroup where Value: FloatingPoint {
+  public static var multiplication: Self {
     AbelianGroup(
       apply: {
         if ($0 == .infinity && $1 == .zero) || ($0 == .zero && $1 == .infinity) {
@@ -68,8 +65,8 @@ extension AbelianGroup where A: FloatingPoint {
   }
 }
 
-extension AbelianGroup /* where A == (Input) -> Output */ {
-  static func function<Input, Output>(over output: AbelianGroup<Output>) -> Self where A == (Input) -> Output {
+extension AbelianGroup /* where Value == (Input) -> Output */ {
+  public static func function<Input, Output>(over output: AbelianGroup<Output>) -> Self where Value == (Input) -> Output {
     AbelianGroup(
       apply: { f1, f2 in
         { output.apply(f1($0), f2($0)) }

@@ -1,15 +1,15 @@
-struct Group<A>: Associative, Identity, Invertible {
-  let apply: (A, A) -> A
-  let empty: A
-  let inverse: (A) -> A
+public struct Group<Value>: Associative, Identity, Invertible {
+  public var apply: (Value, Value) -> Value
+  public var empty: Value
+  public var inverse: (Value) -> Value
 
-  init(apply: @escaping (A, A) -> A, empty: A, inverse: @escaping (A) -> A) {
+  public init(apply: @escaping (Value, Value) -> Value, empty: Value, inverse: @escaping (Value) -> Value) {
     self.apply = apply
     self.empty = empty
     self.inverse = inverse
   }
 
-  static var laws: [Law<Self>] { [
+  public static var laws: [Law<Self>] { [
     .associativity,
     .identity,
     .invertibility,
@@ -19,16 +19,13 @@ struct Group<A>: Associative, Identity, Invertible {
 // MARK: - Initializers
 
 extension Group {
-  init<MoreSpecific>(from s: MoreSpecific) where
-    MoreSpecific: Associative & Identity & Invertible,
-    MoreSpecific.A == A
-  {
-    self.init(apply: s.apply, empty: s.empty, inverse: s.inverse)
+  public init(from root: some AlgebraicStructure<Value> & Associative & Identity & Invertible) {
+    self.init(apply: root.apply, empty: root.empty, inverse: root.inverse)
   }
 }
 
-extension Group where A: Wrapper {
-  init(wrapping original: Group<A.Wrapped>) {
+extension Group where Value: Wrapper {
+  public init(wrapping original: Group<Value.Wrapped>) {
     self.init(
       apply: {
         .init(original.apply($0.wrapped, $1.wrapped))
@@ -42,7 +39,7 @@ extension Group where A: Wrapper {
 // MARK: - Instances
 
 extension Group /* where A == (Input) -> Output */ {
-  static func function<Input, Output>(over output: Group<Output>) -> Self where A == (Input) -> Output {
+  public static func function<Input, Output>(over output: Group<Output>) -> Self where Value == (Input) -> Output {
     Group(
       apply: { f1, f2 in
         { output.apply(f1($0), f2($0)) }

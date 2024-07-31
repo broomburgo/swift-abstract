@@ -1,36 +1,36 @@
-// MARK: - Definition
+public struct Semiring<Value>: RingLike, WithOne {
+  public var first: CommutativeMonoid<Value>
+  public var second: Monoid<Value>
 
-struct Semiring<A>: RingLike, WithOne {
-    let first: CommutativeMonoid<A>
-    let second: Monoid<A>
+  public init(first: CommutativeMonoid<Value>, second: Monoid<Value>) {
+    self.first = first
+    self.second = second
+  }
 
-    static var laws: [Law<Self>] { [
-        .annihilability,
-        .associativityOfFirst,
-        .associativityOfSecond,
-        .commutativityOfFirst,
-        .distributivityOfSecondOverFirst,
-        .oneIdentity,
-        .zeroIdentity,
-    ] }
+  public static var laws: [Law<Self>] { [
+    .annihilability,
+    .associativityOfFirst,
+    .associativityOfSecond,
+    .commutativityOfFirst,
+    .distributivityOfSecondOverFirst,
+    .oneIdentity,
+    .zeroIdentity,
+  ] }
 }
 
 // MARK: - Initializers
 
 extension Semiring {
-  init<MoreSpecific>(from s: MoreSpecific) where
-    MoreSpecific: RingLike & WithOne,
-    MoreSpecific.A == A
-  {
+  public init(from root: some AlgebraicStructure<Value> & RingLike & WithOne) {
     self.init(
-      first: .init(from: s.first),
-      second: .init(from: s.second)
+      first: .init(from: root.first),
+      second: .init(from: root.second)
     )
   }
 }
 
-extension Semiring where A: Wrapper {
-  init(wrapping original: Semiring<A.Wrapped>) {
+extension Semiring where Value: Wrapper {
+  public init(wrapping original: Semiring<Value.Wrapped>) {
     self.init(
       first: .init(wrapping: original.first),
       second: .init(wrapping: original.second)
@@ -40,20 +40,20 @@ extension Semiring where A: Wrapper {
 
 // MARK: - Instances
 
-extension Semiring where A: AdditiveArithmetic & Comparable & WithMaximum {
-    static var minTropical: Self {
-        Semiring(
-          first: .init(from: BoundedSemilattice.min),
-          second: .init(from: CommutativeMonoid.addition)
-        )
-    }
+extension Semiring where Value: AdditiveArithmetic & Comparable & WithMaximum {
+  public static var minTropical: Self {
+    Semiring(
+      first: .init(from: BoundedSemilattice.min),
+      second: .init(from: CommutativeMonoid.addition)
+    )
+  }
 }
 
-extension Semiring where A: AdditiveArithmetic & Comparable & WithMinimum {
-    static var maxTropical: Self {
-        Semiring(
-          first: .init(from: BoundedSemilattice.max),
-          second: .init(from: CommutativeMonoid.addition)
-        )
-    }
+extension Semiring where Value: AdditiveArithmetic & Comparable & WithMinimum {
+  public static var maxTropical: Self {
+    Semiring(
+      first: .init(from: BoundedSemilattice.max),
+      second: .init(from: CommutativeMonoid.addition)
+    )
+  }
 }

@@ -1,8 +1,13 @@
-struct BoundedDistributiveLattice<A>: LatticeLike, Distributive, WithZero, WithOne {
-  let first: BoundedSemilattice<A>
-  let second: BoundedSemilattice<A>
+public struct BoundedDistributiveLattice<Value>: LatticeLike, Distributive, WithZero, WithOne {
+  public var first: BoundedSemilattice<Value>
+  public var second: BoundedSemilattice<Value>
 
-  static var laws: [Law<Self>] { [
+  public init(first: BoundedSemilattice<Value>, second: BoundedSemilattice<Value>) {
+    self.first = first
+    self.second = second
+  }
+
+  public static var laws: [Law<Self>] { [
     .absorbability,
     .associativityOfFirst,
     .associativityOfSecond,
@@ -20,19 +25,16 @@ struct BoundedDistributiveLattice<A>: LatticeLike, Distributive, WithZero, WithO
 // MARK: - Initializers
 
 extension BoundedDistributiveLattice {
-  init<MoreSpecific>(from s: MoreSpecific) where
-    MoreSpecific: LatticeLike & Distributive & WithZero & WithOne,
-    MoreSpecific.A == A
-  {
+  public init(from root: some AlgebraicStructure<Value> & LatticeLike & Distributive & WithZero & WithOne) {
     self.init(
-      first: .init(from: s.first),
-      second: .init(from: s.second)
+      first: .init(from: root.first),
+      second: .init(from: root.second)
     )
   }
 }
 
-extension BoundedDistributiveLattice where A: Wrapper {
-  init(wrapping original: BoundedDistributiveLattice<A.Wrapped>) {
+extension BoundedDistributiveLattice where Value: Wrapper {
+  public init(wrapping original: BoundedDistributiveLattice<Value.Wrapped>) {
     self.init(
       first: .init(wrapping: original.first),
       second: .init(wrapping: original.second)

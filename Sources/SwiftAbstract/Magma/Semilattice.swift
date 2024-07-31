@@ -1,11 +1,11 @@
-struct Semilattice<A>: Associative, Commutative, Idempotent {
-  let apply: (A, A) -> A
+public struct Semilattice<Value>: Associative, Commutative, Idempotent {
+  public var apply: (Value, Value) -> Value
 
-  init(apply: @escaping (A, A) -> A) {
+  public init(apply: @escaping (Value, Value) -> Value) {
     self.apply = apply
   }
 
-  static var laws: [Law<Self>] { [
+  public static var laws: [Law<Self>] { [
     .associativity,
     .commutativity,
     .idempotency,
@@ -15,16 +15,13 @@ struct Semilattice<A>: Associative, Commutative, Idempotent {
 // MARK: - Initializers
 
 extension Semilattice {
-  init<MoreSpecific>(from s: MoreSpecific) where
-    MoreSpecific: Associative & Commutative & Idempotent,
-    MoreSpecific.A == A
-  {
-    self.init(apply: s.apply)
+  public init(from root: some AlgebraicStructure<Value> & Associative & Commutative & Idempotent) {
+    self.init(apply: root.apply)
   }
 }
 
-extension Semilattice where A: Wrapper {
-  init(wrapping original: Semilattice<A.Wrapped>) {
+extension Semilattice where Value: Wrapper {
+  public init(wrapping original: Semilattice<Value.Wrapped>) {
     self.init(
       apply: {
         .init(original.apply($0.wrapped, $1.wrapped))
@@ -35,14 +32,14 @@ extension Semilattice where A: Wrapper {
 
 // MARK: - Instances
 
-extension Semilattice where A: Comparable {
-  static var max: Self {
+extension Semilattice where Value: Comparable {
+  public static var max: Self {
     Semilattice(
       apply: { Swift.max($0, $1) }
     )
   }
 
-  static var min: Self {
+  public static var min: Self {
     Semilattice(
       apply: { Swift.min($0, $1) }
     )
@@ -51,7 +48,7 @@ extension Semilattice where A: Comparable {
 
 extension Semilattice /* where A == Set */ {
   /// This cannot be suitable for `WithEmpty` types, because there not such thing as the "universe" set, but it could be done with `PredicateSet`.
-  static func setIntersection<Element>() -> Self where A == Set<Element> {
+  public static func setIntersection<Element>() -> Self where Value == Set<Element> {
     Semilattice(
       apply: { $0.intersection($1) }
     )
@@ -59,7 +56,7 @@ extension Semilattice /* where A == Set */ {
 }
 
 extension Semilattice /* where A == (Input) -> Output */ {
-  static func function<Input, Output>(over output: Semilattice<Output>) -> Self where A == (Input) -> Output {
+  public static func function<Input, Output>(over output: Semilattice<Output>) -> Self where Value == (Input) -> Output {
     Semilattice(
       apply: { f1, f2 in
         { output.apply(f1($0), f2($0)) }

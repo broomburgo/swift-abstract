@@ -1,9 +1,15 @@
-struct Heyting<A>: LatticeLike, Distributive, WithZero, WithOne, WithImplies {
-  let first: BoundedSemilattice<A>
-  let second: BoundedSemilattice<A>
-  let implies: (A, A) -> A
+public struct Heyting<Value>: LatticeLike, Distributive, WithZero, WithOne, WithImplies {
+  public var first: BoundedSemilattice<Value>
+  public var second: BoundedSemilattice<Value>
+  public var implies: (Value, Value) -> Value
 
-  static var laws: [Law<Self>] { [
+  public init(first: BoundedSemilattice<Value>, second: BoundedSemilattice<Value>, implies: @escaping (Value, Value) -> Value) {
+    self.first = first
+    self.second = second
+    self.implies = implies
+  }
+
+  public static var laws: [Law<Self>] { [
     .absorbability,
     .associativityOfFirst,
     .associativityOfSecond,
@@ -22,20 +28,17 @@ struct Heyting<A>: LatticeLike, Distributive, WithZero, WithOne, WithImplies {
 // MARK: - Initializers
 
 extension Heyting {
-  init<MoreSpecific>(from s: MoreSpecific) where
-    MoreSpecific: LatticeLike & Distributive & WithZero & WithOne & WithImplies,
-    MoreSpecific.A == A
-  {
+  public init(from root: some AlgebraicStructure<Value> & LatticeLike & Distributive & WithZero & WithOne & WithImplies) {
     self.init(
-      first: .init(from: s.first),
-      second: .init(from: s.second),
-      implies: s.implies
+      first: .init(from: root.first),
+      second: .init(from: root.second),
+      implies: root.implies
     )
   }
 }
 
-extension Heyting where A: Wrapper {
-  init(wrapping original: Heyting<A.Wrapped>) {
+extension Heyting where Value: Wrapper {
+  public init(wrapping original: Heyting<Value.Wrapped>) {
     self.init(
       first: .init(wrapping: original.first),
       second: .init(wrapping: original.second),

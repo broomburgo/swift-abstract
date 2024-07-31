@@ -1,8 +1,13 @@
-struct DistributiveLattice<A>: LatticeLike, Distributive {
-  let first: Semilattice<A>
-  let second: Semilattice<A>
+public struct DistributiveLattice<Value>: LatticeLike, Distributive {
+  public var first: Semilattice<Value>
+  public var second: Semilattice<Value>
 
-  static var laws: [Law<Self>] { [
+  public init(first: Semilattice<Value>, second: Semilattice<Value>) {
+    self.first = first
+    self.second = second
+  }
+
+  public static var laws: [Law<Self>] { [
     .absorbability,
     .associativityOfFirst,
     .associativityOfSecond,
@@ -18,19 +23,16 @@ struct DistributiveLattice<A>: LatticeLike, Distributive {
 // MARK: - Initializers
 
 extension DistributiveLattice {
-  init<MoreSpecific>(from s: MoreSpecific) where
-    MoreSpecific: LatticeLike & Distributive,
-    MoreSpecific.A == A
-  {
+  public init(from root: some AlgebraicStructure<Value> & LatticeLike & Distributive) {
     self.init(
-      first: .init(from: s.first),
-      second: .init(from: s.second)
+      first: .init(from: root.first),
+      second: .init(from: root.second)
     )
   }
 }
 
-extension DistributiveLattice where A: Wrapper {
-  init(wrapping original: DistributiveLattice<A.Wrapped>) {
+extension DistributiveLattice where Value: Wrapper {
+  public init(wrapping original: DistributiveLattice<Value.Wrapped>) {
     self.init(
       first: .init(wrapping: original.first),
       second: .init(wrapping: original.second)
